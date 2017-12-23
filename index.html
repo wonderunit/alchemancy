@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <style>
+
+    .container {
+      position: absolute;
+      top: 50px;
+    }
+
+
+    .button {
+      display: inline-block;
+      position: relative;
+      margin-top: 10px;
+      margin-right: 5px;
+      z-index: 99;
+      background: white;
+      color: black;
+      padding: 10px;
+      border-radius: 4px;
+      border: 3px solid grey;
+    }
+
+    .button:hover {
+      background: grey;
+    }
+  </style>
+</head>
+<body style="margin: 0; overflow: hidden;">
+
+  <div class="container">
+    <div class="row">
+      <div class="button" id="l-1">Layer 1</div>
+      <div class="button" id="l-2">Layer 2</div>
+      <div class="button" id="l-3">Layer 3</div>
+      <div class="button" id="clear">Clear Layer</div>
+    </div>
+    <div class="row">
+      <div class="button" id="b-1">Pencil</div>
+      <div class="button" id="b-2">Pen</div>
+    </div>
+    <div class="row">
+      <div class="button" id="c-1">Black</div>
+      <div class="button" id="c-2">Red</div>
+      <div class="button" id="c-3">Blue</div>
+      <div class="button" id="c-4">Green</div>
+    </div>
+    <div class="row">
+      <div class="button" id="s-1">Small</div>
+      <div class="button" id="s-2">Medium</div>
+      <div class="button" id="s-3">Large</div>
+      <div class="button" id="s-4">X-Large</div>
+    </div>
+    <div class="row">
+      <div class="button" id="o-1">10%</div>
+      <div class="button" id="o-2">30%</div>
+      <div class="button" id="o-3">50%</div>
+      <div class="button" id="o-4">80%</div>
+      <div class="button" id="o-5">100%</div>
+    </div>
+    <div class="row">
+      <div class="button" id="spin">Spin Canvas</div>
+    </div>
+
+
+    <div class="row">
+      
+    </div>
+
+</div>
+
+  <script src="src/js/vendor/pixi.min.js"></script>
+  <script src="src/js/vendor/stats.min.js"></script>
+  <script type="module" src="src/js/app.js"></script>
+</body>
+</html>
