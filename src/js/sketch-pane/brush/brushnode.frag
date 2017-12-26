@@ -4,6 +4,8 @@ uniform float uRed;
 uniform float uGreen;
 uniform float uBlue;
 
+uniform float uOpacity;
+
 uniform float u_size;
 uniform float u_texture_size;
 uniform float u_x_offset;
@@ -57,6 +59,6 @@ void main(){
   //gl_FragColor = texture2D(uSampler, vTextureCoord );
   //gl_FragColor = vec4(1.0,1.0,0.0,1.0);
    gl_FragColor = vec4(color,1);
-   gl_FragColor *= c.r * g.r * 1.0 * 0.6 + 0.0;
+   gl_FragColor *= c.r * g.r * uOpacity;
   //gl_FragColor = c;
 }

@@ -23,7 +23,7 @@ window.addEventListener("pointermove", function(e) {
 })
 
 window.addEventListener("keydown", function(e) {
-  console.log(e)
+  // console.log(e)
   switch (e.key) {
     case "1":
       sketchPane.color = {r: Math.random(),g: Math.random(),b: Math.random()}

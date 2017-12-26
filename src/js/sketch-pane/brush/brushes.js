@@ -14,6 +14,8 @@ const standardBrushes = [
     descriptiveName: "Pencil", // Name of the brush preset
     brushImage: "brush2", // Name alias of brush alpha
     grainImage: "grain1", // Name alias of brush grain texture
+    pressureOpacity: 1, // % Pressure affects opacity
+
   },
   
   {

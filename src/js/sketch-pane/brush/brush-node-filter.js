@@ -8,6 +8,7 @@ export default class BrushNodeFilter {
         uRed: {type: '1f', value: 0.5},
         uGreen: {type: '1f', value: 0.5},
         uBlue: {type: '1f', value: 0.5},
+        uOpacity: {type: '1f', value: 1},
         u_size: {type: '1f', value: 100},
         u_texture_size: {type: '1f', value: 100},
         u_x_offset: {type: '1f', value: 0},

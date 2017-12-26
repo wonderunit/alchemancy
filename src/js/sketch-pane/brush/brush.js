@@ -9,7 +9,7 @@ const defaultBrushSettings = {
   opacityMin: 0,
 
   // TEXTURES
-  brushImage: "brush2", // Name alias of brush alpha
+  brushImage: "flatbrush", // Name alias of brush alpha
   brushRotation: 0, // rotation of texture (0,90,180,270)
   brushImageInvert: false, // invert texture
   grainImage: "grain1", // Name alias of brush grain texture
@@ -24,12 +24,12 @@ const defaultBrushSettings = {
 
   // STYLUS
   azimuth: true, 
-  pressureOpacity: 0, // % Pressure affects opacity
-  pressureSize: 0, // % Pressure affects size
+  pressureOpacity: 1, // % Pressure affects opacity
+  pressureSize: 1, // % Pressure affects size
   tiltAngle: 0, // % the title angle affects the below params 
-  tiltOpacity: 0, // % opacity altered by the tilt
+  tiltOpacity: 1, // % opacity altered by the tilt
   tiltGradiation: 0, // % opacity is gradiated by the tilt
-  tiltSize: 0, // % size altered by the tilt
+  tiltSize: 1, // % size altered by the tilt
 
   orientToScreen: true, // orient the brush shape to the rotation of the screen
 

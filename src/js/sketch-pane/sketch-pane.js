@@ -42,7 +42,7 @@ export default class SketchPane {
     this.brush = this.brushes.brushes.default
 
     this.color = {r: 0, g: 0, b: 0}
-    this.size = 180
+    this.size = 100
     this.opacity = 0.6
     this.brushNodeFilter = new BrushNodeFilter()
 
@@ -78,7 +78,6 @@ export default class SketchPane {
 
     layers.forEach((layer)=> {
       PIXI.loader.add(layer, './src/img/layers/' + layer + '.png')
-      console.log(layer)
     })
     PIXI.loader.load((loader, resources)=>{
 
@@ -123,18 +122,35 @@ export default class SketchPane {
   addStrokeNode (r, g, b, size, opacity, x, y, pressure, angle, tilt, brush) {
 
     let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
-    let nodeSize = size
-    // = Math.floor(10 + (pressure*100))
-    //size = brushSize
-    //size = 500
+
+
+    let nodeSize = size - ((1-pressure)*size*brush.settings.pressureSize)
+    let tiltSizeMultiple = (((tilt/90.0)* brush.settings.tiltSize)*3)+1
+
+    nodeSize *= tiltSizeMultiple
+
+
+    let nodeOpacity = 1 - ((1-pressure) * brush.settings.pressureOpacity)
+    let tiltOpacity = 1 - ((tilt/90.0) * brush.settings.tiltOpacity)
+    nodeOpacity *= tiltOpacity    
+
+    let nodeRotation = (angle * Math.PI / 180.0) - this.sketchpaneContainer.rotation
+
+
+
     brushNodeSprite.width = nodeSize
     brushNodeSprite.height = nodeSize
+
+    console.log(tiltSizeMultiple)
 
     brushNodeSprite.position = new PIXI.Point(0, 0)
 
     this.brushNodeFilter.shader.uniforms.uRed = r
     this.brushNodeFilter.shader.uniforms.uGreen = g
     this.brushNodeFilter.shader.uniforms.uBlue = b
+    this.brushNodeFilter.shader.uniforms.uOpacity = nodeOpacity
+
+
     this.brushNodeFilter.shader.uniforms.u_texture_size = Util.nearestPow2(nodeSize)
     this.brushNodeFilter.shader.uniforms.u_size = nodeSize
     this.brushNodeFilter.shader.uniforms.u_x_offset = x
@@ -148,7 +164,7 @@ export default class SketchPane {
 
     let node = new PIXI.Sprite(renderTexture)
     node.position = new PIXI.Point(x, y)
-    node.rotation = Math.PI/4/4
+    node.rotation = nodeRotation
     //node.rotation = 0
     node.anchor.set(0.5)
 
@@ -176,7 +192,7 @@ export default class SketchPane {
       let y = (e.y - this.sketchpaneContainer.y)/this.sketchpaneContainer.scale.y + (this.height/2)
       let corrected = Util.rotatePoint(x, y, this.width/2, this.height/2, -this.sketchpaneContainer.rotation)
       let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
-      console.log(this.brush)
+      //console.log(this.brush)
       this.addStrokeNode(this.color.r, this.color.g, this.color.b, this.size, this.opacity, corrected.x, corrected.y, e.pressure, tiltAngle.angle, tiltAngle.tilt, this.brush)
     }
   }
