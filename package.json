@@ -1,0 +1,22 @@
+{
+  "name": "alchemancy",
+  "version": "1.0.0",
+  "description": "Alchemancy Mark III - Wonder Unit's drawing system",
+  "main": "",
+  "scripts": {
+    "start": "node_modules/http-server/bin/http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wonderunit/alchemancy.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/wonderunit/alchemancy/issues"
+  },
+  "homepage": "https://github.com/wonderunit/alchemancy#readme",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}

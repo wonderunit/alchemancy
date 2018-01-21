@@ -9,16 +9,16 @@ const defaultBrushSettings = {
   opacityMin: 0,
 
   // TEXTURES
-  brushImage: "flatbrush", // Name alias of brush alpha
+  brushImage: "brushcharcoal", // Name alias of brush alpha
   brushRotation: 0, // rotation of texture (0,90,180,270)
   brushImageInvert: false, // invert texture
-  grainImage: "grain1", // Name alias of brush grain texture
+  grainImage: "graingrid", // Name alias of brush grain texture
   grainRotation: 0,
   grainImageInvert: false,
 
   // GRAIN
   movement: 1, // % the grain is offset as the brush moves. 0 static. 100 rolling. 100 is like paper
-  scale: 0.3, // Scale of the grain texture. 0 super tiny, 100 super large
+  scale: 1, // Scale of the grain texture. 0 super tiny, 100 super large
   zoom: 0, // % Scale of the grain texture by the brush size.
   rotation: 0, // % Rotation grain rotation is multiplied by rotation
 

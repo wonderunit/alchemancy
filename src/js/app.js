@@ -2,6 +2,8 @@ import SketchPane from './sketch-pane/sketch-pane.js'
 
 const sketchPane = new SketchPane()
 
+window.sketchPane = sketchPane
+
 let stats = new Stats()
 stats.showPanel(0)
 document.body.appendChild(stats.dom)
@@ -62,63 +64,106 @@ document.getElementById('l-3').addEventListener("click", function(e) {
 })
 
 document.getElementById('b-1').addEventListener("click", function(e) {
-  sketchPane.brush = sketchPane.brushes.brushes.pen
-})
-
-document.getElementById('b-2').addEventListener("click", function(e) {
   sketchPane.brush = sketchPane.brushes.brushes.pencil
 })
 
+document.getElementById('b-2').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.pen
+})
+
+document.getElementById('b-3').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.charcoal
+})
+
+document.getElementById('b-4').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.watercolor
+})
+
+document.getElementById('b-5').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.clouds
+})
+
+document.getElementById('b-6').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.slate
+})
+
 document.getElementById('c-1').addEventListener("click", function(e) {
-  sketchPane.color = {r: 0,g: 0,b: 0}
+  let val = Math.random()*0.1
+  sketchPane.brushColor = {r: val,g: val,b: val}
 })
 
 document.getElementById('c-2').addEventListener("click", function(e) {
-  sketchPane.color = {r: 1,g: 0,b: 0}
+  let val = Math.random()*.4+.9
+  let val2 = Math.random()*.2+.4
+
+  sketchPane.brushColor = {r: val,g: val2,b: val2}
 })
 
 document.getElementById('c-3').addEventListener("click", function(e) {
-  sketchPane.color = {r: 0,g: 0,b: 1}
+  let val = Math.random()*.4+.4
+  let val2 = Math.random()*.4+.2
+
+  sketchPane.brushColor = {r: val2,g: val2,b: val}
 })
 
 document.getElementById('c-4').addEventListener("click", function(e) {
-  sketchPane.color = {r: 0,g: 1,b: 0}
+  let val = Math.random()*.4+.4
+  let val2 = Math.random()*.4+.2
+  sketchPane.brushColor = {r: val2,g: val,b: val2}
+})
+
+document.getElementById('c-5').addEventListener("click", function(e) {
+  let val = Math.random()*.4+.9
+  let val2 = Math.random()*.2+.2
+  sketchPane.brushColor = {r: val,g: val,b: val2}
+})
+
+document.getElementById('c-6').addEventListener("click", function(e) {
+  let val = Math.random()*.4+.6
+  let val2 = Math.random()*.4+.2
+  sketchPane.brushColor = {r: val,g: val/2,b: val2/4}
+})
+
+document.getElementById('c-7').addEventListener("click", function(e) {
+  let val = Math.random()*.4+.6
+  let val2 = Math.random()*.4+.2
+  sketchPane.brushColor = {r: 1,g: 1,b: 1}
 })
 
 document.getElementById('s-1').addEventListener("click", function(e) {
-  sketchPane.size = 5
+  sketchPane.brushSize = 6
 })
 
 document.getElementById('s-2').addEventListener("click", function(e) {
-  sketchPane.size = 15
+  sketchPane.brushSize = 20
 })
 
 document.getElementById('s-3').addEventListener("click", function(e) {
-  sketchPane.size = 105
+  sketchPane.brushSize = 40
 })
 
 document.getElementById('s-4').addEventListener("click", function(e) {
-  sketchPane.size = 515
+  sketchPane.brushSize = 100
 })
 
 document.getElementById('o-1').addEventListener("click", function(e) {
-  sketchPane.opacity = 0.1
+  sketchPane.brushOpacity = 0.1
 })
 
 document.getElementById('o-2').addEventListener("click", function(e) {
-  sketchPane.opacity = .3
+  sketchPane.brushOpacity = .3
 })
 
 document.getElementById('o-3').addEventListener("click", function(e) {
-  sketchPane.opacity = .5
+  sketchPane.brushOpacity = .5
 })
 
 document.getElementById('o-4').addEventListener("click", function(e) {
-  sketchPane.opacity = .8
+  sketchPane.brushOpacity = .8
 })
 
 document.getElementById('o-5').addEventListener("click", function(e) {
-  sketchPane.opacity = 1
+  sketchPane.brushOpacity = 1
 })
 
 document.getElementById('clear').addEventListener("click", function(e) {
