@@ -65,7 +65,7 @@ document.getElementById('l-3').addEventListener("click", function(e) {
 
 document.getElementById('b-1').addEventListener("click", function(e) {
   sketchPane.brush = sketchPane.brushes.brushes.pencil
-  sketchPane.brushSize = 2.5
+  sketchPane.brushSize = 4
   sketchPane.brushOpacity = .8
   sketchPane.brushColor = {r: 0.05,g: 0.05,b: 0.05}
 })
@@ -75,6 +75,16 @@ document.getElementById('b-2').addEventListener("click", function(e) {
   sketchPane.brushSize = 4
   sketchPane.brushOpacity = .9
   sketchPane.brushColor = {r: 0,g: 0,b: 0}
+
+})
+
+document.getElementById('b-copic').addEventListener("click", function(e) {
+  sketchPane.brush = sketchPane.brushes.brushes.copic
+  sketchPane.brushSize = 40
+  sketchPane.brushOpacity = .6
+  let val = 0.8
+  let val2 = 1
+  sketchPane.brushColor = {r: val,g: val,b: val2}
 
 })
 

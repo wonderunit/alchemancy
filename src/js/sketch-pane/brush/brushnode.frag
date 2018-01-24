@@ -41,6 +41,7 @@ void main(){
   vec2 texture_offset = -(vec2(u_x_offset, u_y_offset)/grain_scale);
   vec4 grainSample = texture2D(u_grainTex, rotate((texture_coord)- rotate(texture_offset,-uRotation),uRotation+uGrainRotation) );
   gl_FragColor = vec4(color,1);
-  gl_FragColor *= brushSample.r * ((grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
-  //gl_FragColor = vec4(grainSample.r,grainSample.r,grainSample.r,1);
+  gl_FragColor *= ((brushSample.r * grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
+  //gl_FragColor *= brushSample.r * ((grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
+
 }

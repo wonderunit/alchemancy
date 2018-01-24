@@ -12,15 +12,16 @@ const standardBrushes = [
   {
     name: "pencil", // Name of the brush preset
     descriptiveName: "Pencil", // Name of the brush preset
-    brushImage: "brushcharcoal", // Name alias of brush alpha
+    brushImage: "brushmediumoval", // Name alias of brush alpha
     grainImage: "grainpaper4", // Name alias of brush grain texture
     pressureOpacity: 0.7, // % Pressure affects opacity
     pressureSize: 0.8, // % Pressure affects opacity
-    scale: 1.5, // Scale of the grain texture. 0 super tiny, 100 super large
-    tiltOpacity: .9, // % opacity altered by the tilt
-    tiltSize: 2, // % size altered by the tilt
+    scale: .8, // Scale of the grain texture. 0 super tiny, 100 super large
+    tiltOpacity: .3, // % opacity altered by the tilt
+    tiltSize: 1, // % size altered by the tilt
     movement: 1,
     pressureBleed: 1,
+    spacing: 0.05, // spacing in between brush nodes
   },
 
   {
@@ -46,7 +47,20 @@ const standardBrushes = [
     tiltSize: 3.8,
     tiltOpacity: 1,
     movement: 0.9,
+    spacing: 0.05, // spacing in between brush nodes
 
+  },
+
+  {
+    name: "copic", // Name of the brush preset
+    descriptiveName: "Copic", // Name of the brush preset
+    brushImage: "brushmediumovalhallow", // Name alias of brush alpha
+    grainImage: "grainpaper2", // Name alias of brush grain texture
+    pressureOpacity: 0.2, // % Pressure affects opacity
+    pressureSize: .9, // % Pressure affects size
+    tiltSize: 1,
+    tiltOpacity: 1,
+    movement: 0.5,
   },
 
   {

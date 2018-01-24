@@ -166,7 +166,7 @@ export default class SketchPane {
       //antialias: false,
       //preserveDrawingBuffer: true,
       //transparent: true,
-      antialias: true, 
+      antialias: false, 
       //powerPreference: 'high-performance'
     })
 
