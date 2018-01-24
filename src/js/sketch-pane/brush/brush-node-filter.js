@@ -10,6 +10,7 @@ export default class BrushNodeFilter {
         uBlue: {type: '1f', value: 0.5},
         uOpacity: {type: '1f', value: 1},
         uRotation: {type: '1f', value: 0},
+        uBleed: {type: '1f', value: 0},
         uGrainRotation: {type: '1f', value: 0},
         uGrainScale: {type: '1f', value: 1},
         u_size: {type: '1f', value: 100},
@@ -21,7 +22,7 @@ export default class BrushNodeFilter {
         u_grainTex: {type: 'sampler2D', value: ''},
       }
       this.shader = new PIXI.Filter(null, resources['brushnode.frag'].data, uniforms)
-      this.shader.autoFit = false
+      //this.shader.autoFit = false
       this.shader.padding = 0
       this.shader.blendMode = PIXI.BLEND_MODES.NORMAL
     })

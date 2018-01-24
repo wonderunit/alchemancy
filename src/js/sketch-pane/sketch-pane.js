@@ -6,6 +6,7 @@ import BrushNodeFilter from './brush/brush-node-filter.js'
 
   TODO:
 
+  set size
 
 
   live drawing
@@ -26,13 +27,19 @@ export default class SketchPane {
 
   constructor() {
 
-    paper.setup()
 
 
     this.setup()
+
+    this.setSize(1200,900)
+    this.newLayer()
+    this.newLayer()
+    this.newLayer()
+
+
     //this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
-    this.loadLayers(['grid', 'layer01'])
-    this.strokeInput = []
+    //this.loadLayers(['grid', 'layer01'])
+    
 
     console.log("sup")
     setTimeout(()=>{
@@ -44,7 +51,109 @@ export default class SketchPane {
     }, 1000)
   }
 
+  saveLayer() {
+    console.log("SAVE!")
+
+//     //renderer.bindRenderTarget(textureBuffer)
+//     //console.log(BYTES_PER_PIXEL)
+//     const webglPixels = new Uint8Array(4 * this.width * this.height);
+
+//     console.log(this.app.renderer)
+
+//    const gl = this.app.renderer.view.getContext("webgl", {
+//   premultipliedAlpha: true, alpha: true  // Ask for non-premultiplied alpha
+// });
+
+
+//    let texture = (this.layerContainer.children[this.layer].texture.baseTexture._glTextures[0].texture)
+
+//   var fb = gl.createFramebuffer();
+//   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+
+// // gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+// gl.clearColor(1,1,1,1);
+// gl.clear(gl.COLOR_BUFFER_BIT);
+
+ 
+// // Turn off rendering to alpha
+// gl.colorMask(true, true, true, true);
+//  gl.enable(gl.BLEND);
+//  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+//   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+// //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+//  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+//   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+
+// // gl.disable(gl.BLEND);
+// //   gl.disable(gl.DEPTH_TEST);
+
+// //gl.enable(gl.BLEND);
+// //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+//   // this.app.renderer.bindRenderTexture(this.layerContainer.children[this.layer].texture)
+
+//     console.log(webglPixels)
+
+
+//     gl.readPixels(0,0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, webglPixels)
+
+//    console.log(webglPixels)
+
+//    const background = new PIXI.CanvasRenderTarget(this.width, this.height)
+//    const canvasData = background.context.getImageData(0, 0, this.width, this.height);
+//    console.log(canvasData)
+//    canvasData.data.set(webglPixels);
+//    background.context.putImageData(canvasData, 0, 0)
+
+//    console.log(background)
+//    document.body.appendChild(background.canvas)
+//    // new PIXI.extract.WebGLExtract()
+
+
+//     console.log()
+//     document.body.appendChild(this.app.renderer.plugins.extract.image(this.layerContainer.children[this.layer].texture))
+
+
+// const app = new PIXI.Application({transparent: true, backgroundColor: 0x000, width: 150, height: 150, preserveDrawingBuffer: true});
+
+
+// const graphics = new PIXI.Graphics()
+//     .beginFill(0xFFffcc,0.5)
+//     .drawCircle(0, 0, 50);
+
+
+// //app.renderer.render(graphics)
+// app.stage.position.set(0,0)
+//  app.stage.addChild(new PIXI.Sprite(this.layerContainer.children[this.layer].texture))
+//  app.stage.addChild(graphics)
+
+// // Render the graphics as an HTMLImageElement
+// //const image = app.renderer.plugins.extract.image(graphics);
+//  document.body.appendChild(app.view);
+//   console.log("asdasd")
+
+//  setTimeout(()=>{
+//   console.log("asdasd")
+//   console.log(app.view)
+//   const image = app.view.toDataURL()
+//   console.log(image)
+//   let i = new Image()
+//   i.src = image
+//   document.body.appendChild(i);
+
+//  }, 1000)
+
+//document.body.appendChild(this.app.renderer.plugins.extract.image(new PIXI.Sprite(this.layerContainer.children[this.layer].texture)))
+
+  }
+
+
   setup() {
+    paper.setup()
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
     PIXI.settings.MIPMAP_TEXTURES = true
@@ -54,13 +163,15 @@ export default class SketchPane {
     this.app = new PIXI.Application({
       width: window.innerWidth,
       height: window.innerHeight, 
-      antialias: false, 
-      //antialias: true, 
+      //antialias: false,
+      //preserveDrawingBuffer: true,
+      //transparent: true,
+      antialias: true, 
       //powerPreference: 'high-performance'
     })
 
     this.app.renderer.roundPixels = false
-    this.app.renderer.transparent = false
+    //this.app.renderer.transparent = true
     document.body.appendChild(this.app.view)
 
     this.brushes = brushes
@@ -69,6 +180,15 @@ export default class SketchPane {
     this.brushColor = {r: 0, g: 0, b: 0}
     this.brushSize = 49
     this.brushOpacity = .41
+
+  this.brush = this.brushes.brushes.pen
+  this.brushSize = 4
+  this.brushOpacity = .9
+  this.brushColor = {r: 0,g: 0,b: 0}
+
+
+
+
     this.brushNodeFilter = new BrushNodeFilter()
 
     this.sketchpaneContainer = new PIXI.Container()
@@ -84,6 +204,8 @@ export default class SketchPane {
     this.counter = 0
 
     this.brushRotation = 0
+
+    this.strokeInput = []
 
     this.app.ticker.add((e) => {
       //this.brushSize = Math.sin(this.counter/30)*200+300
@@ -102,6 +224,40 @@ export default class SketchPane {
 
     //this.spin = true
   }
+
+  setSize(width, height, color) {
+    this.width = width
+    this.height = height
+
+    let mask = new PIXI.Graphics()
+    mask.beginFill(0x0, 1)
+    mask.drawRect(0, 0, this.width, this.height)
+    mask.endFill()
+    this.layerContainer.mask = mask
+    this.sketchpaneContainer.addChild(mask)
+
+    if (!color) { color = 'white' }
+    let bgColor = tinycolor(color)
+    bgColor.toHex()
+    let background = new PIXI.Graphics();
+    background.beginFill('0x' + bgColor.toHex())
+    background.drawRect(0, 0, this.width, this.height)
+    background.endFill()
+    this.layerContainer.addChild(background)
+    this.centerContainer()
+  }
+
+  newLayer() {
+    this.layerContainer.position.set(0,0)
+    let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
+    //renderTexture.baseTexture.premultipliedAlpha = false
+    let renderTextureSprite = new PIXI.Sprite(renderTexture)
+    this.layerContainer.addChild(renderTextureSprite)
+    this.centerContainer()
+    this.layer = 1
+    this.layerContainer.setChildIndex(this.strokeContainer, this.layer+1)
+  }
+
 
   loadLayers(layers) {
     this.layers = layers
@@ -149,12 +305,12 @@ export default class SketchPane {
     this.app.renderer.render(this.strokeContainer, this.layerContainer.children[this.layer].texture, false)
   }
 
-  addStrokeNode (r, g, b, size, opacity, x, y, pressure, angle, tilt, brush) {
+  addStrokeNode (r, g, b, size, opacity, x, y, pressure, angle, tilt, brush, grainOffsetX, grainOffsetY) {
 
     let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
 
     let nodeSize = size - ((1-pressure)*size*brush.settings.pressureSize)
-    let tiltSizeMultiple = (((tilt/90.0)* brush.settings.tiltSize)*3)+1
+    let tiltSizeMultiple = ((Math.pow((tilt/90.0),2)* brush.settings.tiltSize)*3)+1
     nodeSize *= tiltSizeMultiple
     //nodeSize = this.brushSize
 
@@ -184,14 +340,16 @@ export default class SketchPane {
     this.brushNodeFilter.shader.uniforms.uOpacity = nodeOpacity
 
     this.brushNodeFilter.shader.uniforms.uRotation = -nodeRotation
+
+    this.brushNodeFilter.shader.uniforms.uBleed = Math.pow((1-pressure),1.6)*brush.settings.pressureBleed
     
     this.brushNodeFilter.shader.uniforms.uGrainRotation = brush.settings.rotation
     this.brushNodeFilter.shader.uniforms.uGrainScale = brush.settings.scale
 
     this.brushNodeFilter.shader.uniforms.u_texture_size = Util.nearestPow2(nodeSize)
     this.brushNodeFilter.shader.uniforms.u_size = nodeSize
-    this.brushNodeFilter.shader.uniforms.u_x_offset = x
-    this.brushNodeFilter.shader.uniforms.u_y_offset = y
+    this.brushNodeFilter.shader.uniforms.u_x_offset = (x+grainOffsetX) * brush.settings.movement
+    this.brushNodeFilter.shader.uniforms.u_y_offset = (y+grainOffsetY) * brush.settings.movement
 
     this.brushNodeFilter.shader.uniforms.u_brushTex = brushes.brushResources.resources[brush.settings.brushImage].texture
     this.brushNodeFilter.shader.uniforms.u_grainTex = brushes.brushResources.resources[brush.settings.grainImage].texture
@@ -199,7 +357,10 @@ export default class SketchPane {
     brushNodeSprite.filters = [this.brushNodeFilter.shader]
 
     let renderTexture = PIXI.RenderTexture.create(nodeSize, nodeSize)
+
     this.app.renderer.render(brushNodeSprite, renderTexture)
+
+    brushNodeSprite.filters = null
 
     let node = new PIXI.Sprite(renderTexture)
     node.position = new PIXI.Point(x, y)
@@ -248,7 +409,23 @@ export default class SketchPane {
 
     let currentSegment = 0
 
-    for (var i = 0; i < path.length; i+=3) {
+
+
+   // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
+
+
+    let spacing = Math.max(1, this.brushSize * this.brush.settings.spacing)
+
+    console.log(spacing)
+
+    let grainOffset = {x: 0, y: 0}
+    if (this.brush.settings.randomOffset) {
+      grainOffset.x = Math.floor(Math.random() * 100)
+      grainOffset.y = Math.floor(Math.random() * 100)
+    }
+
+
+    for (var i = 0; i < path.length; i+=spacing) {
       let point = path.getPointAt(i)
 
       for (var z = currentSegment; z < segmentLookup.length; z++) {
@@ -267,22 +444,34 @@ export default class SketchPane {
       let tilt = Util.lerp(this.strokeInput[currentSegment].tilt,this.strokeInput[currentSegment+1].tilt,segmentPercent)
 
 
-      this.addStrokeNode(this.brushColor.r, this.brushColor.g, this.brushColor.b, this.brushSize, this.brushOpacity, point.x, point.y, pressure, tiltAngle, tilt, this.brush)
+      this.addStrokeNode(this.brushColor.r, this.brushColor.g, this.brushColor.b, this.brushSize, this.brushOpacity, point.x, point.y, pressure, tiltAngle, tilt, this.brush, grainOffset.x, grainOffset.y)
     }
 
     this.stampStroke()
+
+    for (var i = 0; i < this.strokeContainer.children.length; i++) {
+      this.strokeContainer.children[i].destroy({children: true, texture: true, baseTexture: true})
+    }
+
+
+
+
     this.strokeContainer.removeChildren()
+
+
 
   }
 
   pointermove(e) {
+
     if (this.pointerDown) {
+      let pressure = e.pressure
       let x = (e.x - this.sketchpaneContainer.x)/this.sketchpaneContainer.scale.x + (this.width/2)
       let y = (e.y - this.sketchpaneContainer.y)/this.sketchpaneContainer.scale.y + (this.height/2)
       let corrected = Util.rotatePoint(x, y, this.width/2, this.height/2, -this.sketchpaneContainer.rotation)
       let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
-      this.addStrokeNode(this.brushColor.r, this.brushColor.g, this.brushColor.b, this.brushSize, this.brushOpacity, corrected.x, corrected.y, e.pressure, tiltAngle.angle, tiltAngle.tilt, this.brush)
-      this.strokeInput.push({x: corrected.x, y: corrected.y, pressure: e.pressure, tiltAngle: tiltAngle.angle, tilt: tiltAngle.tilt})
+      this.addStrokeNode(this.brushColor.r, this.brushColor.g, this.brushColor.b, this.brushSize, this.brushOpacity, corrected.x, corrected.y, pressure, tiltAngle.angle, tiltAngle.tilt, this.brush)
+      this.strokeInput.push({x: corrected.x, y: corrected.y, pressure: pressure, tiltAngle: tiltAngle.angle, tilt: tiltAngle.tilt})
     }
   }
 

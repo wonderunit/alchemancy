@@ -8,6 +8,9 @@ const defaultBrushSettings = {
   opacityMax: 1, // UI limit for opacity
   opacityMin: 0,
 
+  // STROKE
+  spacing: 0, // spacing in between brush nodes
+
   // TEXTURES
   brushImage: "brushcharcoal", // Name alias of brush alpha
   brushRotation: 0, // rotation of texture (0,90,180,270)
@@ -21,11 +24,13 @@ const defaultBrushSettings = {
   scale: 1, // Scale of the grain texture. 0 super tiny, 100 super large
   zoom: 0, // % Scale of the grain texture by the brush size.
   rotation: 0, // % Rotation grain rotation is multiplied by rotation
+  randomOffset: true, // on strokeDown, choose a random grain offset
 
   // STYLUS
   azimuth: true, 
   pressureOpacity: 1, // % Pressure affects opacity
   pressureSize: 1, // % Pressure affects size
+  pressureBleed: 0, // 
   tiltAngle: 0, // % the title angle affects the below params 
   tiltOpacity: 1, // % opacity altered by the tilt
   tiltGradiation: 0, // % opacity is gradiated by the tilt
