@@ -177,7 +177,6 @@ module.exports = class SketchPane {
     this.layerContainer.addChild(this.strokeContainer)
 
     this.tempStrokeContainer = new PIXI.Container()
-    this.sketchpaneContainer.addChild(this.tempStrokeContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
