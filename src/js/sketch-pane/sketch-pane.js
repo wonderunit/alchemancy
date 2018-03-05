@@ -399,18 +399,21 @@ module.exports = class SketchPane {
   pointerup (e) {
     this.pointerDown = false
 
-    // TODO flush remaining strokes to render texture and stamp
+    if (this.lastDrawnIndex < this.lastInputIndex) {
+      // render any remaining strokes
+      if (this.strokeInput.length >= 4) {
+        this.renderStroke(
+          this.strokeInput.slice(-4),
+          this.strokeContainer
+        )
+        this.stampStroke(
+          this.strokeContainer,
+          this.layerContainer.children[this.layer].texture
+        )
+      }
+    }
 
-    // this.renderStroke(
-    //   this.strokeInput,
-    //   this.strokeContainer
-    // )
-    // this.stampStroke(
-    //   this.strokeContainer,
-    //   this.layerContainer.children[this.layer].texture
-    // )
-
-    for (var i = 0; i < this.strokeContainer.children.length; i++) {
+    for (let i = 0; i < this.strokeContainer.children.length; i++) {
       this.strokeContainer.children[i].destroy({
         children: true,
         texture: true,
