@@ -399,14 +399,16 @@ module.exports = class SketchPane {
   pointerup (e) {
     this.pointerDown = false
 
-    this.renderStroke(
-      this.strokeInput,
-      this.strokeContainer
-    )
-    this.stampStroke(
-      this.strokeContainer,
-      this.layerContainer.children[this.layer].texture
-    )
+    // TODO flush remaining strokes to render texture and stamp
+
+    // this.renderStroke(
+    //   this.strokeInput,
+    //   this.strokeContainer
+    // )
+    // this.stampStroke(
+    //   this.strokeContainer,
+    //   this.layerContainer.children[this.layer].texture
+    // )
 
     for (var i = 0; i < this.strokeContainer.children.length; i++) {
       this.strokeContainer.children[i].destroy({
@@ -566,13 +568,19 @@ module.exports = class SketchPane {
           this.lastInputIndex
         )
 
-        // ... then render the most recent 4 as a stroke
+        // clear existing
+        this.tempStrokeContainer.removeChildren()
+
+        // ... render the most recent 4 as a stroke
         this.renderStroke(
           strokeInput,
           this.tempStrokeContainer
         )
-
-        // TODO stamp this to a texture
+        // TODO render to temp texture
+        this.stampStroke(
+          this.tempStrokeContainer,
+          this.layerContainer.children[this.layer].texture
+        )
 
         // ... and collect four more points, starting from the end point of this stroke
         this.lastDrawnIndex += 3
