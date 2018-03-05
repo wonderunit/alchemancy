@@ -1,6 +1,6 @@
-import Util from "./util.js"
-import brushes from './brush/brushes.js'
-import BrushNodeFilter from './brush/brush-node-filter.js'
+const Util = require('./util.js')
+const brushes = require('./brush/brushes.js')
+const BrushNodeFilter = require('./brush/brush-node-filter.js')
 
 /*
 
@@ -23,7 +23,7 @@ import BrushNodeFilter from './brush/brush-node-filter.js'
 
 */
 
-export default class SketchPane {
+module.exports = class SketchPane {
 
   constructor() {
 

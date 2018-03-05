@@ -1,5 +1,3 @@
-import SketchPane from './sketch-pane/sketch-pane.js'
-
 const sketchPane = new SketchPane()
 
 window.sketchPane = sketchPane

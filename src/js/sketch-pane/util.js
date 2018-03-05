@@ -1,4 +1,4 @@
-export default class Util {
+module.exports = class Util {
   
   static rotatePoint(pointX, pointY, originX, originY, angle) {
     return {

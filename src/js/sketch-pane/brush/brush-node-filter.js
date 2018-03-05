@@ -1,4 +1,4 @@
-export default class BrushNodeFilter {
+module.exports = class BrushNodeFilter {
 
   constructor() {
     const loader = new PIXI.loaders.Loader()
