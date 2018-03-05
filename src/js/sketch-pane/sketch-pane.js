@@ -36,7 +36,7 @@ module.exports = class SketchPane {
     // this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
     // this.loadLayers(['grid', 'layer01'])
 
-    console.log('sup!!')
+    console.log('sup')
     setTimeout(() => {
       console.log('hi')
     }, 1000)
@@ -284,10 +284,10 @@ module.exports = class SketchPane {
     )
   }
 
-  stampStroke () {
+  stampStroke (strokeContainer, texture) {
     this.app.renderer.render(
-      this.strokeContainer,
-      this.layerContainer.children[this.layer].texture,
+      strokeContainer,
+      texture,
       false
     )
   }
@@ -305,7 +305,8 @@ module.exports = class SketchPane {
     tilt,
     brush,
     grainOffsetX,
-    grainOffsetY
+    grainOffsetY,
+    strokeContainer
   ) {
     let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
 
@@ -374,7 +375,7 @@ module.exports = class SketchPane {
     node.rotation = nodeRotation
     node.anchor.set(0.5)
 
-    this.strokeContainer.addChild(node)
+    strokeContainer.addChild(node)
   }
 
   resize () {
@@ -389,17 +390,37 @@ module.exports = class SketchPane {
     this.pointerDown = true
 
     this.strokeInput = []
+    this.lastInputIndex = 0
+    this.lastDrawnIndex = 0
   }
 
   pointerup (e) {
     this.pointerDown = false
     this.strokeContainer.removeChildren()
 
-    console.log(this.strokeInput)
+    this.renderStroke(
+      this.strokeInput,
+      this.strokeContainer,
+      this.layerContainer.children[this.layer].texture
+    )
+
+    for (var i = 0; i < this.strokeContainer.children.length; i++) {
+      this.strokeContainer.children[i].destroy({
+        children: true,
+        texture: true,
+        baseTexture: true
+      })
+    }
+
+    this.strokeContainer.removeChildren()
+  }
+
+  getSmoothedStrokeNodeArgs (strokeInput) {
+    let smoothStrokeNodeArgs = []
 
     let path = new paper.Path()
-    for (let i = 0; i < this.strokeInput.length; i++) {
-      let inputNode = this.strokeInput[i]
+    for (let i = 0; i < strokeInput.length; i++) {
+      let inputNode = strokeInput[i]
       path.add(new paper.Point(inputNode.x, inputNode.y))
     }
     path.smooth()
@@ -408,13 +429,13 @@ module.exports = class SketchPane {
 
     let segmentLookup = []
 
-    console.log(path.length)
+    // console.log(path.length)
 
     for (let i = 0; i < path.segments.length; i++) {
       segmentLookup.push(path.segments[i].location.offset)
     }
 
-    console.log(segmentLookup)
+    // console.log(segmentLookup)
 
     let currentSegment = 0
 
@@ -422,7 +443,7 @@ module.exports = class SketchPane {
 
     let spacing = Math.max(1, this.brushSize * this.brush.settings.spacing)
 
-    console.log(spacing)
+    // console.log(spacing)
 
     let grainOffset = { x: 0, y: 0 }
     if (this.brush.settings.randomOffset) {
@@ -445,22 +466,22 @@ module.exports = class SketchPane {
         (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
 
       let pressure = Util.lerp(
-        this.strokeInput[currentSegment].pressure,
-        this.strokeInput[currentSegment + 1].pressure,
+        strokeInput[currentSegment].pressure,
+        strokeInput[currentSegment + 1].pressure,
         segmentPercent
       )
       let tiltAngle = Util.lerp(
-        this.strokeInput[currentSegment].tiltAngle,
-        this.strokeInput[currentSegment + 1].tiltAngle,
+        strokeInput[currentSegment].tiltAngle,
+        strokeInput[currentSegment + 1].tiltAngle,
         segmentPercent
       )
       let tilt = Util.lerp(
-        this.strokeInput[currentSegment].tilt,
-        this.strokeInput[currentSegment + 1].tilt,
+        strokeInput[currentSegment].tilt,
+        strokeInput[currentSegment + 1].tilt,
         segmentPercent
       )
 
-      this.addStrokeNode(
+      smoothStrokeNodeArgs.push([
         this.brushColor.r,
         this.brushColor.g,
         this.brushColor.b,
@@ -474,20 +495,21 @@ module.exports = class SketchPane {
         this.brush,
         grainOffset.x,
         grainOffset.y
-      )
+      ])
     }
 
-    this.stampStroke()
+    return smoothStrokeNodeArgs
+  }
 
-    for (var i = 0; i < this.strokeContainer.children.length; i++) {
-      this.strokeContainer.children[i].destroy({
-        children: true,
-        texture: true,
-        baseTexture: true
-      })
+  renderStroke (strokeInput, strokeContainer, texture) {
+    // console.log(strokeInput)
+
+    let strokeNodeArgs = this.getSmoothedStrokeNodeArgs(strokeInput)
+
+    for (let args of strokeNodeArgs) {
+      this.addStrokeNode(...args, strokeContainer)
     }
-
-    this.strokeContainer.removeChildren()
+    this.stampStroke(strokeContainer, texture)
   }
 
   pointermove (e) {
@@ -507,19 +529,21 @@ module.exports = class SketchPane {
         -this.sketchpaneContainer.rotation
       )
       let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
-      this.addStrokeNode(
-        this.brushColor.r,
-        this.brushColor.g,
-        this.brushColor.b,
-        this.brushSize,
-        this.brushOpacity,
-        corrected.x,
-        corrected.y,
-        pressure,
-        tiltAngle.angle,
-        tiltAngle.tilt,
-        this.brush
-      )
+
+      // this.addStrokeNode(
+      //   this.brushColor.r,
+      //   this.brushColor.g,
+      //   this.brushColor.b,
+      //   this.brushSize,
+      //   this.brushOpacity,
+      //   corrected.x,
+      //   corrected.y,
+      //   pressure,
+      //   tiltAngle.angle,
+      //   tiltAngle.tilt,
+      //   this.brush
+      // )
+
       this.strokeInput.push({
         x: corrected.x,
         y: corrected.y,
@@ -527,6 +551,25 @@ module.exports = class SketchPane {
         tiltAngle: tiltAngle.angle,
         tilt: tiltAngle.tilt
       })
+
+      this.lastInputIndex = this.strokeInput.length - 1
+      // collect at least 4 points ...
+      if (this.lastInputIndex - this.lastDrawnIndex > 3) {
+        let strokeInput = this.strokeInput.slice(
+          this.lastDrawnIndex,
+          this.lastInputIndex
+        )
+
+        // ... then render the most recent 4 as a stroke
+        this.renderStroke(
+          strokeInput,
+          this.strokeContainer,
+          this.layerContainer.children[this.layer].texture
+        )
+
+        // ... and collect four more points, starting from the end point of this stroke
+        this.lastDrawnIndex += 3
+      }
     }
   }
 
