@@ -9,5 +9,10 @@ module.exports = {
     library: 'SketchPane',
     libraryTarget: 'var',
     publicPath: '/dist'
+  },
+  serve: {
+    dev: {
+      publicPath: '/dist'
+    }
   }
 }
