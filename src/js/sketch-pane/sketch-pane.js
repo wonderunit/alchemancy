@@ -176,6 +176,9 @@ module.exports = class SketchPane {
     this.strokeContainer = new PIXI.Container()
     this.layerContainer.addChild(this.strokeContainer)
 
+    this.tempStrokeContainer = new PIXI.Container()
+    this.sketchpaneContainer.addChild(this.tempStrokeContainer)
+
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
 
@@ -396,10 +399,12 @@ module.exports = class SketchPane {
 
   pointerup (e) {
     this.pointerDown = false
-    this.strokeContainer.removeChildren()
 
     this.renderStroke(
       this.strokeInput,
+      this.strokeContainer
+    )
+    this.stampStroke(
       this.strokeContainer,
       this.layerContainer.children[this.layer].texture
     )
@@ -413,6 +418,9 @@ module.exports = class SketchPane {
     }
 
     this.strokeContainer.removeChildren()
+
+    // clear any old temp drawing
+    this.tempStrokeContainer.removeChildren()
   }
 
   getSmoothedStrokeNodeArgs (strokeInput) {
@@ -501,7 +509,7 @@ module.exports = class SketchPane {
     return smoothStrokeNodeArgs
   }
 
-  renderStroke (strokeInput, strokeContainer, texture) {
+  renderStroke (strokeInput, strokeContainer) {
     // console.log(strokeInput)
 
     let strokeNodeArgs = this.getSmoothedStrokeNodeArgs(strokeInput)
@@ -509,7 +517,6 @@ module.exports = class SketchPane {
     for (let args of strokeNodeArgs) {
       this.addStrokeNode(...args, strokeContainer)
     }
-    this.stampStroke(strokeContainer, texture)
   }
 
   pointermove (e) {
@@ -563,9 +570,10 @@ module.exports = class SketchPane {
         // ... then render the most recent 4 as a stroke
         this.renderStroke(
           strokeInput,
-          this.strokeContainer,
-          this.layerContainer.children[this.layer].texture
+          this.tempStrokeContainer
         )
+
+        // TODO stamp this to a texture
 
         // ... and collect four more points, starting from the end point of this stroke
         this.lastDrawnIndex += 3
