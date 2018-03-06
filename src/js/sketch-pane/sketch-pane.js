@@ -631,6 +631,8 @@ module.exports = class SketchPane {
     }
     this.liveStrokeContainer.removeChildren()
 
+    console.log('. added point at index', this.strokeInput.length - 1)
+
     if (forceRender) {
       this.renderStroke(
         this.strokeInput.slice(a, b),
@@ -653,6 +655,7 @@ module.exports = class SketchPane {
         this.strokeContainer,
         asBlue
       )
+      console.log('static', 'from index', a, 'to', lastStaticIndex + 1, 'length:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
 
       this.lastStaticIndex = lastStaticIndex
       a = lastStaticIndex
@@ -660,6 +663,8 @@ module.exports = class SketchPane {
 
     // do we have at least 4 points to render live?
     if ((b + 1) - a >= 4) {
+      console.log('live', 'from index', a, 'to', b, 'length:', this.strokeInput.slice(a, b + 1).length)
+
       // render the current stroke
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
