@@ -600,22 +600,22 @@ module.exports = class SketchPane {
   // render the live strokes
   renderLive (forceRender = false) {
     // point modifiers for debugging
-    // const asRed = args => {
-    //   args[0] = 1
-    //   return args
-    // }
-    // const asBlue = args => {
-    //   args[1] = 1
-    //   return args
-    // }
-    // const asGreen = args => {
-    //   args[2] = 1
-    //   return args
-    // }
-    const identity = args => args
-    const asRed = identity
-    const asBlue = identity
-    const asGreen = identity
+    const asRed = args => {
+      args[0] = 1
+      return args
+    }
+    const asGreen = args => {
+      args[1] = 1
+      return args
+    }
+    const asBlue = args => {
+      args[2] = 1
+      return args
+    }
+    // const identity = args => args
+    // const asRed = identity
+    // const asBlue = identity
+    // const asGreen = identity
 
     // at which index do we start and end?
     let a = this.lastStaticIndex
@@ -643,27 +643,28 @@ module.exports = class SketchPane {
     }
 
     // do we have 8 (or more) un-static points?
-    if (b - a >= 8) {
-      // grab all points before the last 4
+    if ((b + 1) - a >= 8) {
+      // grab points, stopping before the last 4
       let lastStaticIndex = b - 4
 
       // render them to the static container
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
         this.strokeContainer,
-        asGreen
+        asBlue
       )
 
       this.lastStaticIndex = lastStaticIndex
+      a = lastStaticIndex
     }
 
-    // do we have at least 4 points to render?
+    // do we have at least 4 points to render live?
     if ((b + 1) - a >= 4) {
       // render the current stroke
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         this.liveStrokeContainer,
-        asBlue
+        asGreen
       )
     }
   }
