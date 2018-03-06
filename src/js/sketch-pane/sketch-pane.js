@@ -397,48 +397,52 @@ module.exports = class SketchPane {
     this.strokeInput = []
     this.lastStaticIndex = 0
 
-    this.addMouseEventAsPoint(e)
-    this.renderLive()
+    if (e.target === this.app.view) {
+      this.addMouseEventAsPoint(e)
+      this.renderLive()
+    }
   }
 
   pointerup (e) {
-    if (this.pointerDown) {
-      this.addMouseEventAsPoint(e)
-      this.renderLive(!this.pointerDown)
+    if (e.target === this.app.view) {
+      if (this.pointerDown) {
+        this.addMouseEventAsPoint(e)
+        this.renderLive(true) // force
 
-      // stamp to layer texture
-      this.stampStroke(
-        this.strokeContainer,
-        this.layerContainer.children[this.layer].texture
-      )
+        // stamp to layer texture
+        this.stampStroke(
+          this.strokeContainer,
+          this.layerContainer.children[this.layer].texture
+        )
 
-      // cleanup
-      for (let child of this.strokeContainer.children) {
-        child.destroy({
-          children: true,
-          texture: true,
-          baseTexture: true
-        })
+        // cleanup
+        for (let child of this.strokeContainer.children) {
+          child.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true
+          })
+        }
+        this.strokeContainer.removeChildren()
+
+        for (let child of this.liveStrokeContainer.children) {
+          child.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true
+          })
+        }
+        this.liveStrokeContainer.removeChildren()
+
+        for (let child of this.strokeContainer.children) {
+          child.destroy({
+            children: true,
+            texture: true,
+            baseTexture: true
+          })
+        }
+        this.strokeContainer.removeChildren()
       }
-      this.strokeContainer.removeChildren()
-
-      for (let child of this.liveStrokeContainer.children) {
-        child.destroy({
-          children: true,
-          texture: true,
-          baseTexture: true
-        })
-      }
-      this.liveStrokeContainer.removeChildren()
-
-      for (let child of this.strokeContainer.children) {
-        child.destroy({
-          children: true,
-          texture: true,
-          baseTexture: true
-        })
-      }
-      this.strokeContainer.removeChildren()
     }
 
     this.pointerDown = false
@@ -585,9 +589,11 @@ module.exports = class SketchPane {
   }
 
   pointermove (e) {
-    if (this.pointerDown) {
-      this.addMouseEventAsPoint(e)
-      this.renderLive()
+    if (e.target === this.app.view) {
+      if (this.pointerDown) {
+        this.addMouseEventAsPoint(e)
+        this.renderLive()
+      }
     }
   }
 
