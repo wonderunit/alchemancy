@@ -565,19 +565,22 @@ module.exports = class SketchPane {
     )
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
-    // this.addStrokeNode(
-    //   this.brushColor.r,
-    //   this.brushColor.g,
-    //   this.brushColor.b,
-    //   this.brushSize,
-    //   this.brushOpacity,
-    //   corrected.x,
-    //   corrected.y,
-    //   pressure,
-    //   tiltAngle.angle,
-    //   tiltAngle.tilt,
-    //   this.brush
-    // )
+    this.addStrokeNode(
+      1, // this.brushColor.r,
+      0, // this.brushColor.g,
+      0, // this.brushColor.b,
+      this.brushSize * 2,
+      0.5, // this.brushOpacity,
+      corrected.x,
+      corrected.y,
+      pressure,
+      tiltAngle.angle,
+      tiltAngle.tilt,
+      this.brush,
+      0,
+      0,
+      this.strokeContainer
+    )
 
     this.strokeInput.push({
       x: corrected.x,
