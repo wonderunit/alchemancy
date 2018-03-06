@@ -534,17 +534,13 @@ module.exports = class SketchPane {
     return smoothStrokeNodeArgs
   }
 
-  renderStroke (strokeInput, strokeContainer, modifierFn = undefined) {
+  renderStroke (strokeInput, strokeContainer) {
     // console.log(strokeInput)
-
-    if (modifierFn == null) {
-      modifierFn = n => n
-    }
 
     let strokeNodeArgs = this.getSmoothedStrokeNodeArgs(strokeInput)
 
     for (let args of strokeNodeArgs) {
-      this.addStrokeNode(...modifierFn(args), strokeContainer)
+      this.addStrokeNode(...args, strokeContainer)
     }
   }
 
@@ -565,10 +561,13 @@ module.exports = class SketchPane {
     )
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
+    this.brushColor.r = 0
+    this.brushColor.g = 0
+    this.brushColor.b = 0
     this.addStrokeNode(
-      1, // this.brushColor.r,
-      0, // this.brushColor.g,
-      0, // this.brushColor.b,
+      this.brushColor.r,
+      this.brushColor.g,
+      this.brushColor.b,
       this.brushSize * 2,
       0.5, // this.brushOpacity,
       corrected.x,
@@ -602,24 +601,6 @@ module.exports = class SketchPane {
 
   // render the live strokes
   renderLive (forceRender = false) {
-    // point modifiers for debugging
-    const asRed = args => {
-      args[0] = 1
-      return args
-    }
-    const asGreen = args => {
-      args[1] = 1
-      return args
-    }
-    const asBlue = args => {
-      args[2] = 1
-      return args
-    }
-    // const identity = args => args
-    // const asRed = identity
-    // const asBlue = identity
-    // const asGreen = identity
-
     // at which index do we start and end?
     let a = this.lastStaticIndex
     let b = this.strokeInput.length - 1
@@ -637,10 +618,13 @@ module.exports = class SketchPane {
     console.log('. added point at index', this.strokeInput.length - 1)
 
     if (forceRender) {
+      this.brushColor.r = 1
+      this.brushColor.g = 0
+      this.brushColor.b = 0
+
       this.renderStroke(
         this.strokeInput.slice(a, b),
-        this.strokeContainer,
-        asRed
+        this.strokeContainer
       )
 
       this.lastStaticIndex = b
@@ -653,10 +637,12 @@ module.exports = class SketchPane {
       let lastStaticIndex = b - 4
 
       // render them to the static container
+      this.brushColor.r = 0
+      this.brushColor.g = 0
+      this.brushColor.b = 1
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
-        this.strokeContainer,
-        asBlue
+        this.strokeContainer
       )
       console.log('static', 'from index', a, 'to', lastStaticIndex + 1, 'length:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
 
@@ -669,10 +655,12 @@ module.exports = class SketchPane {
       console.log('live', 'from index', a, 'to', b, 'length:', this.strokeInput.slice(a, b + 1).length)
 
       // render the current stroke
+      this.brushColor.r = 0
+      this.brushColor.g = 1
+      this.brushColor.b = 0
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
-        this.liveStrokeContainer,
-        asGreen
+        this.liveStrokeContainer
       )
     }
   }
