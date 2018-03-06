@@ -173,10 +173,13 @@ module.exports = class SketchPane {
     this.layerContainer = new PIXI.Container()
     this.sketchpaneContainer.addChild(this.layerContainer)
 
+    // static stroke container
     this.strokeContainer = new PIXI.Container()
     this.layerContainer.addChild(this.strokeContainer)
 
-    this.tempStrokeContainer = new PIXI.Container()
+    // live stroke container
+    this.liveStrokeContainer = new PIXI.Container()
+    this.sketchpaneContainer.addChild(this.liveStrokeContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
@@ -392,39 +395,35 @@ module.exports = class SketchPane {
     this.pointerDown = true
 
     this.strokeInput = []
-    this.lastInputIndex = 0
-    this.lastDrawnIndex = 0
+    this.lastStaticIndex = 0
+
+    this.addMouseEventAsPoint(e)
+    this.renderLive()
   }
 
   pointerup (e) {
     this.pointerDown = false
 
-    if (this.lastDrawnIndex < this.lastInputIndex) {
-      // render any remaining strokes
-      if (this.strokeInput.length >= 4) {
-        this.renderStroke(
-          this.strokeInput.slice(-4),
-          this.strokeContainer
-        )
-        this.stampStroke(
-          this.strokeContainer,
-          this.layerContainer.children[this.layer].texture
-        )
-      }
-    }
+    this.addMouseEventAsPoint(e)
+    this.renderLive(!this.pointerDown)
 
-    for (let i = 0; i < this.strokeContainer.children.length; i++) {
-      this.strokeContainer.children[i].destroy({
+    // stamp to layer texture
+    this.stampStroke(
+      this.strokeContainer,
+      this.layerContainer.children[this.layer].texture
+    )
+
+    // cleanup
+    for (let child of this.strokeContainer.children) {
+      child.destroy({
         children: true,
         texture: true,
         baseTexture: true
       })
     }
-
     this.strokeContainer.removeChildren()
 
-    // clear any old temp drawing
-    this.tempStrokeContainer.removeChildren()
+    // TODO clear liveStrokeContainer
   }
 
   getSmoothedStrokeNodeArgs (strokeInput) {
@@ -513,81 +512,126 @@ module.exports = class SketchPane {
     return smoothStrokeNodeArgs
   }
 
-  renderStroke (strokeInput, strokeContainer) {
+  renderStroke (strokeInput, strokeContainer, modifierFn = undefined) {
     // console.log(strokeInput)
+
+    if (modifierFn == null) {
+      modifierFn = n => n
+    }
 
     let strokeNodeArgs = this.getSmoothedStrokeNodeArgs(strokeInput)
 
     for (let args of strokeNodeArgs) {
-      this.addStrokeNode(...args, strokeContainer)
+      this.addStrokeNode(...modifierFn(args), strokeContainer)
     }
+  }
+
+  addMouseEventAsPoint (e) {
+    let pressure = e.pressure
+    let x =
+      (e.x - this.sketchpaneContainer.x) / this.sketchpaneContainer.scale.x +
+      this.width / 2
+    let y =
+      (e.y - this.sketchpaneContainer.y) / this.sketchpaneContainer.scale.y +
+      this.height / 2
+    let corrected = Util.rotatePoint(
+      x,
+      y,
+      this.width / 2,
+      this.height / 2,
+      -this.sketchpaneContainer.rotation
+    )
+    let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
+
+    // this.addStrokeNode(
+    //   this.brushColor.r,
+    //   this.brushColor.g,
+    //   this.brushColor.b,
+    //   this.brushSize,
+    //   this.brushOpacity,
+    //   corrected.x,
+    //   corrected.y,
+    //   pressure,
+    //   tiltAngle.angle,
+    //   tiltAngle.tilt,
+    //   this.brush
+    // )
+
+    this.strokeInput.push({
+      x: corrected.x,
+      y: corrected.y,
+      pressure: pressure,
+      tiltAngle: tiltAngle.angle,
+      tilt: tiltAngle.tilt
+    })
   }
 
   pointermove (e) {
     if (this.pointerDown) {
-      let pressure = e.pressure
-      let x =
-        (e.x - this.sketchpaneContainer.x) / this.sketchpaneContainer.scale.x +
-        this.width / 2
-      let y =
-        (e.y - this.sketchpaneContainer.y) / this.sketchpaneContainer.scale.y +
-        this.height / 2
-      let corrected = Util.rotatePoint(
-        x,
-        y,
-        this.width / 2,
-        this.height / 2,
-        -this.sketchpaneContainer.rotation
-      )
-      let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
+      this.addMouseEventAsPoint(e)
+      this.renderLive()
+    }
+  }
 
-      // this.addStrokeNode(
-      //   this.brushColor.r,
-      //   this.brushColor.g,
-      //   this.brushColor.b,
-      //   this.brushSize,
-      //   this.brushOpacity,
-      //   corrected.x,
-      //   corrected.y,
-      //   pressure,
-      //   tiltAngle.angle,
-      //   tiltAngle.tilt,
-      //   this.brush
-      // )
+  // render the live strokes
+  renderLive (forceRender = false) {
+    // at which index do we start and end?
+    let a = this.lastStaticIndex
+    let b = this.strokeInput.length - 1
 
-      this.strokeInput.push({
-        x: corrected.x,
-        y: corrected.y,
-        pressure: pressure,
-        tiltAngle: tiltAngle.angle,
-        tilt: tiltAngle.tilt
+    // clear any existing sprites
+    for (let child of this.liveStrokeContainer.children) {
+      child.destroy({
+        children: true,
+        texture: true,
+        baseTexture: true
       })
+    }
+    this.liveStrokeContainer.removeChildren()
 
-      this.lastInputIndex = this.strokeInput.length - 1
-      // collect at least 4 points ...
-      if (this.lastInputIndex - this.lastDrawnIndex > 3) {
-        let strokeInput = this.strokeInput.slice(
-          this.lastDrawnIndex,
-          this.lastInputIndex
-        )
+    if (forceRender) {
+      this.renderStroke(
+        this.strokeInput.slice(a, b),
+        this.strokeContainer,
+        args => {
+          args[0] = 1
+          return args
+        }
+      )
 
-        // clear existing
-        this.tempStrokeContainer.removeChildren()
+      this.lastStaticIndex = b
+      return
+    }
 
-        // ... render the most recent 4 as a stroke
-        this.renderStroke(
-          strokeInput,
-          this.tempStrokeContainer
-        )
-        // TODO render to temp texture
-        this.stampStroke(
-          this.tempStrokeContainer,
-          this.layerContainer.children[this.layer].texture
-        )
+    // do we have 8 (or more) un-static points?
+    if (b - a >= 8) {
+      // grab all points before the last 4
+      let lastStaticIndex = b - 4
 
-        // ... and collect four more points, starting from the end point of this stroke
-        this.lastDrawnIndex += 3
-      }
+      // render them to the static container
+      this.renderStroke(
+        this.strokeInput.slice(a, lastStaticIndex + 1),
+        this.strokeContainer,
+        args => {
+          args[2] = 1
+          return args
+        }
+      )
+
+      this.lastStaticIndex = lastStaticIndex
+    }
+
+    // do we have at least 4 points to render?
+    if ((b + 1) - a >= 4) {
+      // render the current stroke
+      this.renderStroke(
+        this.strokeInput.slice(a, b + 1),
+        this.liveStrokeContainer,
+        args => {
+          args[1] = 1
+          return args
+        }
+      )
     }
   }
 
