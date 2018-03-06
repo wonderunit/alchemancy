@@ -402,28 +402,46 @@ module.exports = class SketchPane {
   }
 
   pointerup (e) {
-    this.pointerDown = false
+    if (this.pointerDown) {
+      this.addMouseEventAsPoint(e)
+      this.renderLive(!this.pointerDown)
 
-    this.addMouseEventAsPoint(e)
-    this.renderLive(!this.pointerDown)
+      // stamp to layer texture
+      this.stampStroke(
+        this.strokeContainer,
+        this.layerContainer.children[this.layer].texture
+      )
 
-    // stamp to layer texture
-    this.stampStroke(
-      this.strokeContainer,
-      this.layerContainer.children[this.layer].texture
-    )
+      // cleanup
+      for (let child of this.strokeContainer.children) {
+        child.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
+      }
+      this.strokeContainer.removeChildren()
 
-    // cleanup
-    for (let child of this.strokeContainer.children) {
-      child.destroy({
-        children: true,
-        texture: true,
-        baseTexture: true
-      })
+      for (let child of this.liveStrokeContainer.children) {
+        child.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
+      }
+      this.liveStrokeContainer.removeChildren()
+
+      for (let child of this.strokeContainer.children) {
+        child.destroy({
+          children: true,
+          texture: true,
+          baseTexture: true
+        })
+      }
+      this.strokeContainer.removeChildren()
     }
-    this.strokeContainer.removeChildren()
 
-    // TODO clear liveStrokeContainer
+    this.pointerDown = false
   }
 
   getSmoothedStrokeNodeArgs (strokeInput) {
@@ -575,6 +593,24 @@ module.exports = class SketchPane {
 
   // render the live strokes
   renderLive (forceRender = false) {
+    // point modifiers for debugging
+    // const asRed = args => {
+    //   args[0] = 1
+    //   return args
+    // }
+    // const asBlue = args => {
+    //   args[1] = 1
+    //   return args
+    // }
+    // const asGreen = args => {
+    //   args[2] = 1
+    //   return args
+    // }
+    const identity = args => args
+    const asRed = identity
+    const asBlue = identity
+    const asGreen = identity
+
     // at which index do we start and end?
     let a = this.lastStaticIndex
     let b = this.strokeInput.length - 1
@@ -593,10 +629,7 @@ module.exports = class SketchPane {
       this.renderStroke(
         this.strokeInput.slice(a, b),
         this.strokeContainer,
-        args => {
-          args[0] = 1
-          return args
-        }
+        asRed
       )
 
       this.lastStaticIndex = b
@@ -612,10 +645,7 @@ module.exports = class SketchPane {
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
         this.strokeContainer,
-        args => {
-          args[2] = 1
-          return args
-        }
+        asGreen
       )
 
       this.lastStaticIndex = lastStaticIndex
@@ -627,10 +657,7 @@ module.exports = class SketchPane {
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         this.liveStrokeContainer,
-        args => {
-          args[1] = 1
-          return args
-        }
+        asBlue
       )
     }
   }
