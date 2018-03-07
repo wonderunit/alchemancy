@@ -189,6 +189,7 @@ module.exports = class SketchPane {
     this.brushRotation = 0
 
     this.strokeInput = []
+    this.strokePath = undefined
 
     this.app.ticker.add(e => {
       // this.brushSize = Math.sin(this.counter/30)*200+300
@@ -395,6 +396,7 @@ module.exports = class SketchPane {
     this.pointerDown = true
 
     this.strokeInput = []
+    this.strokePath = new paper.Path()
     this.lastStaticIndex = 0
 
     if (e.target === this.app.view) {
@@ -579,6 +581,9 @@ module.exports = class SketchPane {
       tiltAngle: tiltAngle.angle,
       tilt: tiltAngle.tilt
     })
+
+    this.strokePath.add([x, y])
+    this.strokePath.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
   }
 
   pointermove (e) {
@@ -608,17 +613,6 @@ module.exports = class SketchPane {
 
     console.log('. added point at index', this.strokeInput.length - 1)
 
-
-
-    // TODO move this calculation somewhere else
-    let segments = this.strokeInput.map(i => [i.x, i.y])
-    let path = new paper.Path(segments)
-    console.log(path)
-    path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
-
-
-
-
     if (forceRender) {
       this.brushColor.r = 1
       this.brushColor.g = 0
@@ -626,7 +620,7 @@ module.exports = class SketchPane {
 
       this.renderStroke(
         this.strokeInput.slice(a, b),
-        new paper.Path(path.segments.slice(a, b)),
+        new paper.Path(this.strokePath.segments.slice(a, b)),
         this.strokeContainer
       )
 
@@ -645,7 +639,7 @@ module.exports = class SketchPane {
       this.brushColor.b = 1
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
-        new paper.Path(path.segments.slice(a, lastStaticIndex + 1)),
+        new paper.Path(this.strokePath.segments.slice(a, lastStaticIndex + 1)),
         this.strokeContainer
       )
       console.log('static', 'from index', a, 'to', lastStaticIndex + 1, 'length:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
@@ -664,7 +658,7 @@ module.exports = class SketchPane {
       this.brushColor.b = 0
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
-        new paper.Path(path.segments.slice(a, b + 1)),
+        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.liveStrokeContainer
       )
     }
