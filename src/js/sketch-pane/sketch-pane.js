@@ -25,23 +25,6 @@ const BrushNodeFilter = require('./brush/brush-node-filter.js')
 */
 
 module.exports = class SketchPane {
-  constructor () {
-    this.setup()
-
-    this.setSize(1200, 900)
-    this.newLayer()
-    this.newLayer()
-    this.newLayer()
-
-    // this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
-    // this.loadLayers(['grid', 'layer01'])
-
-    console.log('sup')
-    setTimeout(() => {
-      console.log('hi')
-    }, 1000)
-  }
-
   saveLayer () {
     console.log('SAVE!')
 
@@ -133,6 +116,22 @@ module.exports = class SketchPane {
     // document.body.appendChild(this.app.renderer.plugins.extract.image(new PIXI.Sprite(this.layerContainer.children[this.layer].texture)))
   }
 
+  async load () {
+    this.brushNodeFilter = new BrushNodeFilter(
+      './src/js/sketch-pane/brush/brushnode.frag'
+    )
+    await this.brushNodeFilter.load()
+
+    this.setup()
+
+    this.setSize(1200, 900)
+    this.newLayer()
+    this.newLayer()
+    this.newLayer()
+
+    // this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
+    // this.loadLayers(['grid', 'layer01'])
+  }
   setup () {
     paper.setup()
     PIXI.settings.FILTER_RESOLUTION = 1
@@ -166,8 +165,6 @@ module.exports = class SketchPane {
     this.brushSize = 4
     this.brushOpacity = 0.9
     this.brushColor = { r: 0, g: 0, b: 0 }
-
-    this.brushNodeFilter = new BrushNodeFilter()
 
     this.sketchpaneContainer = new PIXI.Container()
     this.layerContainer = new PIXI.Container()
