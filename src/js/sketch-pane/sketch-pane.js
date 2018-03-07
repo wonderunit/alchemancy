@@ -405,6 +405,16 @@ module.exports = class SketchPane {
     }
   }
 
+  pointermove (e) {
+    // to prevent off-canvas move events:
+    // if (e.target === this.app.view) return
+
+    if (this.pointerDown) {
+      this.addMouseEventAsPoint(e)
+      this.renderLive()
+    }
+  }
+
   pointerup (e) {
     if (e.target === this.app.view) {
       if (this.pointerDown) {
@@ -590,16 +600,6 @@ module.exports = class SketchPane {
 
     this.strokePath.add([x, y])
     this.strokePath.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
-  }
-
-  pointermove (e) {
-    // to prevent off-canvas move events:
-    // if (e.target === this.app.view) return
-
-    if (this.pointerDown) {
-      this.addMouseEventAsPoint(e)
-      this.renderLive()
-    }
   }
 
   // render the live strokes
