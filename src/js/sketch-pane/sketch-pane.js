@@ -409,7 +409,7 @@ module.exports = class SketchPane {
     if (e.target === this.app.view) {
       if (this.pointerDown) {
         this.addMouseEventAsPoint(e)
-        this.renderLive(true) // force
+        this.renderLive(true) // forceRender
 
         // stamp to layer texture
         this.stampStroke(
