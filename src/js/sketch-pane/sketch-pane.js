@@ -617,6 +617,7 @@ module.exports = class SketchPane {
 
     console.log('   add @', this.strokeInput.length - 1)
 
+    // forceRender is called on pointerup
     if (forceRender) {
       this.brushColor.r = 1
       this.brushColor.g = 0
