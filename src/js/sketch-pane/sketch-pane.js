@@ -652,10 +652,10 @@ module.exports = class SketchPane {
     if ((b + 1) - a >= 4) {
       console.log('live', 'from index', a, 'to', b, 'length:', this.strokeInput.slice(a, b + 1).length)
 
-      // render the current stroke
-      this.brushColor.r = 0
-      this.brushColor.g = 1
-      this.brushColor.b = 0
+      // render the current stroke live
+      this.brushColor.r = 1
+      this.brushColor.g = 0
+      this.brushColor.b = 1
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
