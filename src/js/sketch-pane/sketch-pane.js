@@ -448,15 +448,8 @@ module.exports = class SketchPane {
     this.pointerDown = false
   }
 
-  getSmoothedStrokeNodeArgs (strokeInput) {
-    let smoothStrokeNodeArgs = []
-
-    let path = new paper.Path()
-    for (let i = 0; i < strokeInput.length; i++) {
-      let inputNode = strokeInput[i]
-      path.add(new paper.Point(inputNode.x, inputNode.y))
-    }
-    path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
+  getInterpolatedStrokeInput (strokeInput, path) {
+    let interpolatedStrokeInput = []
 
     // get lookups for each segment so we know how to iterpolate
 
@@ -514,7 +507,7 @@ module.exports = class SketchPane {
         segmentPercent
       )
 
-      smoothStrokeNodeArgs.push([
+      interpolatedStrokeInput.push([
         this.brushColor.r,
         this.brushColor.g,
         this.brushColor.b,
@@ -531,15 +524,13 @@ module.exports = class SketchPane {
       ])
     }
 
-    return smoothStrokeNodeArgs
+    return interpolatedStrokeInput
   }
 
-  renderStroke (strokeInput, strokeContainer) {
-    // console.log(strokeInput)
+  renderStroke (strokeInput, path, strokeContainer) {
+    let interpolatedStrokeInput = this.getInterpolatedStrokeInput(strokeInput, path)
 
-    let strokeNodeArgs = this.getSmoothedStrokeNodeArgs(strokeInput)
-
-    for (let args of strokeNodeArgs) {
+    for (let args of interpolatedStrokeInput) {
       this.addStrokeNode(...args, strokeContainer)
     }
   }
@@ -617,6 +608,17 @@ module.exports = class SketchPane {
 
     console.log('. added point at index', this.strokeInput.length - 1)
 
+
+
+    // TODO move this calculation somewhere else
+    let segments = this.strokeInput.map(i => [i.x, i.y])
+    let path = new paper.Path(segments)
+    console.log(path)
+    path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
+
+
+
+
     if (forceRender) {
       this.brushColor.r = 1
       this.brushColor.g = 0
@@ -624,6 +626,7 @@ module.exports = class SketchPane {
 
       this.renderStroke(
         this.strokeInput.slice(a, b),
+        new paper.Path(path.segments.slice(a, b)),
         this.strokeContainer
       )
 
@@ -642,6 +645,7 @@ module.exports = class SketchPane {
       this.brushColor.b = 1
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
+        new paper.Path(path.segments.slice(a, lastStaticIndex + 1)),
         this.strokeContainer
       )
       console.log('static', 'from index', a, 'to', lastStaticIndex + 1, 'length:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
@@ -660,6 +664,7 @@ module.exports = class SketchPane {
       this.brushColor.b = 0
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
+        new paper.Path(path.segments.slice(a, b + 1)),
         this.liveStrokeContainer
       )
     }
