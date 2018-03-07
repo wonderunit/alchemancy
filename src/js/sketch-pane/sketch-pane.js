@@ -615,7 +615,7 @@ module.exports = class SketchPane {
     }
     this.liveStrokeContainer.removeChildren()
 
-    console.log('. added point at index', this.strokeInput.length - 1)
+    console.log('   add @', this.strokeInput.length - 1)
 
     if (forceRender) {
       this.brushColor.r = 1
@@ -646,7 +646,7 @@ module.exports = class SketchPane {
         new paper.Path(this.strokePath.segments.slice(a, lastStaticIndex + 1)),
         this.strokeContainer
       )
-      console.log('static', 'from index', a, 'to', lastStaticIndex + 1, 'length:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
+      console.log('static @', '[', a, '...', lastStaticIndex, ']', 'len:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
 
       this.lastStaticIndex = lastStaticIndex
       a = lastStaticIndex
@@ -654,7 +654,7 @@ module.exports = class SketchPane {
 
     // do we have at least 4 points to render live?
     if ((b + 1) - a >= 4) {
-      console.log('live', 'from index', a, 'to', b, 'length:', this.strokeInput.slice(a, b + 1).length)
+      console.log('  live @', '[', a, '...', b, ']', 'len:', this.strokeInput.slice(a, b + 1).length)
 
       // render the current stroke live
       this.brushColor.r = 1
