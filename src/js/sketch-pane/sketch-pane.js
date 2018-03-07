@@ -556,26 +556,29 @@ module.exports = class SketchPane {
     )
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
-    // debugger
-    this.brushColor.r = 0
-    this.brushColor.g = 0
-    this.brushColor.b = 0
-    this.addStrokeNode(
-      this.brushColor.r,
-      this.brushColor.g,
-      this.brushColor.b,
-      this.brushSize * 2,
-      0.5, // this.brushOpacity,
-      corrected.x,
-      corrected.y,
-      pressure,
-      tiltAngle.angle,
-      tiltAngle.tilt,
-      this.brush,
-      0,
-      0,
-      this.strokeContainer
-    )
+    // debug
+    // this.brushColor.r = 0
+    // this.brushColor.g = 0
+    // this.brushColor.b = 0
+    // this.addStrokeNode(
+    //   this.brushColor.r,
+    //   this.brushColor.g,
+    //   this.brushColor.b,
+    //   this.brushSize * 2,
+    //   0.5, // this.brushOpacity,
+    //   corrected.x,
+    //   corrected.y,
+    //   pressure,
+    //   tiltAngle.angle,
+    //   tiltAngle.tilt,
+    //   this.brush,
+    //   0,
+    //   0,
+    //   this.strokeContainer
+    // )
+
+    // this.lfo = this.lfo || new LFO()
+    // pressure = this.lfo.value
 
     this.strokeInput.push({
       x: corrected.x,
@@ -600,6 +603,7 @@ module.exports = class SketchPane {
   }
 
   // render the live strokes
+  // TODO instead of slices, could pass offset and length?
   renderLive (forceRender = false) {
     // at which index do we start and end?
     let a = this.lastStaticIndex
@@ -619,9 +623,10 @@ module.exports = class SketchPane {
 
     // forceRender is called on pointerup
     if (forceRender) {
-      this.brushColor.r = 1
-      this.brushColor.g = 0
-      this.brushColor.b = 0
+      // debug
+      // this.brushColor.r = 1
+      // this.brushColor.g = 0
+      // this.brushColor.b = 0
 
       if ((b + 1) - a <= 3) {
         // TODO handle this case
@@ -644,9 +649,12 @@ module.exports = class SketchPane {
       let lastStaticIndex = b - 4
 
       // render them to the static container
-      this.brushColor.r = 0
-      this.brushColor.g = 0
-      this.brushColor.b = 1
+
+      // debug
+      // this.brushColor.r = 0
+      // this.brushColor.g = 0
+      // this.brushColor.b = 1
+
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
         new paper.Path(this.strokePath.segments.slice(a, lastStaticIndex + 1)),
@@ -663,9 +671,11 @@ module.exports = class SketchPane {
       console.log('  live @', '[', a, '...', b, ']', 'len:', this.strokeInput.slice(a, b + 1).length)
 
       // render the current stroke live
-      this.brushColor.r = 1
-      this.brushColor.g = 0
-      this.brushColor.b = 1
+
+      // debug
+      // this.brushColor.r = 1
+      // this.brushColor.g = 0
+      // this.brushColor.b = 1
 
       //
       // TODO for 1...3 points (both live AND forceRender) render a curve?
