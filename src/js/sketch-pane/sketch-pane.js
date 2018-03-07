@@ -660,6 +660,11 @@ module.exports = class SketchPane {
       this.brushColor.r = 1
       this.brushColor.g = 0
       this.brushColor.b = 1
+
+      //
+      // TODO for 1...3 points (both live AND forceRender) render a curve?
+      //
+
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
