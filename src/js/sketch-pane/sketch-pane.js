@@ -554,6 +554,7 @@ module.exports = class SketchPane {
     )
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
+    // debugger
     this.brushColor.r = 0
     this.brushColor.g = 0
     this.brushColor.b = 0
