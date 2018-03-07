@@ -209,6 +209,14 @@ sketchPane.load()
       sketchPane.saveLayer()
     })
 
+    const onSpacingClick = e => {
+      sketchPane.brush.settings.spacing = parseFloat(e.target.textContent)
+    }
+    document.getElementById('spacing-1').addEventListener('click', onSpacingClick)
+    document.getElementById('spacing-2').addEventListener('click', onSpacingClick)
+    document.getElementById('spacing-3').addEventListener('click', onSpacingClick)
+    document.getElementById('spacing-4').addEventListener('click', onSpacingClick)
+    document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
 
     function animate() {
       stats.begin()
