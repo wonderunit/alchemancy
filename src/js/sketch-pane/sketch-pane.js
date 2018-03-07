@@ -456,7 +456,7 @@ module.exports = class SketchPane {
       let inputNode = strokeInput[i]
       path.add(new paper.Point(inputNode.x, inputNode.y))
     }
-    path.smooth('catmull-rom', 0.5) // centripetal
+    path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
 
     // get lookups for each segment so we know how to iterpolate
 
