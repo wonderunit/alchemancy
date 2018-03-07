@@ -460,7 +460,9 @@ module.exports = class SketchPane {
     // console.log(path.length)
 
     for (let i = 0; i < path.segments.length; i++) {
-      segmentLookup.push(path.segments[i].location.offset)
+      if (path.segments[i].location) {
+        segmentLookup.push(path.segments[i].location.offset)
+      }
     }
 
     // console.log(segmentLookup)
