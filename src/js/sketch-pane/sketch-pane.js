@@ -569,28 +569,28 @@ module.exports = class SketchPane {
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
     // debug
-    // this.brushColor.r = 0
-    // this.brushColor.g = 0
-    // this.brushColor.b = 0
-    // this.addStrokeNode(
-    //   this.brushColor.r,
-    //   this.brushColor.g,
-    //   this.brushColor.b,
-    //   this.brushSize * 2,
-    //   0.5, // this.brushOpacity,
-    //   corrected.x,
-    //   corrected.y,
-    //   pressure,
-    //   tiltAngle.angle,
-    //   tiltAngle.tilt,
-    //   this.brush,
-    //   0,
-    //   0,
-    //   this.strokeContainer
-    // )
 
     // this.lfo = this.lfo || new LFO()
     // pressure = this.lfo.value
+    this.brushColor.r = 0
+    this.brushColor.g = 0
+    this.brushColor.b = 0
+    this.addStrokeNode(
+      this.brushColor.r,
+      this.brushColor.g,
+      this.brushColor.b,
+      this.brushSize * 2,
+      0.5, // this.brushOpacity,
+      corrected.x,
+      corrected.y,
+      pressure,
+      tiltAngle.angle,
+      tiltAngle.tilt,
+      this.brush,
+      0,
+      0,
+      this.strokeContainer
+    )
 
     this.strokeInput.push({
       x: corrected.x,
@@ -626,9 +626,9 @@ module.exports = class SketchPane {
     // forceRender is called on pointerup
     if (forceRender) {
       // debug
-      // this.brushColor.r = 1
-      // this.brushColor.g = 0
-      // this.brushColor.b = 0
+      this.brushColor.r = 1
+      this.brushColor.g = 0
+      this.brushColor.b = 0
 
       if ((b + 1) - a <= 3) {
         // TODO handle this case
@@ -653,9 +653,9 @@ module.exports = class SketchPane {
       // render them to the static container
 
       // debug
-      // this.brushColor.r = 0
-      // this.brushColor.g = 0
-      // this.brushColor.b = 1
+      this.brushColor.r = 0
+      this.brushColor.g = 0
+      this.brushColor.b = 1
 
       this.renderStroke(
         this.strokeInput.slice(a, lastStaticIndex + 1),
@@ -675,9 +675,9 @@ module.exports = class SketchPane {
       // render the current stroke live
 
       // debug
-      // this.brushColor.r = 1
-      // this.brushColor.g = 0
-      // this.brushColor.b = 1
+      this.brushColor.r = 1
+      this.brushColor.g = 0
+      this.brushColor.b = 1
 
       //
       // TODO for 1...3 points (both live AND forceRender) render a curve?
