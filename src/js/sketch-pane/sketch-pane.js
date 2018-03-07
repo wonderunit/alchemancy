@@ -601,7 +601,7 @@ module.exports = class SketchPane {
     let a = this.lastStaticIndex
     let b = this.strokeInput.length - 1
 
-    // clear any existing sprites
+    // clear the live container of any existing sprites
     for (let child of this.liveStrokeContainer.children) {
       child.destroy({
         children: true,
