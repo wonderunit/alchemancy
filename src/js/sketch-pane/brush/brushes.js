@@ -138,8 +138,8 @@ standardBrushes.forEach((brush)=> {
   }
 })
 
-loader.load((loader, resources) => {
-})
+// loader.load((loader, resources) => {
+// })
 
 let value = {brushes: brushes, brushResources: loader}
 

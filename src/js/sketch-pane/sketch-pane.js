@@ -121,6 +121,11 @@ module.exports = class SketchPane {
       './src/js/sketch-pane/brush/brushnode.frag'
     )
     await this.brushNodeFilter.load()
+    await new Promise((resolve, reject) => {
+      brushes.brushResources.onComplete.add(resolve)
+      brushes.brushResources.onError.add(reject)
+      brushes.brushResources.load()
+    })
 
     this.setup()
 
