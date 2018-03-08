@@ -598,7 +598,14 @@ module.exports = class SketchPane {
       tilt: tiltAngle.tilt
     })
 
-    this.strokePath.add([x, y])
+    // only keep track of input that hasn't been rendered static yet
+    this.strokeInput = this.strokeInput.slice(
+      this.lastStaticIndex,
+      this.strokeInput.length
+    )
+    this.strokePath = new paper.Path(
+      this.strokeInput
+    )
     this.strokePath.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
   }
 
@@ -628,7 +635,7 @@ module.exports = class SketchPane {
       this.brushColor.b = 0
 
       let final = this.strokeInput.length - 1
-      let a = this.lastStaticIndex
+      let a = 0
       let b = final
 
       if ((b + 1) - a <= 1) {
@@ -636,6 +643,7 @@ module.exports = class SketchPane {
         return
       }
 
+      console.log('force  @', '[', a, '...', b, ']')
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
