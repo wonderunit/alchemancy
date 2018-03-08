@@ -576,7 +576,7 @@ module.exports = class SketchPane {
       this.brushColor.r,
       this.brushColor.g,
       this.brushColor.b,
-      this.brushSize * 2,
+      this.brushSize * 4,
       0.5, // this.brushOpacity,
       corrected.x,
       corrected.y,
