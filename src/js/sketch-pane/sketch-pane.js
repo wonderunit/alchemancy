@@ -623,6 +623,7 @@ module.exports = class SketchPane {
     // forceRender is called on pointerup
     if (forceRender) {
       // debug
+      this.brush.settings.spacing = 0.05
       this.brushColor.r = 1
       this.brushColor.g = 0
       this.brushColor.b = 0
@@ -650,6 +651,7 @@ module.exports = class SketchPane {
       // render them to the static container
 
       // debug
+      this.brush.settings.spacing = 0.05
       this.brushColor.r = 0
       this.brushColor.g = 0
       this.brushColor.b = 1
@@ -672,6 +674,7 @@ module.exports = class SketchPane {
       // render the current stroke live
 
       // debug
+      this.brush.settings.spacing = 1
       this.brushColor.r = 1
       this.brushColor.g = 0
       this.brushColor.b = 1
