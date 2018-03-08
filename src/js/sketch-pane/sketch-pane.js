@@ -424,43 +424,22 @@ module.exports = class SketchPane {
         this.addMouseEventAsPoint(e)
         this.renderLive(true) // forceRender
 
-        // stamp to layer texture
-        this.stampStroke(
-          this.strokeContainer,
-          this.layerContainer.children[this.layer].texture
-        )
-
-        // cleanup
-        for (let child of this.strokeContainer.children) {
-          child.destroy({
-            children: true,
-            texture: true,
-            baseTexture: true
-          })
-        }
-        this.strokeContainer.removeChildren()
-
-        for (let child of this.liveStrokeContainer.children) {
-          child.destroy({
-            children: true,
-            texture: true,
-            baseTexture: true
-          })
-        }
-        this.liveStrokeContainer.removeChildren()
-
-        for (let child of this.strokeContainer.children) {
-          child.destroy({
-            children: true,
-            texture: true,
-            baseTexture: true
-          })
-        }
-        this.strokeContainer.removeChildren()
+        this.disposeContainer(this.liveStrokeContainer)
       }
     }
 
     this.pointerDown = false
+  }
+
+  disposeContainer (container) {
+    for (let child of container.children) {
+      child.destroy({
+        children: true,
+        texture: true,
+        baseTexture: true
+      })
+    }
+    container.removeChildren()
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
@@ -614,16 +593,6 @@ module.exports = class SketchPane {
   renderLive (forceRender = false) {
     let len = this.strokeInput.length
 
-    // clear the live container of any existing sprites
-    for (let child of this.liveStrokeContainer.children) {
-      child.destroy({
-        children: true,
-        texture: true,
-        baseTexture: true
-      })
-    }
-    this.liveStrokeContainer.removeChildren()
-
     // debug
       // console.log('\n')
       // console.log('   add @', len - 1)
@@ -651,6 +620,14 @@ module.exports = class SketchPane {
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.strokeContainer
       )
+
+      // stamp to layer texture
+      this.stampStroke(
+        this.strokeContainer,
+        this.layerContainer.children[this.layer].texture
+      )
+      this.disposeContainer(this.strokeContainer)
+
       return
     }
 
@@ -673,6 +650,13 @@ module.exports = class SketchPane {
         this.strokeContainer
       )
 
+      // stamp to layer texture
+      this.stampStroke(
+        this.strokeContainer,
+        this.layerContainer.children[this.layer].texture
+      )
+      this.disposeContainer(this.strokeContainer)
+
       this.lastStaticIndex = b
 
       // debug
@@ -681,6 +665,8 @@ module.exports = class SketchPane {
 
     // can we render live?
     if (len >= 2) {
+      this.disposeContainer(this.liveStrokeContainer)
+
       let last = this.strokeInput.length - 1
       let a = last - 1
       let b = last
