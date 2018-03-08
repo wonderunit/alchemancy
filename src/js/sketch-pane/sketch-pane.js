@@ -192,6 +192,7 @@ module.exports = class SketchPane {
 
     this.strokeInput = []
     this.strokePath = undefined
+    this.lastStaticIndex = 0
 
     this.app.ticker.add(e => {
       // this.brushSize = Math.sin(this.counter/30)*200+300
@@ -399,6 +400,7 @@ module.exports = class SketchPane {
 
     this.strokeInput = []
     this.strokePath = new paper.Path()
+    this.lastStaticIndex = 0
 
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
@@ -620,22 +622,26 @@ module.exports = class SketchPane {
 
     // forceRender is called on pointerup
     if (forceRender) {
-      // // debug
-      // this.brush.settings.spacing = 0.05
-      // this.brushColor.r = 1
-      // this.brushColor.g = 0
-      // this.brushColor.b = 0
-      // 
-      // if ((b + 1) - a <= 1) {
-      //   // TODO handle this case
-      //   console.warn('fewer than 1, not drawn')
-      // }
-      // 
-      // this.renderStroke(
-      //   this.strokeInput.slice(a, b),
-      //   new paper.Path(this.strokePath.segments.slice(a, b)),
-      //   this.strokeContainer
-      // )
+      // debug
+      this.brush.settings.spacing = 0.05
+      this.brushColor.r = 1
+      this.brushColor.g = 0
+      this.brushColor.b = 0
+
+      let final = this.strokeInput.length - 1
+      let a = this.lastStaticIndex
+      let b = final
+
+      if ((b + 1) - a <= 1) {
+        console.warn('1 or fewer points remaining')
+        return
+      }
+
+      this.renderStroke(
+        this.strokeInput.slice(a, b + 1),
+        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
+        this.strokeContainer
+      )
       return
     }
 
@@ -658,6 +664,9 @@ module.exports = class SketchPane {
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.strokeContainer
       )
+
+      this.lastStaticIndex = b
+
       console.log('static @', '[', a, '...', b, ']')
     }
 
