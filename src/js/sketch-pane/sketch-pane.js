@@ -685,9 +685,9 @@ module.exports = class SketchPane {
       // TODO for 1...3 points (both live AND forceRender) render a curve?
       //
 
-      let tmpSize = this.brushSize
-      let tmpSpacing = this.brush.settings.spacing
       // debug
+        // let tmpSize = this.brushSize
+        // let tmpSpacing = this.brush.settings.spacing
         // this.brushSize *= 2
         // this.brush.settings.spacing = 1
       this.renderStroke(
@@ -695,8 +695,8 @@ module.exports = class SketchPane {
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.liveStrokeContainer
       )
-      this.brushSize = tmpSize
-      this.brush.settings.spacing = tmpSpacing
+        // this.brushSize = tmpSize
+        // this.brush.settings.spacing = tmpSpacing
     }
   }
 
