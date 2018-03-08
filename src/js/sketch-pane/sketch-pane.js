@@ -627,9 +627,9 @@ module.exports = class SketchPane {
       this.brushColor.g = 0
       this.brushColor.b = 0
 
-      if ((b + 1) - a <= 3) {
+      if ((b + 1) - a <= 1) {
         // TODO handle this case
-        console.warn('fewer than 4, not drawn')
+        console.warn('fewer than 1, not drawn')
       }
 
       this.renderStroke(
