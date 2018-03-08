@@ -577,7 +577,7 @@ module.exports = class SketchPane {
       this.brushColor.r,
       this.brushColor.g,
       this.brushColor.b,
-      this.brushSize * 4,
+      this.brushSize * 3,
       0.5, // this.brushOpacity,
       corrected.x,
       corrected.y,
@@ -623,7 +623,6 @@ module.exports = class SketchPane {
     // forceRender is called on pointerup
     if (forceRender) {
       // debug
-      this.brush.settings.spacing = 0.05
       this.brushColor.r = 1
       this.brushColor.g = 0
       this.brushColor.b = 0
@@ -654,7 +653,6 @@ module.exports = class SketchPane {
       // render to the static container
 
       // debug
-      this.brush.settings.spacing = 0.05
       this.brushColor.r = 0
       this.brushColor.g = 0
       this.brushColor.b = 1
@@ -681,7 +679,6 @@ module.exports = class SketchPane {
       // render the current stroke live
 
       // debug
-      this.brush.settings.spacing = 1
       this.brushColor.r = 1
       this.brushColor.g = 0
       this.brushColor.b = 1
@@ -691,13 +688,16 @@ module.exports = class SketchPane {
       //
 
       let tmpSize = this.brushSize
-      this.brushSize *= 4
+      let tmpSpacing = this.brush.settings.spacing
+      this.brushSize *= 2
+      this.brush.settings.spacing = 1
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.liveStrokeContainer
       )
       this.brushSize = tmpSize
+      this.brush.settings.spacing = tmpSpacing
     }
   }
 
