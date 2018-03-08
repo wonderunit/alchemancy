@@ -405,6 +405,8 @@ module.exports = class SketchPane {
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
       this.renderLive()
+
+      this.app.view.style.cursor = 'crosshair'
     }
   }
 
@@ -415,6 +417,7 @@ module.exports = class SketchPane {
     if (this.pointerDown) {
       this.addMouseEventAsPoint(e)
       this.renderLive()
+      this.app.view.style.cursor = 'crosshair'
     }
   }
 
@@ -429,6 +432,7 @@ module.exports = class SketchPane {
     }
 
     this.pointerDown = false
+    this.app.view.style.cursor = 'auto'
   }
 
   disposeContainer (container) {
