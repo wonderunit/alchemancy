@@ -570,25 +570,25 @@ module.exports = class SketchPane {
     let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
 
     // debug
-    this.brushColor.r = 0
-    this.brushColor.g = 0
-    this.brushColor.b = 0
-    this.addStrokeNode(
-      this.brushColor.r,
-      this.brushColor.g,
-      this.brushColor.b,
-      this.brushSize * 3,
-      0.5, // this.brushOpacity,
-      corrected.x,
-      corrected.y,
-      pressure,
-      tiltAngle.angle,
-      tiltAngle.tilt,
-      this.brush,
-      0,
-      0,
-      this.strokeContainer
-    )
+      // this.brushColor.r = 0
+      // this.brushColor.g = 0
+      // this.brushColor.b = 0
+      // this.addStrokeNode(
+      //   this.brushColor.r,
+      //   this.brushColor.g,
+      //   this.brushColor.b,
+      //   this.brushSize * 3,
+      //   0.5, // this.brushOpacity,
+      //   corrected.x,
+      //   corrected.y,
+      //   pressure,
+      //   tiltAngle.angle,
+      //   tiltAngle.tilt,
+      //   this.brush,
+      //   0,
+      //   0,
+      //   this.strokeContainer
+      // )
 
     this.strokeInput.push({
       x: corrected.x,
@@ -624,15 +624,16 @@ module.exports = class SketchPane {
     }
     this.liveStrokeContainer.removeChildren()
 
-    console.log('\n')
-    console.log('   add @', len - 1)
+    // debug
+      // console.log('\n')
+      // console.log('   add @', len - 1)
 
     // forceRender is called on pointerup
     if (forceRender) {
       // debug
-      this.brushColor.r = 1
-      this.brushColor.g = 0
-      this.brushColor.b = 0
+        // this.brushColor.r = 1
+        // this.brushColor.g = 0
+        // this.brushColor.b = 0
 
       let final = this.strokeInput.length - 1
       let a = 0
@@ -643,7 +644,8 @@ module.exports = class SketchPane {
         return
       }
 
-      console.log('force  @', '[', a, '...', b, ']')
+      // debug
+        // console.log('force  @', '[', a, '...', b, ']')
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
@@ -661,9 +663,9 @@ module.exports = class SketchPane {
       // render to the static container
 
       // debug
-      this.brushColor.r = 0
-      this.brushColor.g = 0
-      this.brushColor.b = 1
+        // this.brushColor.r = 0
+        // this.brushColor.g = 0
+        // this.brushColor.b = 1
 
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
@@ -673,7 +675,8 @@ module.exports = class SketchPane {
 
       this.lastStaticIndex = b
 
-      console.log('static @', '[', a, '...', b, ']')
+      // debug
+        // console.log('static @', '[', a, '...', b, ']')
     }
 
     // can we render live?
@@ -682,14 +685,15 @@ module.exports = class SketchPane {
       let a = last - 1
       let b = last
 
-      console.log('  live @', '[', a, '...', b, ']')
+      // debug
+        // console.log('  live @', '[', a, '...', b, ']')
 
       // render the current stroke live
 
       // debug
-      this.brushColor.r = 1
-      this.brushColor.g = 0
-      this.brushColor.b = 1
+        // this.brushColor.r = 1
+        // this.brushColor.g = 0
+        // this.brushColor.b = 1
 
       //
       // TODO for 1...3 points (both live AND forceRender) render a curve?
@@ -697,8 +701,9 @@ module.exports = class SketchPane {
 
       let tmpSize = this.brushSize
       let tmpSpacing = this.brush.settings.spacing
-      this.brushSize *= 2
-      this.brush.settings.spacing = 1
+      // debug
+        // this.brushSize *= 2
+        // this.brush.settings.spacing = 1
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
