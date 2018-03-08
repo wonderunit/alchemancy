@@ -399,7 +399,6 @@ module.exports = class SketchPane {
 
     this.strokeInput = []
     this.strokePath = new paper.Path()
-    this.lastStaticIndex = 0
 
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
@@ -604,9 +603,7 @@ module.exports = class SketchPane {
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
   renderLive (forceRender = false) {
-    // at which index do we start and end?
-    let a = this.lastStaticIndex
-    let b = this.strokeInput.length - 1
+    let len = this.strokeInput.length
 
     // clear the live container of any existing sprites
     for (let child of this.liveStrokeContainer.children) {
@@ -618,37 +615,37 @@ module.exports = class SketchPane {
     }
     this.liveStrokeContainer.removeChildren()
 
-    console.log('   add @', this.strokeInput.length - 1)
+    console.log('\n')
+    console.log('   add @', len - 1)
 
     // forceRender is called on pointerup
     if (forceRender) {
-      // debug
-      this.brush.settings.spacing = 0.05
-      this.brushColor.r = 1
-      this.brushColor.g = 0
-      this.brushColor.b = 0
-
-      if ((b + 1) - a <= 1) {
-        // TODO handle this case
-        console.warn('fewer than 1, not drawn')
-      }
-
-      this.renderStroke(
-        this.strokeInput.slice(a, b),
-        new paper.Path(this.strokePath.segments.slice(a, b)),
-        this.strokeContainer
-      )
-
-      this.lastStaticIndex = b
+      // // debug
+      // this.brush.settings.spacing = 0.05
+      // this.brushColor.r = 1
+      // this.brushColor.g = 0
+      // this.brushColor.b = 0
+      // 
+      // if ((b + 1) - a <= 1) {
+      //   // TODO handle this case
+      //   console.warn('fewer than 1, not drawn')
+      // }
+      // 
+      // this.renderStroke(
+      //   this.strokeInput.slice(a, b),
+      //   new paper.Path(this.strokePath.segments.slice(a, b)),
+      //   this.strokeContainer
+      // )
       return
     }
 
-    // do we have 8 (or more) un-static points?
-    if ((b + 1) - a >= 8) {
-      // grab points, stopping before the last 4
-      let lastStaticIndex = b - 4
+    // can we render static?
+    if (len >= 3) {
+      let last = this.strokeInput.length - 1
+      let a = last - 2
+      let b = last - 1
 
-      // render them to the static container
+      // render to the static container
 
       // debug
       this.brush.settings.spacing = 0.05
@@ -657,19 +654,20 @@ module.exports = class SketchPane {
       this.brushColor.b = 1
 
       this.renderStroke(
-        this.strokeInput.slice(a, lastStaticIndex + 1),
-        new paper.Path(this.strokePath.segments.slice(a, lastStaticIndex + 1)),
+        this.strokeInput.slice(a, b + 1),
+        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.strokeContainer
       )
-      console.log('static @', '[', a, '...', lastStaticIndex, ']', 'len:', this.strokeInput.slice(a, lastStaticIndex + 1).length)
-
-      this.lastStaticIndex = lastStaticIndex
-      a = lastStaticIndex
+      console.log('static @', '[', a, '...', b, ']')
     }
 
-    // do we have at least 4 points to render live?
-    if ((b + 1) - a >= 4) {
-      console.log('  live @', '[', a, '...', b, ']', 'len:', this.strokeInput.slice(a, b + 1).length)
+    // can we render live?
+    if (len >= 2) {
+      let last = this.strokeInput.length - 1
+      let a = last - 1
+      let b = last
+
+      console.log('  live @', '[', a, '...', b, ']')
 
       // render the current stroke live
 
