@@ -373,18 +373,25 @@ module.exports = class SketchPane {
 
     brushNodeSprite.filters = [this.brushNodeFilter.shader]
 
-    let renderTexture = PIXI.RenderTexture.create(nodeSize, nodeSize)
+    // skipping this render to texture step for now ...
+    //
+    // this.renderTexture = PIXI.RenderTexture.create(nodeSize, nodeSize)
+    // 
+    // this.app.renderer.render(brushNodeSprite, this.renderTexture)
+    // 
+    // brushNodeSprite.filters = null
+    // 
+    // let node = new PIXI.Sprite(this.renderTexture)
+    // node.position = new PIXI.Point(x, y)
+    // node.rotation = nodeRotation
+    // node.anchor.set(0.5)
+    // 
+    // strokeContainer.addChild(node)
 
-    this.app.renderer.render(brushNodeSprite, renderTexture)
-
-    brushNodeSprite.filters = null
-
-    let node = new PIXI.Sprite(renderTexture)
-    node.position = new PIXI.Point(x, y)
-    node.rotation = nodeRotation
-    node.anchor.set(0.5)
-
-    strokeContainer.addChild(node)
+    brushNodeSprite.position = new PIXI.Point(x, y)
+    brushNodeSprite.rotation = nodeRotation
+    brushNodeSprite.anchor.set(0.5)
+    strokeContainer.addChild(brushNodeSprite)
   }
 
   resize () {
