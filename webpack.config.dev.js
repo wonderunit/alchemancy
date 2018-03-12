@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: './src/js/index.js',
   output: {
     filename: 'sketch-pane.js',
