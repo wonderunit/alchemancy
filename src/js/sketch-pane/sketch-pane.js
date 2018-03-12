@@ -143,7 +143,7 @@ module.exports = class SketchPane {
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
     PIXI.settings.MIPMAP_TEXTURES = true
-    PIXI.settings.WRAP_MODE = PIXI.WRAP_MODES.REPEAT
+    PIXI.settings.WRAP_MODE = PIXI.WRAP_MODES.CLAMP // PIXI.WRAP_MODES.REPEAT
     PIXI.utils.skipHello()
 
     this.app = new PIXI.Application({
@@ -157,6 +157,7 @@ module.exports = class SketchPane {
     })
 
     this.app.renderer.roundPixels = false
+
     // this.app.renderer.transparent = true
     document.body.appendChild(this.app.view)
 
@@ -400,6 +401,13 @@ module.exports = class SketchPane {
     this.brushNodeFilter.shader.uniforms.u_y_offset =
       (y + grainOffsetY) * brush.settings.movement
 
+    let iX = Math.round(x)
+    let iY = Math.round(y)
+    let oX = iX - x
+    let oY = iY - y
+    // console.log(x, y, 'to', iX, iY, 'change of', oX, oY)
+    this.brushNodeFilter.shader.uniforms.u_offset_px = [oX, oY] // [Math.random() * 2 - 1, Math.random() * 2 - 1]
+
     //
     // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     // pulling from a placed sprite to get the texture
@@ -459,8 +467,8 @@ module.exports = class SketchPane {
     // node.anchor.set(0.5)
     // 
     // strokeContainer.addChild(node)
+    brushNodeSprite.position = new PIXI.Point(iX, iY)
 
-    brushNodeSprite.position = new PIXI.Point(x, y)
     brushNodeSprite.rotation = nodeRotation
     brushNodeSprite.anchor.set(0.5)
     strokeContainer.addChild(brushNodeSprite)

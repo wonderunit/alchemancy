@@ -28,6 +28,8 @@ module.exports = class BrushNodeFilter {
           u_brushTex: { type: 'sampler2D', value: '' },
           u_grainTex: { type: 'sampler2D', value: '' },
 
+          u_offset_px: { type: 'vec2', value: [0, 0] },
+
           dimensions: { type: 'vec2', value: [0, 0] }
         }
         this.shader = new PIXI.Filter(null, resources['brushnode.frag'].data, uniforms)
