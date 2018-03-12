@@ -662,7 +662,7 @@ module.exports = class SketchPane {
 
     // only keep track of input that hasn't been rendered static yet
     this.strokeInput = this.strokeInput.slice(
-      this.lastStaticIndex,
+      Math.max(0, this.lastStaticIndex - 2),
       this.strokeInput.length
     )
     this.strokePath = new paper.Path(
