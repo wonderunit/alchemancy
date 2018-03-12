@@ -128,6 +128,7 @@ module.exports = class SketchPane {
     })
 
     this.setup()
+    this.loadTextureSprites({ brushImagePath: '/src/img/brush' })
 
     this.setSize(1200, 900)
     this.newLayer()
@@ -172,16 +173,22 @@ module.exports = class SketchPane {
     this.brushColor = { r: 0, g: 0, b: 0 }
 
     this.sketchpaneContainer = new PIXI.Container()
+
+    // layer
     this.layerContainer = new PIXI.Container()
     this.sketchpaneContainer.addChild(this.layerContainer)
 
-    // static stroke container
+    // static stroke
     this.strokeContainer = new PIXI.Container()
     this.layerContainer.addChild(this.strokeContainer)
 
-    // live stroke container
+    // live stroke
     this.liveStrokeContainer = new PIXI.Container()
     this.sketchpaneContainer.addChild(this.liveStrokeContainer)
+
+    // sprites used only to get texture transformation matrix
+    this.unrenderableContainer = new PIXI.Container()
+    this.sketchpaneContainer.addChild(this.unrenderableContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
@@ -293,6 +300,27 @@ module.exports = class SketchPane {
     )
   }
 
+  // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+  // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
+  loadTextureSprites ({ brushImagePath }) {
+    const addUnrenderableSpriteByName = name => {
+      let sprite = PIXI.Sprite.fromImage(`${brushImagePath}/${name}.png`)
+      sprite.renderable = false
+      this.unrenderableContainer.addChild(sprite)
+      return sprite
+    }
+
+    this.brushImageSprites = [...new Set(Object.values(brushes.brushes).map(b => b.settings.brushImage))].reduce(
+        (o, brushImage) => Object.assign(o, { [brushImage]: addUnrenderableSpriteByName(brushImage) }),
+        {}
+      )
+
+    this.grainImageSprites = [...new Set(Object.values(brushes.brushes).map(b => b.settings.grainImage))].reduce(
+        (o, grainImage) => Object.assign(o, { [grainImage]: addUnrenderableSpriteByName(grainImage) }),
+        {}
+      )
+  }
+
   stampStroke (strokeContainer, texture) {
     this.app.renderer.render(
       strokeContainer,
@@ -343,6 +371,9 @@ module.exports = class SketchPane {
 
     brushNodeSprite.position = new PIXI.Point(0, 0)
 
+    // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+    this.brushNodeFilter.filterArea = this.app.screen
+
     this.brushNodeFilter.shader.uniforms.uRed = r
     this.brushNodeFilter.shader.uniforms.uGreen = g
     this.brushNodeFilter.shader.uniforms.uBlue = b
@@ -357,21 +388,62 @@ module.exports = class SketchPane {
       brush.settings.rotation
     this.brushNodeFilter.shader.uniforms.uGrainScale = brush.settings.scale
 
+    // DEPRECATED
     this.brushNodeFilter.shader.uniforms.u_texture_size = Util.nearestPow2(
       nodeSize
     )
     this.brushNodeFilter.shader.uniforms.u_size = nodeSize
+    //
+
     this.brushNodeFilter.shader.uniforms.u_x_offset =
       (x + grainOffsetX) * brush.settings.movement
     this.brushNodeFilter.shader.uniforms.u_y_offset =
       (y + grainOffsetY) * brush.settings.movement
 
+    //
+    // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+    // pulling from a placed sprite to get the texture
+    // TODO does it make a difference?
     this.brushNodeFilter.shader.uniforms.u_brushTex =
-      brushes.brushResources.resources[brush.settings.brushImage].texture
+      this.brushImageSprites[brush.settings.brushImage]._texture
+
     this.brushNodeFilter.shader.uniforms.u_grainTex =
-      brushes.brushResources.resources[brush.settings.grainImage].texture
+      this.grainImageSprites[brush.settings.grainImage]._texture
+
+    // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+    let self = this.brushNodeFilter.shader
+    self.apply = (filterManager, input, output, clear) => {
+      self.uniforms.dimensions[0] = input.sourceFrame.width
+      self.uniforms.dimensions[1] = input.sourceFrame.height
+
+      // TODO use this
+      self.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(
+        new PIXI.Matrix(),
+        this.brushImageSprites[brush.settings.brushImage]
+      )
+
+      // TODO use this
+      self.uniforms.grainFilterMatrix = filterManager.calculateSpriteMatrix(
+        new PIXI.Matrix(),
+        this.grainImageSprites[brush.settings.grainImage]
+      )
+
+      filterManager.applyFilter(self, input, output, clear)
+    }
 
     brushNodeSprite.filters = [this.brushNodeFilter.shader]
+
+    console.log(
+      'x', x, 'y', y,
+      'dimensions', this.brushNodeFilter.shader.uniforms.dimensions[0], this.brushNodeFilter.shader.uniforms.dimensions[1],
+      'uGrainScale', this.brushNodeFilter.shader.uniforms.uGrainScale,
+      'u_x_offset', this.brushNodeFilter.shader.uniforms.u_x_offset,
+      'u_y_offset', this.brushNodeFilter.shader.uniforms.u_y_offset,
+      'grainOffsetX', grainOffsetX,
+      'grainOffsetY', grainOffsetY,
+      'uRotation', this.brushNodeFilter.shader.uniforms.uRotation,
+      'uGrainRotation', this.brushNodeFilter.shader.uniforms.uGrainRotation
+    )
 
     // skipping this render to texture step for now ...
     //

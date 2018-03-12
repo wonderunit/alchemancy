@@ -23,24 +23,34 @@ uniform float u_y_offset;
 uniform float u_grain_zoom;
 uniform float u_alpha;
 varying vec2 vTextureCoord;
-varying vec2 vFilterCoord; 
+varying vec2 vFilterCoord;  // ??
 
-// vec2 rotate(in vec2 coord, in float angle) {
-//   float sin_factor = sin(angle);
-//   float cos_factor = cos(angle);
-//   coord = (coord - 0.0) * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
-//   coord += 0.0;
-//   return (coord);
-// }
+// from PIXI
+uniform vec4 filterArea;
+uniform vec2 dimensions;
+
+vec2 rotate(in vec2 coord, in float angle) {
+  float sin_factor = sin(angle);
+  float cos_factor = cos(angle);
+  coord = (coord - 0.0) * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
+  coord += 0.0;
+  return (coord);
+}
 
 void main(void) {
   // user's intended brush color
-  // vec3 color = vec3(uRed, uGreen, uBlue);
+  vec3 color = vec3(uRed, uGreen, uBlue);
+
+  // actual pixel coordinates (in pixels)
+  vec2 pixelCoord = vTextureCoord * filterArea.xy;
+  // actual pixel coordinates (normalized)
+  vec2 normalizedCoord = pixelCoord / dimensions;
 
   // read a sample from the texture
-  vec4 brushSample = texture2D(u_brushTex, vTextureCoord / (u_size / u_texture_size));
+  vec4 brushSample = texture2D(u_brushTex, normalizedCoord);
 
-  gl_FragColor = brushSample;
+  // gradient
+  // gl_FragColor = vec4(normalizedCoord.x, 0, 0, 1);
 
   // float grain_scale = 1024.00 * uGrainScale;
   // vec2 texture_coord = (vTextureCoord * u_texture_size / grain_scale) - (vec2(u_size, u_size) / grain_scale / 2.0)  ;
@@ -49,4 +59,6 @@ void main(void) {
   // gl_FragColor = vec4(color,1);
   // gl_FragColor *= ((brushSample.r * grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
   // //gl_FragColor *= brushSample.r * ((grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
+
+  gl_FragColor = vec4(color, 1) * brushSample.r;
 }
