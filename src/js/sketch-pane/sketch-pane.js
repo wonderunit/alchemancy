@@ -128,7 +128,7 @@ module.exports = class SketchPane {
     })
 
     this.setup()
-    this.loadTextureSprites({ brushImagePath: '/src/img/brush' })
+    this.loadTextureSprites({ brushImagePath: './src/img/brush' })
 
     this.setSize(1200, 900)
     this.newLayer()
@@ -433,17 +433,17 @@ module.exports = class SketchPane {
 
     brushNodeSprite.filters = [this.brushNodeFilter.shader]
 
-    console.log(
-      'x', x, 'y', y,
-      'dimensions', this.brushNodeFilter.shader.uniforms.dimensions[0], this.brushNodeFilter.shader.uniforms.dimensions[1],
-      'uGrainScale', this.brushNodeFilter.shader.uniforms.uGrainScale,
-      'u_x_offset', this.brushNodeFilter.shader.uniforms.u_x_offset,
-      'u_y_offset', this.brushNodeFilter.shader.uniforms.u_y_offset,
-      'grainOffsetX', grainOffsetX,
-      'grainOffsetY', grainOffsetY,
-      'uRotation', this.brushNodeFilter.shader.uniforms.uRotation,
-      'uGrainRotation', this.brushNodeFilter.shader.uniforms.uGrainRotation
-    )
+    // console.log(
+    //   'x', x, 'y', y,
+    //   'dimensions', this.brushNodeFilter.shader.uniforms.dimensions[0], this.brushNodeFilter.shader.uniforms.dimensions[1],
+    //   'uGrainScale', this.brushNodeFilter.shader.uniforms.uGrainScale,
+    //   'u_x_offset', this.brushNodeFilter.shader.uniforms.u_x_offset,
+    //   'u_y_offset', this.brushNodeFilter.shader.uniforms.u_y_offset,
+    //   'grainOffsetX', grainOffsetX,
+    //   'grainOffsetY', grainOffsetY,
+    //   'uRotation', this.brushNodeFilter.shader.uniforms.uRotation,
+    //   'uGrainRotation', this.brushNodeFilter.shader.uniforms.uGrainRotation
+    // )
 
     // skipping this render to texture step for now ...
     //
