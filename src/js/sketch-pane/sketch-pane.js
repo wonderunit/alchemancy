@@ -688,7 +688,7 @@ module.exports = class SketchPane {
         // this.brushColor.b = 0
 
       let final = this.strokeInput.length - 1
-      let a = 0
+      let a = this.lastStaticIndex
       let b = final
 
       if ((b + 1) - a <= 1) {
