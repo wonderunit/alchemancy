@@ -536,7 +536,7 @@ module.exports = class SketchPane {
   getInterpolatedStrokeInput (strokeInput, path) {
     let interpolatedStrokeInput = []
 
-    // get lookups for each segment so we know how to iterpolate
+    // get lookups for each segment so we know how to interpolate
 
     let segmentLookup = []
 
