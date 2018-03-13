@@ -218,6 +218,81 @@ sketchPane.load()
     document.getElementById('spacing-4').addEventListener('click', onSpacingClick)
     document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
 
+    const drawLines = () => {
+      const plot = (x, y) => {
+        sketchPane.addStrokeNode(
+          sketchPane.brushColor.r,
+          sketchPane.brushColor.g,
+          sketchPane.brushColor.b,
+          sketchPane.brushSize,
+          sketchPane.brushOpacity,
+          x,
+          y,
+          1.0, // pressure
+          0, // angle
+          0, // tilt
+          sketchPane.brush,
+          0, // grainOffset
+          0, // grainOffset
+          sketchPane.strokeContainer
+        )
+      }
+
+      let origin = [400, 400]
+      let m = 1
+      let spacing = 1
+
+      // Line #1
+      origin = [550, 400]
+      m = 3 / 400
+      spacing = 1
+      for (let x = 0; x <= 400; x += spacing) {
+        let y = m * x
+        plot(x + origin[0], y + origin[1])
+      }
+
+      // Line #2
+      origin = [550, 500]
+      m = 3 / 400
+      spacing = sketchPane.brushSize // 4
+      for (let x = 0; x <= 400; x += spacing) {
+        let y = m * x
+        plot(x + origin[0], y + origin[1])
+      }
+
+      // Line #3
+      origin = [550, 600]
+      m = 3 / 400
+      spacing = 5
+      for (let x = 0; x <= 400; x += spacing) {
+        let y = m * x
+        plot(x + origin[0], y + origin[1])
+      }
+
+      // Line #4
+      origin = [550, 700]
+      m = 3 / 400
+      spacing = 10
+      for (let x = 0; x <= 400; x += spacing) {
+        let y = m * x
+        plot(x + origin[0], y + origin[1])
+      }
+
+      sketchPane.stampStroke(
+        sketchPane.strokeContainer,
+        sketchPane.layerContainer.children[sketchPane.layer].texture
+      )
+      sketchPane.disposeContainer(sketchPane.strokeContainer)
+    }
+    document.getElementById('draw-lines').addEventListener('click', event => {
+      event.preventDefault()
+      drawLines()
+    })
+
+    setTimeout(() => {
+      drawLines()
+    }, 100)
+
     function animate() {
       stats.begin()
       stats.end()
