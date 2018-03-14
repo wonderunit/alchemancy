@@ -44,27 +44,13 @@ void main(void) {
   vec3 color = vec3(uRed, uGreen, uBlue);
 
   // actual pixel coordinates (in pixels)
-  vec2 pixelCoord = vTextureCoord * filterArea.xy;
-  // ... offset by the fractional part (sub pixel)
-  pixelCoord += u_offset_px;
+  vec2 pixel = vTextureCoord * filterArea.xy;
 
-  // actual pixel coordinates (normalized)
-  // vec2 normalizedCoord = pixelCoord / dimensions;
-
-  vec2 coord = pixelCoord / dimensions;
+  // vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
+  vec2 uv = pixel;
 
   // read a sample from the texture
-  vec4 brushSample = texture2D(u_brushTex, coord);
+  vec4 brushSample = texture2D(u_brushTex, uv / dimensions);
 
-  // gradient
-  // gl_FragColor = vec4(normalizedCoord.x, 0, 0, 1);
-
-  // float grain_scale = 1024.00 * uGrainScale;
-  // vec2 texture_coord = (vTextureCoord * u_texture_size / grain_scale) - (vec2(u_size, u_size) / grain_scale / 2.0)  ;
-  // vec2 texture_offset = -(vec2(u_x_offset, u_y_offset)/grain_scale);
-  // vec4 grainSample = texture2D(u_grainTex, rotate((texture_coord)- rotate(texture_offset,-uRotation),uRotation+uGrainRotation) );
-  // gl_FragColor = vec4(color,1);
-  // gl_FragColor *= ((brushSample.r * grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
-  // //gl_FragColor *= brushSample.r * ((grainSample.r * (1.0+uBleed))- uBleed ) * (1.0+ uBleed) * uOpacity;
   gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
 }
