@@ -34,12 +34,10 @@ uniform vec2 dimensions;
 uniform sampler2D uSampler; // the actual brush texture
 uniform sampler2D filterSampler; // ???
 
-vec2 rotate(in vec2 coord, in float angle) {
-  float sin_factor = sin(angle);
-  float cos_factor = cos(angle);
-  coord = (coord - 0.0) * mat2(cos_factor, sin_factor, -sin_factor, cos_factor);
-  coord += 0.0;
-  return (coord);
+// via https://thebookofshaders.com/08/
+mat2 rotate2d (float _angle) {
+    return mat2(cos(_angle), -sin(_angle),
+                sin(_angle), cos(_angle));
 }
 
 void main(void) {
@@ -51,8 +49,17 @@ void main(void) {
 
   vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
 
+  vec2 st = uv / dimensions;
+
+  // move space from the center to the vec2(0.0)
+  st -= vec2(0.5);
+  // rotate the space
+  st = rotate2d( uRotation ) * st;
+  // move it back to the original place
+  st += vec2(0.5);
+
   // read a sample from the texture
-  vec4 brushSample = texture2D(uSampler, uv / dimensions);
+  vec4 brushSample = texture2D(uSampler, st);
 
   // tint
   gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
