@@ -30,31 +30,17 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
       }
     )
 
-    this.padding = 0
+    this.padding = 4
     this.blendMode = PIXI.BLEND_MODES.NORMAL
 
-    // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+    // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#fitting-problem
     this.autoFit = false
   }
 
-  // TODO move this to sketch-pane.js?
-  // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
+  // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#filter-area
   apply (filterManager, input, output, clear) {
     this.uniforms.dimensions[0] = input.sourceFrame.width
     this.uniforms.dimensions[1] = input.sourceFrame.height
-
-    // TODO use this
-    // this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(
-    //   new PIXI.Matrix(),
-    //   this.brushImageSprites[brush.settings.brushImage]
-    // )
-
-    // TODO use this
-    // this.uniforms.grainFilterMatrix = filterManager.calculateSpriteMatrix(
-    //   new PIXI.Matrix(),
-    //   this.grainImageSprites[brush.settings.grainImage]
-    // )
-
     filterManager.applyFilter(this, input, output, clear)
   }
 }
