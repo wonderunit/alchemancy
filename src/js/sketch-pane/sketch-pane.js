@@ -342,7 +342,13 @@ module.exports = class SketchPane {
     grainOffsetY,
     strokeContainer
   ) {
-    let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
+    // let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE) // PIXI.Texture.EMPTY
+
+    // eslint-disable-next-line new-cap
+    let brushNodeSprite = new PIXI.Sprite.from(
+      // brushes.brushResources.resources[brush.settings.brushImage].data
+      brushes.brushResources.resources[brush.settings.brushImage].texture.clone()
+    )
 
     let nodeSize = size - (1 - pressure) * size * brush.settings.pressureSize
     let tiltSizeMultiple =
@@ -366,13 +372,10 @@ module.exports = class SketchPane {
     brushNodeSprite.width = nodeSize
     brushNodeSprite.height = nodeSize
 
-    brushNodeSprite.position = new PIXI.Point(0, 0)
-
     let brushNodeFilter = new BrushNodeFilter()
 
-    // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
-    brushNodeFilter.filterArea = this.app.screen
-    // brushNodeFilter.padding = 2
+    // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
+    // brushNodeFilter.filterArea = this.app.screen
 
     brushNodeFilter.uniforms.uRed = r
     brushNodeFilter.uniforms.uGreen = g
@@ -400,64 +403,18 @@ module.exports = class SketchPane {
     brushNodeFilter.uniforms.u_y_offset =
       (y + grainOffsetY) * brush.settings.movement
 
-    let iX = Math.floor(x)
-    let iY = Math.floor(y)
-    let oX = x - iX
-    let oY = y - iY
-    // console.log(x, y, 'to', iX, iY, 'change of', oX, oY)
-      // oX = Math.random() * 2 - 1
-      // oY = Math.random() * 2 - 1
-
-    // iX = Math.floor(x)
-    // iY = Math.floor(y)
-    // oX = x % 1
-    // oY = y % 1
-    iX = Math.round(x)
-    iY = Math.round(y)
-    oX = x - iX
-    oY = y - iY
-    brushNodeFilter.uniforms.u_offset_px = [oX, oY]
-    // console.log('floor', iX, iY, 'diff', oX, oY)
-
-    //
-    // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
-    // pulling from a placed sprite to get the texture
-    // TODO does it make a difference?
     brushNodeFilter.uniforms.u_brushTex =
       this.brushImageSprites[brush.settings.brushImage]._texture
 
     brushNodeFilter.uniforms.u_grainTex =
       this.grainImageSprites[brush.settings.grainImage]._texture
 
-    brushNodeSprite.filters = [brushNodeFilter]
-
-    // console.log(
-    //   'x', x, 'y', y,
-    //   'dimensions', brushNodeFilter.uniforms.dimensions[0], brushNodeFilter.uniforms.dimensions[1],
-    //   'uGrainScale', brushNodeFilter.uniforms.uGrainScale,
-    //   'u_x_offset', brushNodeFilter.uniforms.u_x_offset,
-    //   'u_y_offset', brushNodeFilter.uniforms.u_y_offset,
-    //   'grainOffsetX', grainOffsetX,
-    //   'grainOffsetY', grainOffsetY,
-    //   'uRotation', brushNodeFilter.uniforms.uRotation,
-    //   'uGrainRotation', brushNodeFilter.uniforms.uGrainRotation
-    // )
-
-    // skipping this render to texture step for now ...
-    //
-    // this.renderTexture = PIXI.RenderTexture.create(nodeSize, nodeSize)
-    // 
-    // this.app.renderer.render(brushNodeSprite, this.renderTexture)
-    // 
-    // brushNodeSprite.filters = null
-    // 
-    // let node = new PIXI.Sprite(this.renderTexture)
-    // node.position = new PIXI.Point(x, y)
-    // node.rotation = nodeRotation
-    // node.anchor.set(0.5)
-    // 
-    // strokeContainer.addChild(node)
+    let iX = Math.round(x)
+    let iY = Math.round(y)
+    brushNodeFilter.uniforms.u_offset_px = [x - iX, y - iY]
     brushNodeSprite.position = new PIXI.Point(iX, iY)
+
+    brushNodeSprite.filters = [brushNodeFilter]
 
     brushNodeSprite.rotation = nodeRotation
     brushNodeSprite.anchor.set(0.5)
@@ -517,7 +474,7 @@ module.exports = class SketchPane {
       child.destroy({
         children: true,
         texture: true,
-        baseTexture: true
+        baseTexture: false // because we re-use the brush texture
       })
     }
     container.removeChildren()
