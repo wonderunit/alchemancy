@@ -10,6 +10,14 @@ module.exports = {
     libraryTarget: 'var',
     publicPath: '/dist'
   },
+  module: {
+    rules: [
+      {
+        test: /\.(glsl|frag|vert)$/,
+        loader: 'shader-loader'
+      }
+    ]
+  },
   serve: {
     dev: {
       publicPath: '/dist'

@@ -8,6 +8,14 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     library: 'SketchPane',
     libraryTarget: 'var',
-    publicPath: '/dist'
+    publicPath: '/dist',
+    module: {
+      rules: [
+        {
+          test: /\.(glsl|frag|vert)$/,
+          loader: 'shader-loader'
+        }
+      ]
+    }
   }
 }
