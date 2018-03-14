@@ -219,7 +219,24 @@ sketchPane.load()
     document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
 
     const drawLines = () => {
+      // sketchPane.brush = sketchPane.brushes.brushes.pen
+      // sketchPane.brushSize = 4
+      // sketchPane.brushOpacity = 0.9
+      // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+
+      // sketchPane.brush = sketchPane.brushes.brushes.brushpen
+      // sketchPane.brushSize = 15
+      // sketchPane.brushOpacity = 1
+      // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+
+      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brushSize = 100
+      // sketchPane.brushOpacity = 0.4
+      // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
+
+      let angle = 0
       const plot = (x, y) => {
+        angle = (angle + sketchPane.brushSize) % 360
         sketchPane.addStrokeNode(
           sketchPane.brushColor.r,
           sketchPane.brushColor.g,
@@ -229,7 +246,7 @@ sketchPane.load()
           x,
           y,
           1.0, // pressure
-          0, // angle
+          angle, // angle
           0, // tilt
           sketchPane.brush,
           0, // grainOffset
