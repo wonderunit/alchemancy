@@ -278,11 +278,14 @@ sketchPane.load()
         plot(x + origin[0], y + origin[1])
       }
 
-      sketchPane.stampStroke(
-        sketchPane.strokeContainer,
-        sketchPane.layerContainer.children[sketchPane.layer].texture
-      )
-      sketchPane.disposeContainer(sketchPane.strokeContainer)
+      // TODO why do we get a ~0.5 px shift rightward on the x-axis here?
+      setTimeout(() => {
+        sketchPane.stampStroke(
+          sketchPane.strokeContainer,
+          sketchPane.layerContainer.children[sketchPane.layer].texture
+        )
+        sketchPane.disposeContainer(sketchPane.strokeContainer)
+      }, 500)
     }
     document.getElementById('draw-lines').addEventListener('click', event => {
       event.preventDefault()
