@@ -192,8 +192,6 @@ module.exports = class SketchPane {
 
     this.counter = 0
 
-    this.brushRotation = 0
-
     this.strokeInput = []
     this.strokePath = undefined
     this.lastStaticIndex = 0
@@ -367,8 +365,6 @@ module.exports = class SketchPane {
       nodeRotation = 0 - this.sketchpaneContainer.rotation
     }
 
-    // nodeRotation = this.brushRotation
-
     brushNodeSprite.width = nodeSize
     brushNodeSprite.height = nodeSize
 
@@ -416,7 +412,7 @@ module.exports = class SketchPane {
 
     brushNodeSprite.filters = [brushNodeFilter]
 
-    brushNodeSprite.rotation = nodeRotation
+    // brushNodeSprite.rotation = nodeRotation
     brushNodeSprite.anchor.set(0.5)
     strokeContainer.addChild(brushNodeSprite)
   }
