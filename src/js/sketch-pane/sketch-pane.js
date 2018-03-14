@@ -490,7 +490,7 @@ module.exports = class SketchPane {
 
   pointermove (e) {
     // to prevent off-canvas move events:
-    // if (e.target === this.app.view) return
+    // if (e.target !== this.app.view) return
 
     if (this.pointerDown) {
       this.addMouseEventAsPoint(e)
