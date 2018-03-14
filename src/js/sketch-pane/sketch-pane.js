@@ -369,7 +369,6 @@ module.exports = class SketchPane {
     brushNodeSprite.position = new PIXI.Point(0, 0)
 
     let brushNodeFilter = new BrushNodeFilter()
-    // console.log('it loaded')
 
     // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     brushNodeFilter.filterArea = this.app.screen
