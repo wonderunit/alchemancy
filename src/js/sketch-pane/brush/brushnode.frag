@@ -18,7 +18,7 @@ uniform float uGrainScale;
 
 uniform float u_size;
 uniform float u_texture_size;
-uniform float u_x_offset;
+uniform float u_x_offset; // TODO could we use filterArea.zw ?
 uniform float u_y_offset;
 uniform float u_grain_zoom;
 uniform float u_alpha;
@@ -30,6 +30,9 @@ varying vec2 vFilterCoord;  // ??
 // from PIXI
 uniform vec4 filterArea;
 uniform vec2 dimensions;
+
+uniform sampler2D uSampler; // the actual brush texture
+uniform sampler2D filterSampler; // ???
 
 vec2 rotate(in vec2 coord, in float angle) {
   float sin_factor = sin(angle);
@@ -47,10 +50,10 @@ void main(void) {
   vec2 pixel = vTextureCoord * filterArea.xy;
 
   vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
-  // vec2 uv = pixel;
 
   // read a sample from the texture
-  vec4 brushSample = texture2D(u_brushTex, uv / dimensions);
+  vec4 brushSample = texture2D(uSampler, uv / dimensions);
 
+  // tint
   gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
 }
