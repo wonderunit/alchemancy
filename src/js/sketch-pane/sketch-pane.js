@@ -139,7 +139,7 @@ module.exports = class SketchPane {
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
     PIXI.settings.MIPMAP_TEXTURES = true
-    PIXI.settings.WRAP_MODE = PIXI.WRAP_MODES.CLAMP // PIXI.WRAP_MODES.REPEAT
+    PIXI.settings.WRAP_MODE = PIXI.WRAP_MODES.REPEAT
     PIXI.utils.skipHello()
 
     this.app = new PIXI.Application({
