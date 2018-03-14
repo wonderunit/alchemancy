@@ -46,8 +46,8 @@ void main(void) {
   // actual pixel coordinates (in pixels)
   vec2 pixel = vTextureCoord * filterArea.xy;
 
-  // vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
-  vec2 uv = pixel;
+  vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
+  // vec2 uv = pixel;
 
   // read a sample from the texture
   vec4 brushSample = texture2D(u_brushTex, uv / dimensions);
