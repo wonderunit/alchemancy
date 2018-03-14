@@ -117,10 +117,6 @@ module.exports = class SketchPane {
   }
 
   async load () {
-    this.brushNodeFilter = new BrushNodeFilter(
-      './src/js/sketch-pane/brush/brushnode.frag'
-    )
-    await this.brushNodeFilter.load()
     await new Promise((resolve, reject) => {
       brushes.brushResources.onComplete.add(resolve)
       brushes.brushResources.onError.add(reject)
@@ -372,85 +368,80 @@ module.exports = class SketchPane {
 
     brushNodeSprite.position = new PIXI.Point(0, 0)
 
+    let brushNodeFilter = new BrushNodeFilter()
+    // console.log('it loaded')
+
     // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
-    this.brushNodeFilter.filterArea = this.app.screen
+    brushNodeFilter.filterArea = this.app.screen
+    // brushNodeFilter.padding = 2
 
-    this.brushNodeFilter.shader.uniforms.uRed = r
-    this.brushNodeFilter.shader.uniforms.uGreen = g
-    this.brushNodeFilter.shader.uniforms.uBlue = b
-    this.brushNodeFilter.shader.uniforms.uOpacity = nodeOpacity
+    brushNodeFilter.uniforms.uRed = r
+    brushNodeFilter.uniforms.uGreen = g
+    brushNodeFilter.uniforms.uBlue = b
+    brushNodeFilter.uniforms.uOpacity = nodeOpacity
 
-    this.brushNodeFilter.shader.uniforms.uRotation = -nodeRotation
+    brushNodeFilter.uniforms.uRotation = -nodeRotation
 
-    this.brushNodeFilter.shader.uniforms.uBleed =
+    brushNodeFilter.uniforms.uBleed =
       Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
-    this.brushNodeFilter.shader.uniforms.uGrainRotation =
+    brushNodeFilter.uniforms.uGrainRotation =
       brush.settings.rotation
-    this.brushNodeFilter.shader.uniforms.uGrainScale = brush.settings.scale
+    brushNodeFilter.uniforms.uGrainScale = brush.settings.scale
 
     // DEPRECATED
-    this.brushNodeFilter.shader.uniforms.u_texture_size = Util.nearestPow2(
+    brushNodeFilter.uniforms.u_texture_size = Util.nearestPow2(
       nodeSize
     )
-    this.brushNodeFilter.shader.uniforms.u_size = nodeSize
+    brushNodeFilter.uniforms.u_size = nodeSize
     //
 
-    this.brushNodeFilter.shader.uniforms.u_x_offset =
+    brushNodeFilter.uniforms.u_x_offset =
       (x + grainOffsetX) * brush.settings.movement
-    this.brushNodeFilter.shader.uniforms.u_y_offset =
+    brushNodeFilter.uniforms.u_y_offset =
       (y + grainOffsetY) * brush.settings.movement
 
-    let iX = Math.round(x)
-    let iY = Math.round(y)
-    let oX = iX - x
-    let oY = iY - y
+    let iX = Math.floor(x)
+    let iY = Math.floor(y)
+    let oX = x - iX
+    let oY = y - iY
     // console.log(x, y, 'to', iX, iY, 'change of', oX, oY)
-    this.brushNodeFilter.shader.uniforms.u_offset_px = [oX, oY] // [Math.random() * 2 - 1, Math.random() * 2 - 1]
+      // oX = Math.random() * 2 - 1
+      // oY = Math.random() * 2 - 1
+
+    // iX = Math.floor(x)
+    // iY = Math.floor(y)
+    // oX = x % 1
+    // oY = y % 1
+    iX = Math.round(x)
+    iY = Math.round(y)
+    oX = x - iX
+    oY = y - iY
+    brushNodeFilter.uniforms.u_offset_px = [oX, oY]
+    // console.log('floor', iX, iY, 'diff', oX, oY)
 
     //
     // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     // pulling from a placed sprite to get the texture
     // TODO does it make a difference?
-    this.brushNodeFilter.shader.uniforms.u_brushTex =
+    brushNodeFilter.uniforms.u_brushTex =
       this.brushImageSprites[brush.settings.brushImage]._texture
 
-    this.brushNodeFilter.shader.uniforms.u_grainTex =
+    brushNodeFilter.uniforms.u_grainTex =
       this.grainImageSprites[brush.settings.grainImage]._texture
 
-    // via http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
-    let self = this.brushNodeFilter.shader
-    self.apply = (filterManager, input, output, clear) => {
-      self.uniforms.dimensions[0] = input.sourceFrame.width
-      self.uniforms.dimensions[1] = input.sourceFrame.height
-
-      // TODO use this
-      self.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(
-        new PIXI.Matrix(),
-        this.brushImageSprites[brush.settings.brushImage]
-      )
-
-      // TODO use this
-      self.uniforms.grainFilterMatrix = filterManager.calculateSpriteMatrix(
-        new PIXI.Matrix(),
-        this.grainImageSprites[brush.settings.grainImage]
-      )
-
-      filterManager.applyFilter(self, input, output, clear)
-    }
-
-    brushNodeSprite.filters = [this.brushNodeFilter.shader]
+    brushNodeSprite.filters = [brushNodeFilter]
 
     // console.log(
     //   'x', x, 'y', y,
-    //   'dimensions', this.brushNodeFilter.shader.uniforms.dimensions[0], this.brushNodeFilter.shader.uniforms.dimensions[1],
-    //   'uGrainScale', this.brushNodeFilter.shader.uniforms.uGrainScale,
-    //   'u_x_offset', this.brushNodeFilter.shader.uniforms.u_x_offset,
-    //   'u_y_offset', this.brushNodeFilter.shader.uniforms.u_y_offset,
+    //   'dimensions', brushNodeFilter.uniforms.dimensions[0], brushNodeFilter.uniforms.dimensions[1],
+    //   'uGrainScale', brushNodeFilter.uniforms.uGrainScale,
+    //   'u_x_offset', brushNodeFilter.uniforms.u_x_offset,
+    //   'u_y_offset', brushNodeFilter.uniforms.u_y_offset,
     //   'grainOffsetX', grainOffsetX,
     //   'grainOffsetY', grainOffsetY,
-    //   'uRotation', this.brushNodeFilter.shader.uniforms.uRotation,
-    //   'uGrainRotation', this.brushNodeFilter.shader.uniforms.uGrainRotation
+    //   'uRotation', brushNodeFilter.uniforms.uRotation,
+    //   'uGrainRotation', brushNodeFilter.uniforms.uGrainRotation
     // )
 
     // skipping this render to texture step for now ...
