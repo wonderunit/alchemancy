@@ -22,6 +22,7 @@ sketchPane.load()
     })
 
     window.addEventListener("pointermove", function(e) {
+      // if (e.target.parentNode !== document.body) return
       sketchPane.pointermove(e)
     })
 
