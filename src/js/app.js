@@ -330,7 +330,6 @@ sketchPane.load()
         plot(x + origin[0], y + origin[1])
       }
 
-      // TODO why do we get a ~0.5 px shift rightward on the x-axis here?
       setTimeout(() => {
         sketchPane.stampStroke(
           sketchPane.strokeContainer,
