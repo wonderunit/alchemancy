@@ -227,15 +227,15 @@ sketchPane.load()
     document.getElementById('spacing-4').addEventListener('click', onSpacingClick)
     document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
 
-    const drawStrokes = () => {
-      sketchPane.brush = sketchPane.brushes.brushes.pen
-      sketchPane.brushSize = 30
-      sketchPane.brushOpacity = 0.9
-      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
-      sketchPane.brush.settings.spacing = 0.7
     // fake some pointer movements
     const fakeEvent = ({x, y, pressure = 1.0}) => ({ x, y, pressure, tiltX: 0, tiltY: 0, target: sketchPane.app.view })
 
+    const drawStrokes = () => {
+      // sketchPane.brush = sketchPane.brushes.brushes.pen
+      // sketchPane.brushSize = 30
+      // sketchPane.brushOpacity = 0.9
+      // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+      // sketchPane.brush.settings.spacing = 0.7
 
       for (let i = 0; i < Math.PI * 2 * 2; i++) {
         let x = 350 + (i * 50)
