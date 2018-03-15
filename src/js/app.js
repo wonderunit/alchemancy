@@ -348,10 +348,6 @@ sketchPane.load()
       drawStrokes()
     })
 
-    setTimeout(() => {
-      drawStrokes()
-    }, 100)
-
     function animate() {
       stats.begin()
       stats.end()
