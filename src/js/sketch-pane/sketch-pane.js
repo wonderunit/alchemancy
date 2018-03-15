@@ -481,6 +481,12 @@ module.exports = class SketchPane {
 
     // get lookups for each segment so we know how to interpolate
 
+    // for every segment,
+    //  find the segments's location on the path,
+    //  and find the offset
+    //    where 'offset' means the length from
+    //    the beginning of the path
+    //    up to the segment's location
     let segmentLookup = []
 
     // console.log(path.length)
@@ -558,6 +564,9 @@ module.exports = class SketchPane {
   }
 
   renderStroke (strokeInput, path, strokeContainer) {
+    // we have 2+ StrokeInput points (with x, y, pressure, etc),
+    // and 2+ matching path segments (with location and handles)
+    //  e.g.: strokeInput[0].x === path.segments[0].point.x
     let interpolatedStrokeInput = this.getInterpolatedStrokeInput(strokeInput, path)
 
     for (let args of interpolatedStrokeInput) {
