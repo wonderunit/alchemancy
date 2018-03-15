@@ -30,7 +30,7 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
       }
     )
 
-    this.padding = 4
+    this.padding = 2
     this.blendMode = PIXI.BLEND_MODES.NORMAL
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#fitting-problem
