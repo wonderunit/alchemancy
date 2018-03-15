@@ -44,8 +44,11 @@ void main(void) {
   // user's intended brush color
   vec3 color = vec3(uRed, uGreen, uBlue);
 
-  // actual pixel coordinates (in pixels)
-  vec2 pixel = vTextureCoord * filterArea.xy;
+  // actual pixel coordinates (in pixels) for secondary textures
+  // vec2 pixel = vTextureCoord * filterArea.xy;
+
+  // actual pixel coordinates (in pixels) for primary texture
+  vec2 pixel = vTextureCoord * dimensions;
 
   vec2 uv = pixel - u_offset_px; // subtract (read from higher in the texture) to shift down
 
