@@ -218,7 +218,42 @@ sketchPane.load()
     document.getElementById('spacing-4').addEventListener('click', onSpacingClick)
     document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
 
-    const drawLines = () => {
+    const drawStrokes = () => {
+      sketchPane.brush = sketchPane.brushes.brushes.pen
+      sketchPane.brushSize = 30
+      sketchPane.brushOpacity = 0.9
+      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+      sketchPane.brush.settings.spacing = 0.7
+
+      // fake some pointer movements
+      const fakeEvent = ({x, y}) => ({ x, y, pressure: 1.0, tiltX: 0, tiltY: 0, target: sketchPane.app.view })
+
+      for (let i = 0; i < Math.PI * 2 * 2; i++) {
+        let x = 350 + (i * 50)
+        let y = 400 + (Math.cos(i) * 50)
+        sketchPane.addMouseEventAsPoint(fakeEvent({ x, y }))
+        sketchPane.renderLive()
+      }
+
+      ;(async function () {
+        // let dur = 100
+        sketchPane.pointerdown(fakeEvent({ x: 350, y: 300 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointermove(fakeEvent({ x: 350 + 70, y: 305 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70, y: 310 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70, y: 310 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70 + 70, y: 310 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70 + 70 + 70, y: 310 }))
+        // await new Promise(resolve => setTimeout(resolve, dur))
+        sketchPane.pointerup(fakeEvent({ x: 700, y: 310 }))
+      }())
+    }
+
+    const plotLines = () => {
       // sketchPane.brush = sketchPane.brushes.brushes.pen
       // sketchPane.brushSize = 4
       // sketchPane.brushOpacity = 0.9
@@ -255,9 +290,9 @@ sketchPane.load()
         )
       }
 
-      let origin = [400, 400]
-      let m = 1
-      let spacing = 1
+      let origin
+      let m
+      let spacing
 
       // Line #1
       origin = [550, 400]
@@ -304,13 +339,18 @@ sketchPane.load()
         sketchPane.disposeContainer(sketchPane.strokeContainer)
       }, 500)
     }
-    document.getElementById('draw-lines').addEventListener('click', event => {
+    document.getElementById('plot-lines').addEventListener('click', event => {
       event.preventDefault()
-      drawLines()
+      plotLines()
+    })
+
+    document.getElementById('draw-strokes').addEventListener('click', event => {
+      event.preventDefault()
+      drawStrokes()
     })
 
     setTimeout(() => {
-      drawLines()
+      drawStrokes()
     }, 100)
 
     function animate() {
