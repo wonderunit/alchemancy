@@ -518,6 +518,12 @@ module.exports = class SketchPane {
     let start = (spacing - this.lastSpacing)
     let i = 0
     let k = 0
+    if (start > path.length) {
+      // console.log('point is in between spacing')
+      this.lastSpacing += path.length
+      return interpolatedStrokeInput
+    }
+
     for (i = start; i < path.length; i += spacing) {
       let point = path.getPointAt(i)
 
