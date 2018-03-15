@@ -409,10 +409,7 @@ module.exports = class SketchPane {
     let iY = Math.round(y)
     brushNodeFilter.uniforms.u_offset_px = [x - iX, y - iY]
     brushNodeSprite.position = new PIXI.Point(iX, iY)
-
     brushNodeSprite.filters = [brushNodeFilter]
-
-    // brushNodeSprite.rotation = nodeRotation
     brushNodeSprite.anchor.set(0.5)
     strokeContainer.addChild(brushNodeSprite)
   }
