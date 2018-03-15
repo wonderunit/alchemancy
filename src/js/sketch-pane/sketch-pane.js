@@ -349,8 +349,7 @@ module.exports = class SketchPane {
     )
 
     let nodeSize = size - (1 - pressure) * size * brush.settings.pressureSize
-    let tiltSizeMultiple =
-      Math.pow(tilt / 90.0, 2) * brush.settings.tiltSize * 3 + 1
+    let tiltSizeMultiple = (((tilt / 90.0) * brush.settings.tiltSize) * 3) + 1
     nodeSize *= tiltSizeMultiple
     // nodeSize = this.brushSize
 
