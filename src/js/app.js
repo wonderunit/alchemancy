@@ -233,9 +233,9 @@ sketchPane.load()
       sketchPane.brushOpacity = 0.9
       sketchPane.brushColor = { r: 0, g: 0, b: 0 }
       sketchPane.brush.settings.spacing = 0.7
+    // fake some pointer movements
+    const fakeEvent = ({x, y, pressure = 1.0}) => ({ x, y, pressure, tiltX: 0, tiltY: 0, target: sketchPane.app.view })
 
-      // fake some pointer movements
-      const fakeEvent = ({x, y}) => ({ x, y, pressure: 1.0, tiltX: 0, tiltY: 0, target: sketchPane.app.view })
 
       for (let i = 0; i < Math.PI * 2 * 2; i++) {
         let x = 350 + (i * 50)
@@ -356,6 +356,19 @@ sketchPane.load()
       event.preventDefault()
       drawStrokes()
     })
+
+    const drawPressureLine = () => {
+      let end = Math.PI * 2 * 2
+      for (let i = 0; i < end; i++) {
+        let x = 350 + (i * 50)
+        let y = 400 + (Math.cos(i) * 50)
+        let pressure = i / end
+        sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
+        sketchPane.renderLive()
+      }
+    }
+
+    drawPressureLine()
 
     function animate() {
       stats.begin()
