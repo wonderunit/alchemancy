@@ -29,6 +29,14 @@ sketchPane.load()
     window.addEventListener("keydown", function(e) {
       // console.log(e)
       switch (e.key) {
+        case '.':
+          sketchPane.brushSize = Math.round(sketchPane.brushSize * 1.5)
+          console.log(sketchPane.brushSize)
+          break
+        case ',':
+        sketchPane.brushSize = Math.round(sketchPane.brushSize / 1.5)
+          console.log(sketchPane.brushSize)
+          break
         case "1":
           sketchPane.color = {r: Math.random(),g: Math.random(),b: Math.random()}
           break
