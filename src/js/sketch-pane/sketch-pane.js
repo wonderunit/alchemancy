@@ -377,7 +377,7 @@ module.exports = class SketchPane {
     brushNodeFilter.uniforms.uBlue = b
     brushNodeFilter.uniforms.uOpacity = nodeOpacity
 
-    brushNodeFilter.uniforms.uRotation = -nodeRotation
+    brushNodeFilter.uniforms.uRotation = nodeRotation
 
     brushNodeFilter.uniforms.uBleed =
       Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
