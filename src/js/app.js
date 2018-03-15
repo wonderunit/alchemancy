@@ -262,7 +262,7 @@ sketchPane.load()
       }())
     }
 
-    const plotLines = () => {
+    const plotLines = (px = 550, py = 400) => {
       // sketchPane.brush = sketchPane.brushes.brushes.pen
       // sketchPane.brushSize = 4
       // sketchPane.brushOpacity = 0.9
@@ -274,7 +274,7 @@ sketchPane.load()
       // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
 
       // sketchPane.brush = sketchPane.brushes.brushes.watercolor
-      // sketchPane.brushSize = 100
+      // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
 
@@ -304,7 +304,7 @@ sketchPane.load()
       let spacing
 
       // Line #1
-      origin = [550, 400]
+      origin = [px, py]
       m = 3 / 400
       spacing = 1
       for (let x = 0; x <= 400; x += spacing) {
@@ -313,7 +313,7 @@ sketchPane.load()
       }
 
       // Line #2
-      origin = [550, 500]
+      origin = [px, py + 100]
       m = 3 / 400
       spacing = sketchPane.brushSize // 4
       for (let x = 0; x <= 400; x += spacing) {
@@ -322,7 +322,7 @@ sketchPane.load()
       }
 
       // Line #3
-      origin = [550, 600]
+      origin = [px, py + 200]
       m = 3 / 400
       spacing = 5
       for (let x = 0; x <= 400; x += spacing) {
@@ -331,7 +331,7 @@ sketchPane.load()
       }
 
       // Line #4
-      origin = [550, 700]
+      origin = [px, py + 300]
       m = 3 / 400
       spacing = 10
       for (let x = 0; x <= 400; x += spacing) {
@@ -357,18 +357,35 @@ sketchPane.load()
       drawStrokes()
     })
 
-    const drawPressureLine = () => {
+    const drawPressureLine = (px = 350, py = 400) => {
       let end = Math.PI * 2 * 2
+      let x
+      let y
+      let pressure
       for (let i = 0; i < end; i++) {
-        let x = 350 + (i * 50)
-        let y = 400 + (Math.cos(i) * 50)
-        let pressure = i / end
-        sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
-        sketchPane.renderLive()
+        x = px + i * (100 / Math.PI)
+        y = py + (Math.cos(i) * 50)
+        pressure = i / end
+        // sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
+        // sketchPane.renderLive()
+        if (i === 0) {
+          sketchPane.pointerdown(fakeEvent({ x, y, pressure }))
+        }
+        sketchPane.pointermove(fakeEvent({ x, y, pressure }))
       }
+      sketchPane.pointerup(fakeEvent({ x, y, pressure }))
     }
 
-    drawPressureLine()
+    setTimeout(() => {
+      sketchPane.brushSize = 8
+      drawPressureLine(550, 350)
+      // plotLines(550, 400)
+      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brushSize = 50
+      // sketchPane.brushOpacity = 0.4
+      // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
+      // plotLines(550, 450)
+    }, 10)
 
     function animate() {
       stats.begin()
