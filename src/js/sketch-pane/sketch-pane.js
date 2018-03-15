@@ -431,6 +431,7 @@ module.exports = class SketchPane {
     this.strokeInput = []
     this.strokePath = new paper.Path()
     this.lastStaticIndex = 0
+    this.lastSpacing = undefined
 
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
@@ -513,7 +514,11 @@ module.exports = class SketchPane {
       grainOffset.y = Math.floor(Math.random() * 100)
     }
 
-    for (let i = 0; i < path.length; i += spacing) {
+    if (this.lastSpacing == null) this.lastSpacing = spacing
+    let start = (spacing - this.lastSpacing)
+    let i = 0
+    let k = 0
+    for (i = start; i < path.length; i += spacing) {
       let point = path.getPointAt(i)
 
       for (var z = currentSegment; z < segmentLookup.length; z++) {
@@ -558,7 +563,9 @@ module.exports = class SketchPane {
         grainOffset.x,
         grainOffset.y
       ])
+      k = i
     }
+    this.lastSpacing = path.length - k
 
     return interpolatedStrokeInput
   }
@@ -733,11 +740,13 @@ module.exports = class SketchPane {
         // let tmpSpacing = this.brush.settings.spacing
         // this.brushSize *= 2
         // this.brush.settings.spacing = 1
+      let tmpLastSpacing = this.lastSpacing
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
         this.liveStrokeContainer
       )
+      this.lastSpacing = tmpLastSpacing
         // this.brushSize = tmpSize
         // this.brush.settings.spacing = tmpSpacing
     }
