@@ -393,6 +393,8 @@ module.exports = class SketchPane {
     brushNodeFilter.uniforms.u_size = nodeSize
     //
 
+    brushNodeFilter.uniforms.u_brush_size = [nodeSize, nodeSize] // desired size
+
     brushNodeFilter.uniforms.u_x_offset =
       (x + grainOffsetX) * brush.settings.movement
     brushNodeFilter.uniforms.u_y_offset =

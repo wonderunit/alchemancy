@@ -24,6 +24,8 @@ uniform float u_grain_zoom;
 uniform float u_alpha;
 uniform vec2 u_offset_px;
 
+uniform vec2 u_brush_size;
+
 varying vec2 vTextureCoord;
 varying vec2 vFilterCoord;  // ??
 
@@ -38,6 +40,11 @@ vec2 rotate (vec2 v, float a) {
 	float s = sin(a);
 	float c = cos(a);
 	mat2 m = mat2(c, -s, s, c);
+	return m * v;
+}
+
+vec2 scale (vec2 v, vec2 _scale) {
+	mat2 m = mat2(_scale.x, 0.0, 0.0, _scale.y);
 	return m * v;
 }
 
@@ -61,6 +68,12 @@ void main(void) {
   coord -= vec2(0.5);
   // rotate the space
   coord = rotate(coord, uRotation);
+
+	// scale to compensate for sizing shift
+	// (float value brush size vs int value texture dimensions)
+	// backwards to read texture
+	coord = scale(coord, 1. / (u_brush_size / dimensions));
+
   // move it back to the original place
   coord += vec2(0.5);
 
