@@ -42,11 +42,44 @@
     .row * {
       pointer-events: auto;
     }
+    kbd {
+      margin: 0 0.5rem 0 0;
+      display: block;
+      width: 1rem;
+      height: 1rem;
+      text-align: center;
+      line-height: 1;
+      border-top: 2px solid #ddd;
+      border-left: 2px solid #ddd;
+      border-bottom: 2px solid #888;
+      border-right: 2px solid #888;
+      background: #eee;
+      color: #555;
+    }
+    .row--key-commands {
+      display: inline-flex;
+      width: auto;
+      background: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      line-height: 1;
+      align-items: center;
+    }
+    .row--key-commands div {
+      margin-top: -2px; /* optical */
+      margin-right: 1rem;
+    }
   </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
 
   <div class="container">
+    <div class="row row--key-commands">
+      <kbd>c</kbd> <div>clear</div>
+      <kbd>&lt;</kbd> <div>smallify brush</div>
+      <kbd>&gt;</kbd> <div>embiggen brush</div>
+    </div>
     <div class="row">
       <div class="button" id="l-1">Layer 1</div>
       <div class="button" id="l-2">Layer 2</div>
