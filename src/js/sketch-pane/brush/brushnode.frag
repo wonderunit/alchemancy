@@ -63,7 +63,10 @@ void main(void) {
   // user's intended brush color
   vec3 color = vec3(uRed, uGreen, uBlue);
 
-  vec2 coord = (mapCoord(vTextureCoord) - u_offset_px) / dimensions;
+  vec2 coord = mapCoord(vTextureCoord) / dimensions;
+
+	// translate by the subpixel
+	coord -= u_offset_px / dimensions;
 
   // move space from the center to the vec2(0.0)
   coord -= vec2(0.5);
