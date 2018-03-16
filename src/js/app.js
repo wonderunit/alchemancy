@@ -58,6 +58,9 @@ sketchPane.load()
         case "7":
           sketchPane.brush = sketchPane.brushes.brushes.pencil
           break
+        case "c":
+          sketchPane.clearLayer()
+          break;
       }
     })
 
