@@ -70,6 +70,7 @@ void main(void) {
 
   // move space from the center to the vec2(0.0)
   coord -= vec2(0.5);
+
   // rotate the space
   coord = rotate(coord, uRotation);
 
