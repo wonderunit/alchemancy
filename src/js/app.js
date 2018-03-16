@@ -357,28 +357,65 @@ sketchPane.load()
       drawStrokes()
     })
 
+    document.getElementById('draw-pressure').addEventListener('click', event => {
+      event.preventDefault()
+      drawPressureLine()
+    })
+
+    // const drawPressureWave = (px = 350, py = 400) => {
+    //   let end = Math.PI * 2 * 4
+    //   let x
+    //   let y
+    //   let pressure
+    //   for (let i = 0; i < end; i++) {
+    //     x = px + i * (100 / Math.PI)
+    //     y = py + (Math.cos(i) * 50)
+    //     pressure = i / end
+    //     // sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
+    //     // sketchPane.renderLive()
+    //     if (i === 0) {
+    //       sketchPane.pointerdown(fakeEvent({ x, y, pressure }))
+    //     }
+    //     sketchPane.pointermove(fakeEvent({ x, y, pressure }))
+    //   }
+    //   sketchPane.pointerup(fakeEvent({ x, y, pressure }))
+    // }
+
     const drawPressureLine = (px = 350, py = 400) => {
-      let end = Math.PI * 2 * 2
       let x
       let y
       let pressure
-      for (let i = 0; i < end; i++) {
-        x = px + i * (100 / Math.PI)
-        y = py + (Math.cos(i) * 50)
-        pressure = i / end
-        // sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
-        // sketchPane.renderLive()
-        if (i === 0) {
+      let steps = 10
+      let t
+      for (let i = 0; i <= steps; i += 1) {
+        t = i / steps
+        x = t * 600 + px
+        y = t * 1 + py
+        pressure = t
+        if (t === 0) {
           sketchPane.pointerdown(fakeEvent({ x, y, pressure }))
         }
         sketchPane.pointermove(fakeEvent({ x, y, pressure }))
+        if (t === 1) {
+          sketchPane.pointerup(fakeEvent({ x, y, pressure }))
+        }
       }
-      sketchPane.pointerup(fakeEvent({ x, y, pressure }))
     }
-
     setTimeout(() => {
-      sketchPane.brushSize = 8
+      // sketchPane.brushSize = 8
+
+      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brushSize = 75
+      // sketchPane.brushOpacity = 0.4
+      // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
+      // drawPressureWave(550, 350)
+
+      sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      sketchPane.brushSize = 75
+      sketchPane.brushOpacity = 0.4
+      sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       drawPressureLine(550, 350)
+
       // plotLines(550, 400)
       // sketchPane.brush = sketchPane.brushes.brushes.watercolor
       // sketchPane.brushSize = 50
