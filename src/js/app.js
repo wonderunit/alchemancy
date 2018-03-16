@@ -410,13 +410,13 @@ sketchPane.load()
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       // drawPressureWave(550, 350)
 
-      sketchPane.brush = sketchPane.brushes.brushes.watercolor
-      sketchPane.brushSize = 75
-      sketchPane.brushOpacity = 0.4
-      sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
-      drawPressureLine(550, 350)
+      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brushSize = 75
+      // sketchPane.brushOpacity = 0.4
+      // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
+      // drawPressureLine(550, 350)
 
-      // plotLines(550, 400)
+      plotLines(550, 400)
       // sketchPane.brush = sketchPane.brushes.brushes.watercolor
       // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
