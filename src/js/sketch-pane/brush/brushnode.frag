@@ -32,6 +32,7 @@ varying vec2 vFilterCoord;  // ??
 // from PIXI
 uniform vec4 filterArea;
 uniform vec2 dimensions;
+uniform vec4 filterClamp;
 
 uniform sampler2D uSampler; // the actual brush texture
 uniform sampler2D filterSampler; // ???
@@ -71,17 +72,24 @@ void main(void) {
 
 	// scale to compensate for sizing shift
 	// (float value brush size vs int value texture dimensions)
-	// backwards to read texture
-	coord = scale(coord, 1. / (u_brush_size / dimensions));
+	vec2 s = u_brush_size / dimensions;
+	// apply scale (backwards to read texture)
+	coord = scale(coord, 1. / s);
 
   // move it back to the original place
   coord += vec2(0.5);
 
 	coord = unmapCoord(coord * dimensions);
 
-  // read a sample from the texture
+	// read a sample from the texture
   vec4 brushSample = texture2D(uSampler, coord);
 
-  // tint
-  gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
+	// clamp (via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem)
+	if (coord == clamp(coord, filterClamp.xy, filterClamp.zw)) {
+	  // tint
+	  gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
+	} else {
+		// don't draw
+		gl_FragColor = vec4(0.);
+	}
 }
