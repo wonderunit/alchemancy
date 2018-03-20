@@ -74,9 +74,6 @@ void main(void) {
 	// scale the space
   coord = scale(coord, 1.0 / u_node_scale);
 
-	// rotate the space
-  coord = rotate(coord, uRotation);
-
   // rotate the space
   coord = rotate(coord, uRotation);
 
