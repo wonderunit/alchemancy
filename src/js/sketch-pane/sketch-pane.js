@@ -340,6 +340,19 @@ module.exports = class SketchPane {
     grainOffsetY,
     strokeContainer
   ) {
+    // the brush node
+    // is larger than the texture size
+    // because, although the x,y coordinates must be integers,
+    //   we still want to draw sub-pixels,
+    //     so we pad 1px
+    //       allowing us to draw a on positive x, y offset
+    // and, although, the dimensions must be integers,
+    //   we want to have a sub-pixel texture size,
+    //     so we sometimes make the node larger than necessary
+    //       and scale the texture down to correct
+    // to allow us to draw a rotated texture,
+    //   we increase the size to accommodate for up to 45 degrees of rotation
+
     // let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE) // PIXI.Texture.EMPTY
 
     // eslint-disable-next-line new-cap
@@ -348,6 +361,10 @@ module.exports = class SketchPane {
       brushes.brushResources.resources[brush.settings.brushImage].texture.clone()
     )
 
+    //
+    //
+    // brush params
+    //
     let nodeSize = size - (1 - pressure) * size * brush.settings.pressureSize
     let tiltSizeMultiple = (((tilt / 90.0) * brush.settings.tiltSize) * 3) + 1
     nodeSize *= tiltSizeMultiple
@@ -364,9 +381,34 @@ module.exports = class SketchPane {
       nodeRotation = 0 - this.sketchpaneContainer.rotation
     }
 
-    brushNodeSprite.width = nodeSize
-    brushNodeSprite.height = nodeSize
+    //
+    //
+    // sprite setup
+    //
+    // sprite must fit texture rotate by up to 45 degrees
+    let rad = Math.PI * 45 / 180 // extreme angle in radians
+    let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
 
+    // padding to account for pixel offset
+    spriteSize += 2
+
+    // round pixels
+    let iX = Math.floor(x)
+    let iY = Math.floor(y)
+    let iS = Math.ceil(spriteSize)
+
+    let oXY = [x - iX, y - iY]
+    let oS = nodeSize / iS
+    console.log(nodeSize, iS, nodeSize / iS)
+
+    brushNodeSprite.width = iS
+    brushNodeSprite.height = iS
+    brushNodeSprite.position = new PIXI.Point(iX, iY)
+    brushNodeSprite.anchor.set(0.5)
+    //
+    //
+    // filter setup
+    //
     let brushNodeFilter = new BrushNodeFilter()
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
@@ -394,8 +436,6 @@ module.exports = class SketchPane {
     brushNodeFilter.uniforms.u_size = nodeSize
     //
 
-    brushNodeFilter.uniforms.u_brush_size = [nodeSize, nodeSize] // desired size
-
     brushNodeFilter.uniforms.u_x_offset =
       (x + grainOffsetX) * brush.settings.movement
     brushNodeFilter.uniforms.u_y_offset =
@@ -407,12 +447,14 @@ module.exports = class SketchPane {
     brushNodeFilter.uniforms.u_grainTex =
       this.grainImageSprites[brush.settings.grainImage]._texture
 
-    let iX = Math.round(x)
-    let iY = Math.round(y)
-    brushNodeFilter.uniforms.u_offset_px = [x - iX, y - iY]
-    brushNodeSprite.position = new PIXI.Point(iX, iY)
+    // subpixel offset
+    brushNodeFilter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
+    console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
+    // subpixel scale AND padding AND rotation accomdation
+    brushNodeFilter.uniforms.u_node_scale = [oS, oS] // desired scale
+
     brushNodeSprite.filters = [brushNodeFilter]
-    brushNodeSprite.anchor.set(0.5)
+
     strokeContainer.addChild(brushNodeSprite)
   }
 

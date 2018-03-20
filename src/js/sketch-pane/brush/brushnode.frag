@@ -24,7 +24,7 @@ uniform float u_grain_zoom;
 uniform float u_alpha;
 uniform vec2 u_offset_px;
 
-uniform vec2 u_brush_size;
+uniform vec2 u_node_scale;
 
 varying vec2 vTextureCoord;
 varying vec2 vFilterCoord;  // ??
@@ -71,14 +71,14 @@ void main(void) {
   // move space from the center to the vec2(0.0)
   coord -= vec2(0.5);
 
-  // rotate the space
+	// scale the space
+  coord = scale(coord, 1.0 / u_node_scale);
+
+	// rotate the space
   coord = rotate(coord, uRotation);
 
-	// scale to compensate for sizing shift
-	// (float value brush size vs int value texture dimensions)
-	vec2 s = u_brush_size / dimensions;
-	// apply scale (backwards to read texture)
-	coord = scale(coord, 1. / s);
+  // rotate the space
+  coord = rotate(coord, uRotation);
 
   // move it back to the original place
   coord += vec2(0.5);

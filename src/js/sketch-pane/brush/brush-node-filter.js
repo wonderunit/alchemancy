@@ -25,13 +25,13 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
         u_grainTex: { type: 'sampler2D', value: '' },
 
         u_offset_px: { type: 'vec2' },
-        u_brush_size: { type: 'vec2', value: [0.0, 0.0] },
+        u_node_scale: { type: 'vec2', value: [0.0, 0.0] },
 
         dimensions: { type: 'vec2', value: [0.0, 0.0] }
       }
     )
 
-    this.padding = 2
+    this.padding = 0
     this.blendMode = PIXI.BLEND_MODES.NORMAL
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#fitting-problem
