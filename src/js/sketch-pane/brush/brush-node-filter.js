@@ -43,5 +43,14 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
     this.uniforms.dimensions[0] = input.sourceFrame.width
     this.uniforms.dimensions[1] = input.sourceFrame.height
     filterManager.applyFilter(this, input, output, clear)
+
+    // to log Filter-added uniforms:
+    // let shader = this.glShaders[filterManager.renderer.CONTEXT_UID]
+    // if (shader) {
+      // console.log('dimensions', this.uniforms.dimensions)
+      // console.log('filterArea', shader.uniforms.filterArea)
+      // console.log('filterClamp', shader.uniforms.filterClamp)
+      // console.log('vFilterCoord', shader.uniforms.vFilterCoord)
+    // }
   }
 }
