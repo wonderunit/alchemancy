@@ -356,7 +356,7 @@ module.exports = class SketchPane {
     // let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE) // PIXI.Texture.EMPTY
 
     // eslint-disable-next-line new-cap
-    let brushNodeSprite = new PIXI.Sprite.from(
+    let sprite = new PIXI.Sprite.from(
       // brushes.brushResources.resources[brush.settings.brushImage].data
       brushes.brushResources.resources[brush.settings.brushImage].texture.clone()
     )
@@ -401,61 +401,61 @@ module.exports = class SketchPane {
     let oS = nodeSize / iS
     console.log(nodeSize, iS, nodeSize / iS)
 
-    brushNodeSprite.width = iS
-    brushNodeSprite.height = iS
-    brushNodeSprite.position = new PIXI.Point(iX, iY)
-    brushNodeSprite.anchor.set(0.5)
+    sprite.width = iS
+    sprite.height = iS
+    sprite.position = new PIXI.Point(iX, iY)
+    sprite.anchor.set(0.5)
     //
     //
     // filter setup
     //
-    let brushNodeFilter = new BrushNodeFilter()
+    let filter = new BrushNodeFilter()
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
-    // brushNodeFilter.filterArea = this.app.screen
+    // filter.filterArea = this.app.screen
 
-    brushNodeFilter.uniforms.uRed = r
-    brushNodeFilter.uniforms.uGreen = g
-    brushNodeFilter.uniforms.uBlue = b
-    brushNodeFilter.uniforms.uOpacity = nodeOpacity
+    filter.uniforms.uRed = r
+    filter.uniforms.uGreen = g
+    filter.uniforms.uBlue = b
+    filter.uniforms.uOpacity = nodeOpacity
 
-    brushNodeFilter.uniforms.uRotation = nodeRotation
+    filter.uniforms.uRotation = nodeRotation
 
     // TODO review use of Math.pow
-    brushNodeFilter.uniforms.uBleed =
+    filter.uniforms.uBleed =
       Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
-    brushNodeFilter.uniforms.uGrainRotation =
+    filter.uniforms.uGrainRotation =
       brush.settings.rotation
-    brushNodeFilter.uniforms.uGrainScale = brush.settings.scale
+    filter.uniforms.uGrainScale = brush.settings.scale
 
     // DEPRECATED
-    brushNodeFilter.uniforms.u_texture_size = Util.nearestPow2(
+    filter.uniforms.u_texture_size = Util.nearestPow2(
       nodeSize
     )
-    brushNodeFilter.uniforms.u_size = nodeSize
+    filter.uniforms.u_size = nodeSize
     //
 
-    brushNodeFilter.uniforms.u_x_offset =
+    filter.uniforms.u_x_offset =
       (x + grainOffsetX) * brush.settings.movement
-    brushNodeFilter.uniforms.u_y_offset =
+    filter.uniforms.u_y_offset =
       (y + grainOffsetY) * brush.settings.movement
 
-    brushNodeFilter.uniforms.u_brushTex =
+    filter.uniforms.u_brushTex =
       this.brushImageSprites[brush.settings.brushImage]._texture
 
-    brushNodeFilter.uniforms.u_grainTex =
+    filter.uniforms.u_grainTex =
       this.grainImageSprites[brush.settings.grainImage]._texture
 
     // subpixel offset
-    brushNodeFilter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
+    filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
     console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
     // subpixel scale AND padding AND rotation accomdation
-    brushNodeFilter.uniforms.u_node_scale = [oS, oS] // desired scale
+    filter.uniforms.u_node_scale = [oS, oS] // desired scale
 
-    brushNodeSprite.filters = [brushNodeFilter]
+    sprite.filters = [filter]
 
-    strokeContainer.addChild(brushNodeSprite)
+    strokeContainer.addChild(sprite)
   }
 
   resize () {
