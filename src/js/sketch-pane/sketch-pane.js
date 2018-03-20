@@ -379,6 +379,7 @@ module.exports = class SketchPane {
 
     brushNodeFilter.uniforms.uRotation = nodeRotation
 
+    // TODO review use of Math.pow
     brushNodeFilter.uniforms.uBleed =
       Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
