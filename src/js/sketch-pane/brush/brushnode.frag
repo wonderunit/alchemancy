@@ -85,11 +85,10 @@ void main(void) {
 
 	coord = unmapCoord(coord * dimensions);
 
-	// read a sample from the texture
-  vec4 brushSample = texture2D(uSampler, coord);
-
 	// clamp (via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem)
 	if (coord == clamp(coord, filterClamp.xy, filterClamp.zw)) {
+		// read a sample from the texture
+	  vec4 brushSample = texture2D(uSampler, coord);
 	  // tint
 	  gl_FragColor = vec4(color, 1.) * brushSample.r * uOpacity;
 	} else {
