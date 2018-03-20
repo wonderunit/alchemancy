@@ -390,7 +390,7 @@ module.exports = class SketchPane {
     let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
 
     // padding to account for pixel offset
-    spriteSize += 2
+    spriteSize += 4
 
     // round pixels
     let iX = Math.floor(x)
