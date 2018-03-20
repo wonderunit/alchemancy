@@ -385,7 +385,7 @@ module.exports = class SketchPane {
     //
     // sprite setup
     //
-    // sprite must fit texture rotate by up to 45 degrees
+    // sprite must fit a texture rotated by up to 45 degrees
     let rad = Math.PI * 45 / 180 // extreme angle in radians
     let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
 
