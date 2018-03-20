@@ -452,6 +452,7 @@ module.exports = class SketchPane {
     console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
     // subpixel scale AND padding AND rotation accomdation
     filter.uniforms.u_node_scale = [oS, oS] // desired scale
+    filter.padding = 2 // for filterClamp
 
     sprite.filters = [filter]
 
