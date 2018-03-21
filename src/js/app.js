@@ -419,17 +419,28 @@ sketchPane.load()
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       // drawPressureLine(550, 350)
 
-      let p1 = sketchPane.strokeContainer.toGlobal({
-        x: (sketchPane.sketchpaneContainer.width - 400) / 2,
-        y: (sketchPane.sketchpaneContainer.height - 400) / 2
-      })
-      plotLines(p1.x, p1.y)
+      // let p1 = sketchPane.strokeContainer.toGlobal({
+      //   x: (sketchPane.sketchpaneContainer.width - 400) / 2,
+      //   y: (sketchPane.sketchpaneContainer.height - 400) / 2
+      // })
+      // plotLines(p1.x, p1.y)
 
       // sketchPane.brush = sketchPane.brushes.brushes.watercolor
       // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       // plotLines(550, 450)
+
+      // draw a line from center with pressure
+      ;(function () {
+        let { x, y } = sketchPane.strokeContainer.toGlobal({
+          x: (sketchPane.sketchpaneContainer.parent.width / 2) - 540 / 2,
+          y: sketchPane.sketchpaneContainer.parent.height / 2
+        })
+        sketchPane.brushSize = 10
+        sketchPane.brush.settings.spacing = 0.5
+        drawPressureLine(x, y)
+      }())
     }, 10)
 
     function animate() {
