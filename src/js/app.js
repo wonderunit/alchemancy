@@ -419,7 +419,12 @@ sketchPane.load()
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       // drawPressureLine(550, 350)
 
-      plotLines(550, 400)
+      let p1 = sketchPane.strokeContainer.toGlobal({
+        x: (sketchPane.sketchpaneContainer.width - 400) / 2,
+        y: (sketchPane.sketchpaneContainer.height - 400) / 2
+      })
+      plotLines(p1.x, p1.y)
+
       // sketchPane.brush = sketchPane.brushes.brushes.watercolor
       // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
