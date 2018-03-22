@@ -568,7 +568,7 @@ sketchPane
       }, 250)
     }
 
-    const tick = elapsed => {
+    const onRender = elapsed => {
       if (guiState.nodeTest.enabled) {
         sketchPane.disposeContainer(guiState.nodeTest.container)
         drawNodeTest(guiState.nodeTest)
@@ -580,8 +580,8 @@ sketchPane
       if (start == null) start = timestamp
       let elapsed = timestamp - start
       stats.begin()
+      onRender(elapsed)
       stats.end()
-      tick(elapsed)
       window.requestAnimationFrame(animate)
     }
 
