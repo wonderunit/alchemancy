@@ -504,7 +504,7 @@ sketchPane
       brush: sketchPane.brush.settings.name,
 
       nodeTest: {
-        enabled: true,
+        enabled: false,
         container: sketchPane.liveStrokeContainer,
 
         offsetX: 0,
@@ -512,6 +512,10 @@ sketchPane
 
         pressure: 1.0,
         angle: 45
+      },
+
+      pressureLineTest: {
+        enabled: true
       },
 
       calculated: {
@@ -558,6 +562,15 @@ sketchPane
         .listen()
       nodeTestFolder.open()
 
+      let pressureLineTestFolder = gui.addFolder('pressure line test')
+      pressureLineTestFolder.add(guiState.pressureLineTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          // clear it
+          sketchPane.clearLayer()
+        }
+      }).listen()
+      pressureLineTestFolder.open()
+
       // HACK sync values every 250 msecs
       setInterval(() => {
         guiState.calculated.color = {
@@ -574,6 +587,13 @@ sketchPane
         drawNodeTest(guiState.nodeTest)
       }
     }
+
+    setInterval(() => {
+      if (guiState.pressureLineTest.enabled) {
+        sketchPane.clearLayer()
+        drawPressureLine()
+      }
+    }, 100)
 
     let start = null
     function animate (timestamp) {
