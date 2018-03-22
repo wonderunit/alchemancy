@@ -534,7 +534,8 @@ sketchPane
       sketchPaneFolder.open()
 
       let brushSettingsFolder = gui.addFolder('brush.settings')
-      brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0, 10.0).listen()
+      brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0.001, 8.0).listen()
+      brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0.001, 1.0).name('spacing (fine)').listen()
       brushSettingsFolder.open()
 
       let nodeTestFolder = gui.addFolder('node test')
