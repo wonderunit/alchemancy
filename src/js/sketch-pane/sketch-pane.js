@@ -399,7 +399,7 @@ module.exports = class SketchPane {
 
     let oXY = [x - iX, y - iY]
     let oS = nodeSize / iS
-    console.log(nodeSize, iS, nodeSize / iS)
+    // console.log(nodeSize, iS, nodeSize / iS)
 
     sprite.width = iS
     sprite.height = iS
@@ -449,7 +449,7 @@ module.exports = class SketchPane {
 
     // subpixel offset
     filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
-    console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
+    // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
     // subpixel scale AND padding AND rotation accomdation
     filter.uniforms.u_node_scale = [oS, oS] // desired scale
     filter.padding = 2 // for filterClamp
