@@ -512,6 +512,10 @@ sketchPane
 
         pressure: 1.0,
         angle: 45
+      },
+
+      calculated: {
+        color: { r: sketchPane.brushColor.r * 255, g: sketchPane.brushColor.g * 255, b: sketchPane.brushColor.b * 255 }
       }
     }
     const initGUI = (gui) => {
@@ -524,9 +528,9 @@ sketchPane
       sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
       sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 16).name('brushSize (fine)').listen()
       sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
-      sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
-      sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
-      sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()
+      // sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
+      // sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
+      // sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()
       sketchPaneFolder.open()
 
       let brushSettingsFolder = gui.addFolder('brush.settings')
@@ -544,7 +548,23 @@ sketchPane
       nodeTestFolder.add(guiState.nodeTest, 'offsetY', -1, 1).step(0.001).listen()
       nodeTestFolder.add(guiState.nodeTest, 'pressure', 0, 1.0).listen()
       nodeTestFolder.add(guiState.nodeTest, 'angle', 0, 360).step(15).listen()
+      nodeTestFolder.addColor(guiState.calculated, 'color')
+        .onChange(function (value) {
+          sketchPane.brushColor.r = value.r / 255
+          sketchPane.brushColor.g = value.g / 255
+          sketchPane.brushColor.b = value.b / 255
+        })
+        .listen()
       nodeTestFolder.open()
+
+      // HACK sync values every 250 msecs
+      setInterval(() => {
+        guiState.calculated.color = {
+          r: sketchPane.brushColor.r * 255,
+          g: sketchPane.brushColor.g * 255,
+          b: sketchPane.brushColor.b * 255
+        }
+      }, 250)
     }
 
     const tick = elapsed => {
