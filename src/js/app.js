@@ -1,32 +1,34 @@
-const sketchPane = new SketchPane()
-sketchPane.load()
+const sketchPane = new window.SketchPane()
+
+sketchPane
+  .load()
   .then(() => {
     window.sketchPane = sketchPane
 
     console.log('ready')
 
-    let stats = new Stats()
+    let stats = new window.Stats()
     stats.showPanel(0)
     document.body.appendChild(stats.dom)
 
-    window.addEventListener("resize", function(e) {
+    window.addEventListener('resize', function (e) {
       sketchPane.resize()
     })
 
-    window.addEventListener("pointerdown", function(e) {
+    window.addEventListener('pointerdown', function (e) {
       sketchPane.pointerdown(e)
     })
 
-    window.addEventListener("pointerup", function(e) {
+    window.addEventListener('pointerup', function (e) {
       sketchPane.pointerup(e)
     })
 
-    window.addEventListener("pointermove", function(e) {
+    window.addEventListener('pointermove', function (e) {
       // if (e.target.parentNode !== document.body) return
       sketchPane.pointermove(e)
     })
 
-    window.addEventListener("keydown", function(e) {
+    window.addEventListener('keydown', function (e) {
       // console.log(e)
       switch (e.key) {
         case '.':
@@ -34,204 +36,221 @@ sketchPane.load()
           console.log(sketchPane.brushSize)
           break
         case ',':
-        sketchPane.brushSize = Math.round(sketchPane.brushSize / 1.5)
+          sketchPane.brushSize = Math.round(sketchPane.brushSize / 1.5)
           console.log(sketchPane.brushSize)
           break
-        case "1":
-          sketchPane.color = {r: Math.random(),g: Math.random(),b: Math.random()}
+        case '1':
+          sketchPane.color = {
+            r: Math.random(),
+            g: Math.random(),
+            b: Math.random()
+          }
           break
-        case "2":
+        case '2':
           sketchPane.size = 10
           break
-        case "3":
-          sketchPane.size = Math.random()*300
+        case '3':
+          sketchPane.size = Math.random() * 300
           break
-        case "4":
-          sketchPane.opacity = Math.random()*0.8+0.2
+        case '4':
+          sketchPane.opacity = Math.random() * 0.8 + 0.2
           break
-        case "5":
-          sketchPane.opacity = Math.random()*0.8+0.2
+        case '5':
+          sketchPane.opacity = Math.random() * 0.8 + 0.2
           break
-        case "6":
+        case '6':
           sketchPane.brush = sketchPane.brushes.brushes.pen
           break
-        case "7":
+        case '7':
           sketchPane.brush = sketchPane.brushes.brushes.pencil
           break
-        case "c":
+        case 'c':
           sketchPane.clearLayer()
-          break;
+          break
       }
     })
 
-    document.getElementById('l-1').addEventListener("click", function(e) {
+    document.getElementById('l-1').addEventListener('click', function (e) {
       sketchPane.setLayer(1)
     })
 
-    document.getElementById('l-2').addEventListener("click", function(e) {
+    document.getElementById('l-2').addEventListener('click', function (e) {
       sketchPane.setLayer(2)
     })
 
-    document.getElementById('l-3').addEventListener("click", function(e) {
+    document.getElementById('l-3').addEventListener('click', function (e) {
       sketchPane.setLayer(3)
     })
 
-    document.getElementById('b-1').addEventListener("click", function(e) {
+    document.getElementById('b-1').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.pencil
       sketchPane.brushSize = 4
-      sketchPane.brushOpacity = .8
-      sketchPane.brushColor = {r: 0.05,g: 0.05,b: 0.05}
+      sketchPane.brushOpacity = 0.8
+      sketchPane.brushColor = { r: 0.05, g: 0.05, b: 0.05 }
     })
 
-    document.getElementById('b-2').addEventListener("click", function(e) {
+    document.getElementById('b-2').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.pen
       sketchPane.brushSize = 4
-      sketchPane.brushOpacity = .9
-      sketchPane.brushColor = {r: 0,g: 0,b: 0}
-
+      sketchPane.brushOpacity = 0.9
+      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
     })
 
-    document.getElementById('b-copic').addEventListener("click", function(e) {
+    document.getElementById('b-copic').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.copic
       sketchPane.brushSize = 40
-      sketchPane.brushOpacity = .6
+      sketchPane.brushOpacity = 0.6
       let val = 0.8
       let val2 = 1
-      sketchPane.brushColor = {r: val,g: val,b: val2}
-
+      sketchPane.brushColor = { r: val, g: val, b: val2 }
     })
 
-    document.getElementById('b-3').addEventListener("click", function(e) {
+    document.getElementById('b-3').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.charcoal
       sketchPane.brushSize = 50
-      sketchPane.brushOpacity = .6
-      sketchPane.brushColor = {r: .6,g: 0.6,b: 1}
-
+      sketchPane.brushOpacity = 0.6
+      sketchPane.brushColor = { r: 0.6, g: 0.6, b: 1 }
     })
 
-    document.getElementById('b-4').addEventListener("click", function(e) {
+    document.getElementById('b-4').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.watercolor
       sketchPane.brushSize = 100
-      sketchPane.brushOpacity = .4
-      sketchPane.brushColor = {r: .8,g: 0.8,b: 1}
-
+      sketchPane.brushOpacity = 0.4
+      sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
     })
 
-    document.getElementById('b-5').addEventListener("click", function(e) {
+    document.getElementById('b-5').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.clouds
     })
 
-    document.getElementById('b-6').addEventListener("click", function(e) {
+    document.getElementById('b-6').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.slate
     })
 
-    document.getElementById('b-7').addEventListener("click", function(e) {
+    document.getElementById('b-7').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.brushpen
       sketchPane.brushSize = 15
       sketchPane.brushOpacity = 1
-      sketchPane.brushColor = {r: 0,g: 0,b: 0}
+      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
     })
 
-    document.getElementById('c-1').addEventListener("click", function(e) {
+    document.getElementById('c-1').addEventListener('click', function (e) {
       let val = 0
-      sketchPane.brushColor = {r: val,g: val,b: val}
+      sketchPane.brushColor = { r: val, g: val, b: val }
     })
 
-    document.getElementById('c-2').addEventListener("click", function(e) {
+    document.getElementById('c-2').addEventListener('click', function (e) {
       let val = 0.0
       let val2 = 0.2
-      sketchPane.brushColor = {r: val,g: val,b: val2}
+      sketchPane.brushColor = { r: val, g: val, b: val2 }
     })
 
-    document.getElementById('c-3').addEventListener("click", function(e) {
+    document.getElementById('c-3').addEventListener('click', function (e) {
       let val = 0.3
       let val2 = 0.6
-      sketchPane.brushColor = {r: val,g: val,b: val2}
+      sketchPane.brushColor = { r: val, g: val, b: val2 }
     })
 
-    document.getElementById('c-4').addEventListener("click", function(e) {
+    document.getElementById('c-4').addEventListener('click', function (e) {
       let val = 0.7
       let val2 = 0.8
-      sketchPane.brushColor = {r: val,g: val,b: val2}
+      sketchPane.brushColor = { r: val, g: val, b: val2 }
     })
 
-    document.getElementById('c-5').addEventListener("click", function(e) {
+    document.getElementById('c-5').addEventListener('click', function (e) {
       let val = 0.8
       let val2 = 1
-      sketchPane.brushColor = {r: val,g: val,b: val2}
+      sketchPane.brushColor = { r: val, g: val, b: val2 }
     })
 
-    document.getElementById('c-6').addEventListener("click", function(e) {
+    document.getElementById('c-6').addEventListener('click', function (e) {
       let val = 0.3
       let val2 = 1
-      sketchPane.brushColor = {r: val2,g: val2,b: val}
+      sketchPane.brushColor = { r: val2, g: val2, b: val }
     })
 
-    document.getElementById('c-7').addEventListener("click", function(e) {
-      let val = Math.random()*.4+.6
-      let val2 = Math.random()*.4+.2
-      sketchPane.brushColor = {r: 1,g: 1,b: 1}
+    document.getElementById('c-7').addEventListener('click', function (e) {
+      // let val = Math.random() * 0.4 + 0.6
+      // let val2 = Math.random() * 0.4 + 0.2
+      sketchPane.brushColor = { r: 1, g: 1, b: 1 }
     })
 
-    document.getElementById('s-1').addEventListener("click", function(e) {
+    document.getElementById('s-1').addEventListener('click', function (e) {
       sketchPane.brushSize = 3
     })
 
-    document.getElementById('s-2').addEventListener("click", function(e) {
+    document.getElementById('s-2').addEventListener('click', function (e) {
       sketchPane.brushSize = 6
     })
 
-    document.getElementById('s-3').addEventListener("click", function(e) {
+    document.getElementById('s-3').addEventListener('click', function (e) {
       sketchPane.brushSize = 40
     })
 
-    document.getElementById('s-4').addEventListener("click", function(e) {
+    document.getElementById('s-4').addEventListener('click', function (e) {
       sketchPane.brushSize = 100
     })
 
-    document.getElementById('o-1').addEventListener("click", function(e) {
+    document.getElementById('o-1').addEventListener('click', function (e) {
       sketchPane.brushOpacity = 0.1
     })
 
-    document.getElementById('o-2').addEventListener("click", function(e) {
-      sketchPane.brushOpacity = .3
+    document.getElementById('o-2').addEventListener('click', function (e) {
+      sketchPane.brushOpacity = 0.3
     })
 
-    document.getElementById('o-3').addEventListener("click", function(e) {
-      sketchPane.brushOpacity = .5
+    document.getElementById('o-3').addEventListener('click', function (e) {
+      sketchPane.brushOpacity = 0.5
     })
 
-    document.getElementById('o-4').addEventListener("click", function(e) {
-      sketchPane.brushOpacity = .8
+    document.getElementById('o-4').addEventListener('click', function (e) {
+      sketchPane.brushOpacity = 0.8
     })
 
-    document.getElementById('o-5').addEventListener("click", function(e) {
+    document.getElementById('o-5').addEventListener('click', function (e) {
       sketchPane.brushOpacity = 1
     })
 
-    document.getElementById('clear').addEventListener("click", function(e) {
+    document.getElementById('clear').addEventListener('click', function (e) {
       sketchPane.clearLayer()
     })
 
-    document.getElementById('spin').addEventListener("click", function(e) {
+    document.getElementById('spin').addEventListener('click', function (e) {
       sketchPane.spin = !sketchPane.spin
     })
 
-    document.getElementById('save').addEventListener("click", function(e) {
+    document.getElementById('save').addEventListener('click', function (e) {
       sketchPane.saveLayer()
     })
 
     const onSpacingClick = e => {
       sketchPane.brush.settings.spacing = parseFloat(e.target.textContent)
     }
-    document.getElementById('spacing-1').addEventListener('click', onSpacingClick)
-    document.getElementById('spacing-2').addEventListener('click', onSpacingClick)
-    document.getElementById('spacing-3').addEventListener('click', onSpacingClick)
-    document.getElementById('spacing-4').addEventListener('click', onSpacingClick)
-    document.getElementById('spacing-5').addEventListener('click', onSpacingClick)
+    document
+      .getElementById('spacing-1')
+      .addEventListener('click', onSpacingClick)
+    document
+      .getElementById('spacing-2')
+      .addEventListener('click', onSpacingClick)
+    document
+      .getElementById('spacing-3')
+      .addEventListener('click', onSpacingClick)
+    document
+      .getElementById('spacing-4')
+      .addEventListener('click', onSpacingClick)
+    document
+      .getElementById('spacing-5')
+      .addEventListener('click', onSpacingClick)
 
     // fake some pointer movements
-    const fakeEvent = ({x, y, pressure = 1.0}) => ({ x, y, pressure, tiltX: 0, tiltY: 0, target: sketchPane.app.view })
+    const fakeEvent = ({ x, y, pressure = 1.0 }) => ({
+      x,
+      y,
+      pressure,
+      tiltX: 0,
+      tiltY: 0,
+      target: sketchPane.app.view
+    })
 
     const drawStrokes = () => {
       // sketchPane.brush = sketchPane.brushes.brushes.pen
@@ -241,8 +260,8 @@ sketchPane.load()
       // sketchPane.brush.settings.spacing = 0.7
 
       for (let i = 0; i < Math.PI * 2 * 2; i++) {
-        let x = 350 + (i * 50)
-        let y = 400 + (Math.cos(i) * 50)
+        let x = 350 + i * 50
+        let y = 400 + Math.cos(i) * 50
         sketchPane.addMouseEventAsPoint(fakeEvent({ x, y }))
         sketchPane.renderLive()
       }
@@ -257,12 +276,16 @@ sketchPane.load()
         // await new Promise(resolve => setTimeout(resolve, dur))
         sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70, y: 310 }))
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70 + 70, y: 310 }))
+        sketchPane.pointermove(
+          fakeEvent({ x: 350 + 70 + 70 + 70 + 70, y: 310 })
+        )
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70 + 70 + 70, y: 310 }))
+        sketchPane.pointermove(
+          fakeEvent({ x: 350 + 70 + 70 + 70 + 70 + 70, y: 310 })
+        )
         // await new Promise(resolve => setTimeout(resolve, dur))
         sketchPane.pointerup(fakeEvent({ x: 700, y: 310 }))
-      }())
+      })()
     }
 
     const plotLines = (px = 550, py = 400) => {
@@ -360,10 +383,12 @@ sketchPane.load()
       drawStrokes()
     })
 
-    document.getElementById('draw-pressure').addEventListener('click', event => {
-      event.preventDefault()
-      drawPressureLine()
-    })
+    document
+      .getElementById('draw-pressure')
+      .addEventListener('click', event => {
+        event.preventDefault()
+        drawPressureLine()
+      })
 
     // const drawPressureWave = (px = 350, py = 400) => {
     //   let end = Math.PI * 2 * 4
@@ -434,21 +459,21 @@ sketchPane.load()
       // draw a line from center with pressure
       ;(function () {
         let { x, y } = sketchPane.strokeContainer.toGlobal({
-          x: (sketchPane.sketchpaneContainer.parent.width / 2) - 540 / 2,
+          x: sketchPane.sketchpaneContainer.parent.width / 2 - 540 / 2,
           y: sketchPane.sketchpaneContainer.parent.height / 2
         })
         sketchPane.brushSize = 10
         sketchPane.brush.settings.spacing = 0.5
         drawPressureLine(x, y)
-      }())
+      })()
     }, 10)
 
-    function animate() {
+    function animate () {
       stats.begin()
       stats.end()
-      requestAnimationFrame(animate)
+      window.requestAnimationFrame(animate)
     }
 
-    requestAnimationFrame(animate)
+    window.requestAnimationFrame(animate)
   })
   .catch(err => console.error(err))
