@@ -429,6 +429,7 @@ sketchPane
         }
       }
     }
+    /*
     setTimeout(() => {
       // sketchPane.brushSize = 8
 
@@ -467,6 +468,7 @@ sketchPane
       //   drawPressureLine(x, y)
       // })()
     }, 10)
+    */
 
     function animate () {
       stats.begin()
@@ -474,9 +476,25 @@ sketchPane
       window.requestAnimationFrame(animate)
     }
 
+    let state = {
+      brush: sketchPane.brush.settings.name
+    }
     const gui = new window.dat.GUI()
-    gui.add(sketchPane, 'brushSize', 0, 128)
-    gui.open()
+    let sketchPaneFolder = gui.addFolder('sketchPane')
+    sketchPaneFolder.add(state, 'brush')
+      .options(Object.keys(sketchPane.brushes.brushes))
+      .onChange(function (value) {
+        sketchPane.brush = sketchPane.brushes.brushes[value]
+      })
+    sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
+    sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
+    sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
+    sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
+    sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()
+    sketchPaneFolder.open()
+    let brushSettingsFolder = gui.addFolder('brush.settings')
+    brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0, 10.0).listen()
+    brushSettingsFolder.open()
 
     window.requestAnimationFrame(animate)
   })
