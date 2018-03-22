@@ -441,9 +441,6 @@ sketchPane
       let x = sketchPane.sketchpaneContainer.width / 2
       let y = sketchPane.sketchpaneContainer.height / 2
 
-      sketchPane.disposeContainer(sketchPane.strokeContainer)
-      sketchPane.strokeContainer.removeChildren()
-
       sketchPane.addStrokeNode(
         sketchPane.brushColor.r,
         sketchPane.brushColor.g,
@@ -506,6 +503,8 @@ sketchPane
     let guiState = {
       brush: sketchPane.brush.settings.name,
       nodeTest: {
+        enabled: true,
+
         pressure: 1.0,
         angle: 45
       }
@@ -529,13 +528,22 @@ sketchPane
       brushSettingsFolder.open()
 
       let nodeTestFolder = gui.addFolder('node test')
+      nodeTestFolder.add(guiState.nodeTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          // clear it
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+        }
+      }).listen()
       nodeTestFolder.add(guiState.nodeTest, 'pressure', 0, 1.0).listen()
       nodeTestFolder.add(guiState.nodeTest, 'angle', 0, 360).step(15).listen()
       nodeTestFolder.open()
     }
 
     const tick = elapsed => {
-      drawNodeTest(guiState.nodeTest)
+      if (guiState.nodeTest.enabled) {
+        sketchPane.disposeContainer(sketchPane.strokeContainer)
+        drawNodeTest(guiState.nodeTest)
+      }
     }
 
     let start = null
