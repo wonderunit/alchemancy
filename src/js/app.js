@@ -1,4 +1,5 @@
 const sketchPane = new window.SketchPane()
+const gui = new window.dat.GUI()
 
 sketchPane
   .load()
@@ -16,14 +17,20 @@ sketchPane
     })
 
     window.addEventListener('pointerdown', function (e) {
+      if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
+
       sketchPane.pointerdown(e)
     })
 
     window.addEventListener('pointerup', function (e) {
+      if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
+
       sketchPane.pointerup(e)
     })
 
     window.addEventListener('pointermove', function (e) {
+      if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
+
       // if (e.target.parentNode !== document.body) return
       sketchPane.pointermove(e)
     })
@@ -429,6 +436,32 @@ sketchPane
         }
       }
     }
+
+    const drawNodeTest = (state) => {
+      let x = sketchPane.sketchpaneContainer.width / 2
+      let y = sketchPane.sketchpaneContainer.height / 2
+
+      sketchPane.disposeContainer(sketchPane.strokeContainer)
+      sketchPane.strokeContainer.removeChildren()
+
+      sketchPane.addStrokeNode(
+        sketchPane.brushColor.r,
+        sketchPane.brushColor.g,
+        sketchPane.brushColor.b,
+        sketchPane.brushSize,
+        sketchPane.brushOpacity,
+        x,
+        y,
+        state.pressure, // pressure
+        state.angle, // angle
+        0, // tilt
+        sketchPane.brush,
+        0, // grainOffset
+        0, // grainOffset
+        sketchPane.strokeContainer
+      )
+    }
+
     /*
     setTimeout(() => {
       // sketchPane.brushSize = 8
@@ -470,32 +503,52 @@ sketchPane
     }, 10)
     */
 
-    function animate () {
+    let guiState = {
+      brush: sketchPane.brush.settings.name,
+      nodeTest: {
+        pressure: 1.0,
+        angle: 45
+      }
+    }
+    const initGUI = (gui) => {
+      let sketchPaneFolder = gui.addFolder('sketchPane')
+      sketchPaneFolder.add(guiState, 'brush')
+        .options(Object.keys(sketchPane.brushes.brushes))
+        .onChange(function (value) {
+          sketchPane.brush = sketchPane.brushes.brushes[value]
+        })
+      sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
+      sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
+      sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
+      sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
+      sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()
+      sketchPaneFolder.open()
+
+      let brushSettingsFolder = gui.addFolder('brush.settings')
+      brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0, 10.0).listen()
+      brushSettingsFolder.open()
+
+      let nodeTestFolder = gui.addFolder('node test')
+      nodeTestFolder.add(guiState.nodeTest, 'pressure', 0, 1.0).listen()
+      nodeTestFolder.add(guiState.nodeTest, 'angle', 0, 360).step(15).listen()
+      nodeTestFolder.open()
+    }
+
+    const tick = elapsed => {
+      drawNodeTest(guiState.nodeTest)
+    }
+
+    let start = null
+    function animate (timestamp) {
+      if (start == null) start = timestamp
+      let elapsed = timestamp - start
       stats.begin()
       stats.end()
+      tick(elapsed)
       window.requestAnimationFrame(animate)
     }
 
-    let state = {
-      brush: sketchPane.brush.settings.name
-    }
-    const gui = new window.dat.GUI()
-    let sketchPaneFolder = gui.addFolder('sketchPane')
-    sketchPaneFolder.add(state, 'brush')
-      .options(Object.keys(sketchPane.brushes.brushes))
-      .onChange(function (value) {
-        sketchPane.brush = sketchPane.brushes.brushes[value]
-      })
-    sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
-    sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
-    sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
-    sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
-    sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()
-    sketchPaneFolder.open()
-    let brushSettingsFolder = gui.addFolder('brush.settings')
-    brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0, 10.0).listen()
-    brushSettingsFolder.open()
-
+    initGUI(gui)
     window.requestAnimationFrame(animate)
   })
   .catch(err => console.error(err))
