@@ -438,8 +438,8 @@ sketchPane
     }
 
     const drawNodeTest = (state) => {
-      let x = sketchPane.sketchpaneContainer.width / 2
-      let y = sketchPane.sketchpaneContainer.height / 2
+      let x = Math.floor(sketchPane.sketchpaneContainer.width / 2)
+      let y = Math.floor(sketchPane.sketchpaneContainer.height / 2)
 
       sketchPane.addStrokeNode(
         sketchPane.brushColor.r,
@@ -447,8 +447,8 @@ sketchPane
         sketchPane.brushColor.b,
         sketchPane.brushSize,
         sketchPane.brushOpacity,
-        x,
-        y,
+        x + guiState.nodeTest.offsetX,
+        y + guiState.nodeTest.offsetY,
         state.pressure, // pressure
         state.angle, // angle
         0, // tilt
@@ -502,9 +502,13 @@ sketchPane
 
     let guiState = {
       brush: sketchPane.brush.settings.name,
+
       nodeTest: {
         enabled: true,
         container: sketchPane.liveStrokeContainer,
+
+        offsetX: 0,
+        offsetY: 0,
 
         pressure: 1.0,
         angle: 45
@@ -518,6 +522,7 @@ sketchPane
           sketchPane.brush = sketchPane.brushes.brushes[value]
         })
       sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
+      sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 16).name('brushSize (fine)').listen()
       sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
       sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
       sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
@@ -535,6 +540,8 @@ sketchPane
           sketchPane.disposeContainer(guiState.nodeTest.container)
         }
       }).listen()
+      nodeTestFolder.add(guiState.nodeTest, 'offsetX', -1, 1).step(0.001).listen()
+      nodeTestFolder.add(guiState.nodeTest, 'offsetY', -1, 1).step(0.001).listen()
       nodeTestFolder.add(guiState.nodeTest, 'pressure', 0, 1.0).listen()
       nodeTestFolder.add(guiState.nodeTest, 'angle', 0, 360).step(15).listen()
       nodeTestFolder.open()
