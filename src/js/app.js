@@ -455,7 +455,7 @@ sketchPane
         sketchPane.brush,
         0, // grainOffset
         0, // grainOffset
-        sketchPane.strokeContainer
+        guiState.nodeTest.container
       )
     }
 
@@ -504,6 +504,7 @@ sketchPane
       brush: sketchPane.brush.settings.name,
       nodeTest: {
         enabled: true,
+        container: sketchPane.liveStrokeContainer,
 
         pressure: 1.0,
         angle: 45
@@ -531,7 +532,7 @@ sketchPane
       nodeTestFolder.add(guiState.nodeTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
-          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.disposeContainer(guiState.nodeTest.container)
         }
       }).listen()
       nodeTestFolder.add(guiState.nodeTest, 'pressure', 0, 1.0).listen()
@@ -541,7 +542,7 @@ sketchPane
 
     const tick = elapsed => {
       if (guiState.nodeTest.enabled) {
-        sketchPane.disposeContainer(sketchPane.strokeContainer)
+        sketchPane.disposeContainer(guiState.nodeTest.container)
         drawNodeTest(guiState.nodeTest)
       }
     }
