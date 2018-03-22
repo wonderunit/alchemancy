@@ -474,6 +474,10 @@ sketchPane
       window.requestAnimationFrame(animate)
     }
 
+    const gui = new window.dat.GUI()
+    gui.add(sketchPane, 'brushSize', 0, 128)
+    gui.open()
+
     window.requestAnimationFrame(animate)
   })
   .catch(err => console.error(err))
