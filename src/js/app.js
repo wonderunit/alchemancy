@@ -510,7 +510,7 @@ sketchPane
           filter.uniforms.dimensions[1] = input.sourceFrame.height
           filterManager.applyFilter(filter, input, output, clear)
         }
-        filter.padding = 0 // for pixel offset
+        filter.padding = guiState.spriteLineTest.padding // for pixel offset
         filter.autoFit = false
 
         filter.uniforms.u_offset_px = [dX, dY]
@@ -630,7 +630,8 @@ sketchPane
       spriteLineTest: {
         enabled: true,
         spacing: 0.5,
-        scale: 0.4
+        scale: 0.4,
+        padding: 4
       },
 
       calculated: {
@@ -696,6 +697,7 @@ sketchPane
       }).listen()
       spriteLineTestFolder.add(guiState.spriteLineTest, 'spacing', 0.001, 2.0).listen()
       spriteLineTestFolder.add(guiState.spriteLineTest, 'scale', 0.001, 2.0).listen()
+      spriteLineTestFolder.add(guiState.spriteLineTest, 'padding', 0, 16).step(1).listen()
       spriteLineTestFolder.open()
 
       // HACK sync values every 250 msecs
