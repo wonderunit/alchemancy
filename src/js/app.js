@@ -624,7 +624,7 @@ sketchPane
       },
 
       pressureLineTest: {
-        enabled: true
+        enabled: false
       },
 
       spriteLineTest: {
