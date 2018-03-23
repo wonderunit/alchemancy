@@ -583,6 +583,7 @@ sketchPane
       gui.width = 285
     }
 
+    // setup drawNodeTest loop
     const onRender = elapsed => {
       if (guiState.nodeTest.enabled) {
         sketchPane.disposeContainer(guiState.nodeTest.container)
@@ -590,6 +591,7 @@ sketchPane
       }
     }
 
+    // setup drawPressureLine loop
     setInterval(() => {
       if (guiState.pressureLineTest.enabled) {
         sketchPane.clearLayer()
