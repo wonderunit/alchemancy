@@ -682,7 +682,7 @@ sketchPane
         .listen()
       nodeTestFolder.open()
 
-      let pressureLineTestFolder = gui.addFolder('pressure line test')
+      let pressureLineTestFolder = gui.addFolder('pressure line test (uses paths)')
       pressureLineTestFolder.add(guiState.pressureLineTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
@@ -691,7 +691,7 @@ sketchPane
       }).listen()
       pressureLineTestFolder.open()
 
-      let spriteLineTestFolder = gui.addFolder('sprite line test')
+      let spriteLineTestFolder = gui.addFolder('sprite line test (no paths)')
       spriteLineTestFolder.add(guiState.spriteLineTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
