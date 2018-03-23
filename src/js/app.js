@@ -726,7 +726,8 @@ sketchPane
         }
 
         if (guiState.spriteLineTest.enabled) {
-          sketchPane.disposeContainer(guiState.nodeTest.container)
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          // sketchPane.clearLayer()
           drawSpriteLineTest()
           // setTimeout(() => {
           //   sketchPane.stampStroke(
