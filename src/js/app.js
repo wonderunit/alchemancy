@@ -634,6 +634,10 @@ sketchPane
         padding: 1
       },
 
+      plotLineTest: {
+        enabled: true
+      },
+
       calculated: {
         color: { r: sketchPane.brushColor.r * 255, g: sketchPane.brushColor.g * 255, b: sketchPane.brushColor.b * 255 }
       }
@@ -700,6 +704,16 @@ sketchPane
       spriteLineTestFolder.add(guiState.spriteLineTest, 'padding', 0, 16).step(1).listen()
       spriteLineTestFolder.open()
 
+      let plotLineTestFolder = gui.addFolder('plot line test (rotation)')
+      plotLineTestFolder.add(guiState.spriteLineTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          // clear it
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.clearLayer()
+        }
+      }).listen()
+      plotLineTestFolder.open()
+
       // HACK sync values every 250 msecs
       setInterval(() => {
         guiState.calculated.color = {
@@ -738,6 +752,16 @@ sketchPane
           //   )
           //   sketchPane.disposeContainer(sketchPane.strokeContainer)
           // }, 500)
+        }
+
+        if (guiState.plotLineTest.enabled) {
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.clearLayer()
+          let p1 = sketchPane.strokeContainer.toGlobal({
+            x: (sketchPane.sketchpaneContainer.width - 400) / 2,
+            y: (sketchPane.sketchpaneContainer.height - 400) / 2
+          })
+          plotLines(p1.x, p1.y)
         }
       }, 100)
     }
