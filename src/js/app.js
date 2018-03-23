@@ -631,7 +631,7 @@ sketchPane
         enabled: true,
         spacing: 0.5,
         scale: 0.4,
-        padding: 4
+        padding: 1
       },
 
       calculated: {
