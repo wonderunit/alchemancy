@@ -635,7 +635,7 @@ sketchPane
       },
 
       plotLineTest: {
-        enabled: true
+        enabled: false
       },
 
       calculated: {
