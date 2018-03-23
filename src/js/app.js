@@ -423,12 +423,12 @@ sketchPane
       // let pressure
       // let step = 0.1
       let t
-      let max = 800
+      let max = 400
       let i = 0
       let nodeSize = 1
       while (i <= max) {
         t = i / max
-        x = px + (i * 0.3)
+        x = px + (i * guiState.spriteLineTest.spacing)
         y = py + (t * 0)
         // pressure = t
 
@@ -441,6 +441,7 @@ sketchPane
         y -= iS / 2
         sprite.x = Math.floor(x)
         sprite.y = Math.floor(y)
+        // sprite.anchor.set(0.5)
         sprite.width = iS
         sprite.height = iS
         sketchPane.strokeContainer.addChild(sprite)
@@ -509,7 +510,7 @@ sketchPane
           filter.uniforms.dimensions[1] = input.sourceFrame.height
           filterManager.applyFilter(filter, input, output, clear)
         }
-        filter.padding = 4 // for pixel offset
+        filter.padding = 0 // for pixel offset
         filter.autoFit = false
 
         filter.uniforms.u_offset_px = [dX, dY]
@@ -518,7 +519,7 @@ sketchPane
         sprite.filters = [filter]
 
         i += nodeSize
-        nodeSize += 0.4
+        nodeSize += guiState.spriteLineTest.scale
       }
     }
 
@@ -627,7 +628,9 @@ sketchPane
       },
 
       spriteLineTest: {
-        enabled: true
+        enabled: true,
+        spacing: 0.5,
+        scale: 0.4
       },
 
       calculated: {
@@ -691,6 +694,8 @@ sketchPane
           sketchPane.clearLayer()
         }
       }).listen()
+      spriteLineTestFolder.add(guiState.spriteLineTest, 'spacing', 0.001, 2.0).listen()
+      spriteLineTestFolder.add(guiState.spriteLineTest, 'scale', 0.001, 2.0).listen()
       spriteLineTestFolder.open()
 
       // HACK sync values every 250 msecs
@@ -711,6 +716,14 @@ sketchPane
           sketchPane.disposeContainer(guiState.nodeTest.container)
           drawNodeTest(guiState.nodeTest)
         }
+      }
+
+      // setup drawPressureLine loop
+      setInterval(() => {
+        if (guiState.pressureLineTest.enabled) {
+          sketchPane.clearLayer()
+          drawPressureLine()
+        }
 
         if (guiState.spriteLineTest.enabled) {
           sketchPane.disposeContainer(guiState.nodeTest.container)
@@ -722,14 +735,6 @@ sketchPane
           //   )
           //   sketchPane.disposeContainer(sketchPane.strokeContainer)
           // }, 500)
-        }
-      }
-
-      // setup drawPressureLine loop
-      setInterval(() => {
-        if (guiState.pressureLineTest.enabled) {
-          sketchPane.clearLayer()
-          drawPressureLine()
         }
       }, 100)
     }
