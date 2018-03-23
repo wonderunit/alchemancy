@@ -705,7 +705,7 @@ sketchPane
       spriteLineTestFolder.open()
 
       let plotLineTestFolder = gui.addFolder('plot line test (rotation)')
-      plotLineTestFolder.add(guiState.spriteLineTest, 'enabled').onChange(function (enabled) {
+      plotLineTestFolder.add(guiState.plotLineTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
           sketchPane.disposeContainer(sketchPane.strokeContainer)
