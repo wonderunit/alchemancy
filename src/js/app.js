@@ -579,6 +579,8 @@ sketchPane
           b: sketchPane.brushColor.b * 255
         }
       }, 250)
+
+      gui.width = 285
     }
 
     const onRender = elapsed => {
