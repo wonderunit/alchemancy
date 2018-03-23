@@ -389,22 +389,21 @@ module.exports = class SketchPane {
     let rad = Math.PI * 45 / 180 // extreme angle in radians
     let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
 
-    // padding to account for pixel offset
-    spriteSize += 4
-
-    // round pixels
-    let iX = Math.floor(x)
-    let iY = Math.floor(y)
     let iS = Math.ceil(spriteSize)
-
-    let oXY = [x - iX, y - iY]
-    let oS = nodeSize / iS
-    // console.log(nodeSize, iS, nodeSize / iS)
-
+    x -= iS / 2
+    y -= iS / 2
+    sprite.x = Math.floor(x)
+    sprite.y = Math.floor(y)
     sprite.width = iS
     sprite.height = iS
-    sprite.position = new PIXI.Point(iX, iY)
-    sprite.anchor.set(0.5)
+
+    let dX = x - sprite.x
+    let dY = y - sprite.y
+    let dS = nodeSize / sprite.width
+
+    let oXY = [dX, dY]
+    let oS = [dS, dS]
+
     //
     //
     // filter setup
@@ -451,8 +450,8 @@ module.exports = class SketchPane {
     filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
     // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
     // subpixel scale AND padding AND rotation accomdation
-    filter.uniforms.u_node_scale = [oS, oS] // desired scale
-    filter.padding = 2 // for filterClamp
+    filter.uniforms.u_node_scale = oS // desired scale
+    filter.padding = 1 // for filterClamp
 
     sprite.filters = [filter]
 

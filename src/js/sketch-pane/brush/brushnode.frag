@@ -71,14 +71,16 @@ void main(void) {
   // move space from the center to the vec2(0.0)
   coord -= vec2(0.5);
 
-	// scale the space
-  coord = scale(coord, 1.0 / u_node_scale);
-
   // rotate the space
   coord = rotate(coord, uRotation);
 
   // move it back to the original place
   coord += vec2(0.5);
+
+	// scale
+	coord -= 0.5;
+  coord *= 1.0 / u_node_scale;
+	coord += 0.5;
 
 	coord = unmapCoord(coord * dimensions);
 

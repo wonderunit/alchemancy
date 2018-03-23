@@ -624,11 +624,11 @@ sketchPane
       },
 
       pressureLineTest: {
-        enabled: false
+        enabled: true
       },
 
       spriteLineTest: {
-        enabled: true,
+        enabled: false,
         spacing: 0.5,
         scale: 0.4,
         padding: 1
