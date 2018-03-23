@@ -416,6 +416,112 @@ sketchPane
     //   sketchPane.pointerup(fakeEvent({ x, y, pressure }))
     // }
 
+    // a direct sprite test
+    const drawSpriteLineTest = (px = 350.5, py = 400.5) => {
+      let x
+      let y
+      // let pressure
+      // let step = 0.1
+      let t
+      let max = 800
+      let i = 0
+      let nodeSize = 1
+      while (i <= max) {
+        t = i / max
+        x = px + (i * 0.3)
+        y = py + (t * 0)
+        // pressure = t
+
+        let sprite = new window.PIXI.Sprite.from(
+          sketchPane.brushes.brushResources.resources[sketchPane.brush.settings.brushImage].texture.clone()
+        )
+
+        let iS = Math.ceil(nodeSize)
+        x -= iS / 2
+        y -= iS / 2
+        sprite.x = Math.floor(x)
+        sprite.y = Math.floor(y)
+        sprite.width = iS
+        sprite.height = iS
+        sketchPane.strokeContainer.addChild(sprite)
+
+        let dX = x - sprite.x
+        let dY = y - sprite.y
+        let dS = nodeSize / sprite.width
+
+        let filter = new window.PIXI.Filter(
+          null,
+          `
+          varying vec2 vTextureCoord;
+          varying vec2 vFilterCoord;
+          uniform sampler2D uSampler;
+          uniform vec2 u_offset_px;
+          uniform float u_node_scale;
+          uniform vec4 filterArea;
+          uniform vec2 dimensions;
+          uniform vec4 filterClamp;
+          vec2 mapCoord (vec2 coord) {
+            coord *= filterArea.xy;
+            return coord;
+          }
+
+          vec2 unmapCoord (vec2 coord) {
+            coord /= filterArea.xy;
+            return coord;
+          }
+          vec2 scale (vec2 v, vec2 _scale) {
+            mat2 m = mat2(_scale.x, 0.0, 0.0, _scale.y);
+            return m * v;
+          }
+          void main (void) {
+            vec3 PINK = vec3(1., 0., 1.);
+
+            vec2 coord = mapCoord(vTextureCoord) / dimensions;
+
+            coord -= 0.5;
+            coord *= u_node_scale;
+            coord += 0.5;
+
+            // translate by the subpixel
+            coord -= u_offset_px / dimensions;
+
+            coord = unmapCoord(coord) * dimensions;
+
+            if (coord == clamp(coord, filterClamp.xy, filterClamp.zw)) {
+              vec4 sample = texture2D(uSampler, coord);
+              gl_FragColor = vec4(PINK, 1.0) * sample.r;
+            } else {
+              gl_FragColor = vec4(0.);
+            }
+
+            // to diagnose
+            // vec4 sample = texture2D(uSampler, coord);
+            // gl_FragColor = sample;
+          }
+          `,
+          {
+            u_offset_px: { type: 'vec2', value: [0.0, 0.0] },
+            u_node_scale: { type: '1f', value: 1.0 },
+            dimensions: { type: 'vec2', value: [0.0, 0.0] }
+          })
+        filter.apply = (filterManager, input, output, clear) => {
+          filter.uniforms.dimensions[0] = input.sourceFrame.width
+          filter.uniforms.dimensions[1] = input.sourceFrame.height
+          filterManager.applyFilter(filter, input, output, clear)
+        }
+        filter.padding = 4 // for pixel offset
+        filter.autoFit = false
+
+        filter.uniforms.u_offset_px = [dX, dY]
+        filter.uniforms.u_node_scale = 1.0 / dS
+
+        sprite.filters = [filter]
+
+        i += nodeSize
+        nodeSize += 0.4
+      }
+    }
+
     const drawPressureLine = (px = 350, py = 400) => {
       let x
       let y
@@ -500,6 +606,8 @@ sketchPane
     }, 10)
     */
 
+    let onRender
+
     let guiState = {
       brush: sketchPane.brush.settings.name,
 
@@ -515,6 +623,10 @@ sketchPane
       },
 
       pressureLineTest: {
+        enabled: false
+      },
+
+      spriteLineTest: {
         enabled: true
       },
 
@@ -571,6 +683,16 @@ sketchPane
       }).listen()
       pressureLineTestFolder.open()
 
+      let spriteLineTestFolder = gui.addFolder('sprite line test')
+      spriteLineTestFolder.add(guiState.spriteLineTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          // clear it
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.clearLayer()
+        }
+      }).listen()
+      spriteLineTestFolder.open()
+
       // HACK sync values every 250 msecs
       setInterval(() => {
         guiState.calculated.color = {
@@ -581,35 +703,57 @@ sketchPane
       }, 250)
 
       gui.width = 285
-    }
+      gui.close()
 
-    // setup drawNodeTest loop
-    const onRender = elapsed => {
-      if (guiState.nodeTest.enabled) {
-        sketchPane.disposeContainer(guiState.nodeTest.container)
-        drawNodeTest(guiState.nodeTest)
-      }
-    }
+      // setup drawNodeTest loop
+      onRender = elapsed => {
+        if (guiState.nodeTest.enabled) {
+          sketchPane.disposeContainer(guiState.nodeTest.container)
+          drawNodeTest(guiState.nodeTest)
+        }
 
-    // setup drawPressureLine loop
-    setInterval(() => {
-      if (guiState.pressureLineTest.enabled) {
-        sketchPane.clearLayer()
-        drawPressureLine()
+        if (guiState.spriteLineTest.enabled) {
+          sketchPane.disposeContainer(guiState.nodeTest.container)
+          drawSpriteLineTest()
+          // setTimeout(() => {
+          //   sketchPane.stampStroke(
+          //     sketchPane.strokeContainer,
+          //     sketchPane.layerContainer.children[sketchPane.layer].texture
+          //   )
+          //   sketchPane.disposeContainer(sketchPane.strokeContainer)
+          // }, 500)
+        }
       }
-    }, 100)
+
+      // setup drawPressureLine loop
+      setInterval(() => {
+        if (guiState.pressureLineTest.enabled) {
+          sketchPane.clearLayer()
+          drawPressureLine()
+        }
+      }, 100)
+    }
 
     let start = null
     function animate (timestamp) {
       if (start == null) start = timestamp
       let elapsed = timestamp - start
       stats.begin()
-      onRender(elapsed)
+      onRender && onRender(elapsed)
       stats.end()
       window.requestAnimationFrame(animate)
     }
 
     initGUI(gui)
+
+    //
+    //
+    // OVERRIDES
+    //
+    // sketchPane.brushSize = 13
+    // sketchPane.brush.settings.spacing = 0.25
+    // gui.open()
+
     window.requestAnimationFrame(animate)
   })
   .catch(err => console.error(err))
