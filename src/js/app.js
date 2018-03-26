@@ -1,3 +1,5 @@
+/* global PIXI */
+
 const sketchPane = new window.SketchPane()
 const gui = new window.dat.GUI()
 
@@ -371,14 +373,6 @@ sketchPane
         let y = m * x
         plot(x + origin[0], y + origin[1])
       }
-
-      setTimeout(() => {
-        sketchPane.stampStroke(
-          sketchPane.strokeContainer,
-          sketchPane.layerContainer.children[sketchPane.layer].texture
-        )
-        sketchPane.disposeContainer(sketchPane.strokeContainer)
-      }, 500)
     }
     document.getElementById('plot-lines').addEventListener('click', event => {
       event.preventDefault()
@@ -638,6 +632,10 @@ sketchPane
         enabled: false
       },
 
+      delayedTextureRenderTest: {
+        enabled: true
+      },
+
       calculated: {
         color: { r: sketchPane.brushColor.r * 255, g: sketchPane.brushColor.g * 255, b: sketchPane.brushColor.b * 255 }
       }
@@ -714,6 +712,16 @@ sketchPane
       }).listen()
       plotLineTestFolder.open()
 
+      let delayedTextureRenderTest = gui.addFolder('render-to-texture test (with delay)')
+      delayedTextureRenderTest.add(guiState.delayedTextureRenderTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          // clear it
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.clearLayer()
+        }
+      }).listen()
+      delayedTextureRenderTest.open()
+
       // HACK sync values every 250 msecs
       setInterval(() => {
         guiState.calculated.color = {
@@ -755,6 +763,7 @@ sketchPane
         }
 
         if (guiState.plotLineTest.enabled) {
+          // clear and draw plot lines to sprites
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           sketchPane.clearLayer()
           let p1 = sketchPane.strokeContainer.toGlobal({
@@ -765,6 +774,29 @@ sketchPane
         }
       }, 100)
     }
+
+    setInterval(() => {
+      if (guiState.delayedTextureRenderTest.enabled) {
+        // clear and draw plot lines to sprites
+        sketchPane.disposeContainer(sketchPane.strokeContainer)
+        sketchPane.clearLayer()
+        let p1 = sketchPane.strokeContainer.toGlobal({
+          x: (sketchPane.sketchpaneContainer.width - 400) / 2,
+          y: (sketchPane.sketchpaneContainer.height - 400) / 2
+        })
+        plotLines(p1.x, p1.y)
+
+        // to detect small pixel shifts on texture render,
+        //   wait for a bit, then render to the actual texture
+        setTimeout(() => {
+          sketchPane.stampStroke(
+            sketchPane.strokeContainer,
+            sketchPane.layerContainer.children[sketchPane.layer].texture
+          )
+          sketchPane.disposeContainer(sketchPane.strokeContainer)
+        }, 375)
+      }
+    }, 750)
 
     let start = null
     function animate (timestamp) {
