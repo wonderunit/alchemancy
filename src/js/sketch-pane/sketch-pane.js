@@ -367,7 +367,7 @@ module.exports = class SketchPane {
     // eslint-disable-next-line new-cap
     let sprite = new PIXI.Sprite.from(
       // brushes.brushResources.resources[brush.settings.brushImage].data
-      brushes.brushResources.resources[brush.settings.brushImage].texture.clone()
+      brushes.brushResources.resources[brush.settings.brushImage].texture
     )
 
     //
@@ -521,8 +521,10 @@ module.exports = class SketchPane {
     for (let child of container.children) {
       child.destroy({
         children: true,
-        texture: true,
-        baseTexture: false // because we re-use the brush texture
+
+        // because we re-use the brush texture
+        texture: false,
+        baseTexture: false
       })
     }
     container.removeChildren()
