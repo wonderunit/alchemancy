@@ -34,6 +34,8 @@ uniform vec4 filterArea;
 uniform vec2 dimensions;
 uniform vec4 filterClamp;
 
+uniform mat3 filterMatrix;
+
 uniform sampler2D uSampler; // the actual brush texture
 uniform sampler2D filterSampler; // ???
 
@@ -94,4 +96,11 @@ void main(void) {
 		// don't draw
 		gl_FragColor = vec4(0.);
 	}
+
+	vec2 fcoord = vFilterCoord;
+	fcoord = mapCoord(fcoord) / dimensions;
+	// TODO offset, scale, etc. here
+	fcoord = unmapCoord(fcoord * dimensions);
+	vec4 grain = texture2D(u_grainTex, fcoord);
+	gl_FragColor = grain;
 }

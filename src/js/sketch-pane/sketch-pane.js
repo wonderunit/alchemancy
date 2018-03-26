@@ -417,7 +417,7 @@ module.exports = class SketchPane {
     //
     // filter setup
     //
-    let filter = new BrushNodeFilter()
+    let filter = new BrushNodeFilter(this.grainImageSprites[brush.settings.grainImage])
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     // filter.filterArea = this.app.screen
@@ -452,8 +452,9 @@ module.exports = class SketchPane {
     filter.uniforms.u_brushTex =
       this.brushImageSprites[brush.settings.brushImage]._texture
 
-    filter.uniforms.u_grainTex =
-      this.grainImageSprites[brush.settings.grainImage]._texture
+    // passed as sprite, in filter, instead
+    // filter.uniforms.u_grainTex =
+    //   this.grainImageSprites[brush.settings.grainImage]._texture
 
     // subpixel offset
     filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
