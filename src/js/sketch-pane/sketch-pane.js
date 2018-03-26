@@ -124,7 +124,7 @@ module.exports = class SketchPane {
     })
 
     this.setup()
-    this.loadTextureSprites({ brushImagePath: './src/img/brush' })
+    await this.loadTextureSprites({ brushImagePath: './src/img/brush' })
 
     this.setSize(1200, 900)
     this.newLayer()
@@ -182,10 +182,6 @@ module.exports = class SketchPane {
     // live stroke
     this.liveStrokeContainer = new PIXI.Container()
     this.sketchpaneContainer.addChild(this.liveStrokeContainer)
-
-    // sprites used only to get texture transformation matrix
-    this.unrenderableContainer = new PIXI.Container()
-    this.sketchpaneContainer.addChild(this.unrenderableContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
@@ -297,23 +293,36 @@ module.exports = class SketchPane {
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
-  loadTextureSprites ({ brushImagePath }) {
-    const addUnrenderableSpriteByName = name => {
-      let sprite = PIXI.Sprite.fromImage(`${brushImagePath}/${name}.png`)
-      sprite.renderable = false
-      this.unrenderableContainer.addChild(sprite)
-      return sprite
+  async loadTextureSprites ({ brushImagePath }) {
+    let brushImageNames = [...new Set(Object.values(brushes.brushes).map(b => b.settings.brushImage))]
+    let grainImageNames = [...new Set(Object.values(brushes.brushes).map(b => b.settings.grainImage))]
+
+    this.brushImageSprites = []
+    this.grainImageSprites = []
+
+    let promises = []
+    for (let [names, dict] of [[ brushImageNames, this.brushImageSprites ], [ grainImageNames, this.grainImageSprites ]]) {
+      for (let name of names) {
+        let sprite = PIXI.Sprite.fromImage(`${brushImagePath}/${name}.png`)
+        sprite.renderable = false
+        dict[name] = sprite
+        let texture = sprite._texture.baseTexture
+        if (texture.hasLoaded) {
+          promises.push(Promise.resolve(sprite))
+        } else if (texture.isLoading) {
+          promises.push(
+            new Promise((resolve, reject) => {
+              texture.on('loaded', (result) => resolve(texture))
+              texture.on('error', (err) => reject(err))
+            })
+          )
+        } else {
+          promises.push(Promise.reject(new Error()))
+        }
+      }
+
+      await Promise.all(promises)
     }
-
-    this.brushImageSprites = [...new Set(Object.values(brushes.brushes).map(b => b.settings.brushImage))].reduce(
-        (o, brushImage) => Object.assign(o, { [brushImage]: addUnrenderableSpriteByName(brushImage) }),
-        {}
-      )
-
-    this.grainImageSprites = [...new Set(Object.values(brushes.brushes).map(b => b.settings.grainImage))].reduce(
-        (o, grainImage) => Object.assign(o, { [grainImage]: addUnrenderableSpriteByName(grainImage) }),
-        {}
-      )
   }
 
   stampStroke (strokeContainer, texture) {
