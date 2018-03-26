@@ -1,4 +1,4 @@
-precision mediump float;
+precision highp float;
 
 uniform sampler2D u_brushTex;
 uniform sampler2D u_grainTex;
