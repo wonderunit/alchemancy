@@ -647,8 +647,8 @@ sketchPane
         .onChange(function (value) {
           sketchPane.brush = sketchPane.brushes.brushes[value]
         })
-      sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 256).listen()
-      sketchPaneFolder.add(sketchPane, 'brushSize', 0.01, 16).name('brushSize (fine)').listen()
+      sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 256).listen()
+      sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 16).name('brushSize (fine)').listen()
       sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
       // sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
       // sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
