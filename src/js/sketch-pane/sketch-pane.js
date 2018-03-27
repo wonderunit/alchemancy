@@ -438,7 +438,7 @@ module.exports = class SketchPane {
     let filter = new BrushNodeFilter(this.grainImageSprites[brush.settings.grainImage])
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
-    // filter.filterArea = this.app.screen
+    filter.filterArea = this.app.screen
 
     filter.uniforms.uRed = r
     filter.uniforms.uGreen = g
