@@ -834,6 +834,7 @@ sketchPane
       }
 
       if (guiState.nodeTest.enabled) {
+        sketchPane.clearLayer()
         sketchPane.disposeContainer(guiState.nodeTest.container)
         drawNodeTest(guiState.nodeTest)
 
