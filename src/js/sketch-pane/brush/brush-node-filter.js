@@ -57,6 +57,8 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
 
     filterManager.applyFilter(this, input, output, clear)
 
+    // console.log('filterMatrix', this.uniforms.filterMatrix)
+
     // to log Filter-added uniforms:
     // let shader = this.glShaders[filterManager.renderer.CONTEXT_UID]
     // if (shader) {
