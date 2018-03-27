@@ -8,24 +8,31 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
       null,
       fragment,
       {
+        // color
         uRed: { type: '1f', value: 0.5 },
         uGreen: { type: '1f', value: 0.5 },
         uBlue: { type: '1f', value: 0.5 },
+
+        // node
         uOpacity: { type: '1f', value: 1 },
         uRotation: { type: '1f', value: 0 },
+
+        // grain
         uBleed: { type: '1f', value: 0 },
         uGrainRotation: { type: '1f', value: 0 },
         uGrainScale: { type: '1f', value: 1 },
         u_x_offset: { type: '1f', value: 0 },
         u_y_offset: { type: '1f', value: 0 },
-        u_grain_zoom: { type: '1f', value: 1 },
-        u_grainTex: { type: 'sampler2D', value: '' },
 
+        // brush
         u_offset_px: { type: 'vec2' },
         u_node_scale: { type: 'vec2', value: [0.0, 0.0] },
 
-        dimensions: { type: 'vec2', value: [0.0, 0.0] },
+        // grain texture
+        u_grainTex: { type: 'sampler2D', value: '' },
 
+        // environment (via PIXI and Filter)
+        dimensions: { type: 'vec2', value: [0.0, 0.0] },
         filterMatrix: { type: 'mat3' }
       }
     )

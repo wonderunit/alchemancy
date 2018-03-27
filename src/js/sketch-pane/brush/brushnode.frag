@@ -1,40 +1,39 @@
 precision highp float;
 
+// brush texture
+uniform sampler2D uSampler;
+// grain texture
 uniform sampler2D u_grainTex;
 
+// color
 uniform float uRed;
 uniform float uGreen;
 uniform float uBlue;
 
+// node
 uniform float uOpacity;
-
 uniform float uRotation;
 
+// grain
 uniform float uBleed;
-
 uniform float uGrainRotation;
 uniform float uGrainScale;
-
 uniform float u_x_offset;
 uniform float u_y_offset;
-uniform float u_grain_zoom;
-uniform float u_alpha;
-uniform vec2 u_offset_px;
 
+// brush
+uniform vec2 u_offset_px;
 uniform vec2 u_node_scale;
 
+// from vert shader
 varying vec2 vTextureCoord;
-varying vec2 vFilterCoord;  // ??
+varying vec2 vFilterCoord;
 
 // from PIXI
 uniform vec4 filterArea;
 uniform vec2 dimensions;
 uniform vec4 filterClamp;
-
 uniform mat3 filterMatrix;
-
-uniform sampler2D uSampler; // the actual brush texture
-uniform sampler2D filterSampler; // ???
 
 vec2 rotate (vec2 v, float a) {
 	float s = sin(a);
