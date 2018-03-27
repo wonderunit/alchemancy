@@ -2,21 +2,29 @@
   "name": "alchemancy",
   "version": "1.0.0",
   "description": "Alchemancy Mark III - Wonder Unit's drawing system",
-  "main": "",
+  "main": "dist/sketch-pane.js",
   "scripts": {
-    "start": "node_modules/http-server/bin/http-server"
+    "clean": "trash dist/sketch-pane.js",
+    "watch": "webpack --watch",
+    "start": "webpack-serve --config webpack.config.dev.js --port 8000 --host 0.0.0.0 --no-hot",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wonderunit/alchemancy.git"
   },
   "author": "",
+  "private": true,
   "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/wonderunit/alchemancy/issues"
   },
   "homepage": "https://github.com/wonderunit/alchemancy#readme",
-  "dependencies": {
-    "http-server": "^0.11.1"
+  "devDependencies": {
+    "shader-loader": "1.3.1",
+    "trash-cli": "1.4.0",
+    "webpack": "4.1.0",
+    "webpack-cli": "2.0.10",
+    "webpack-serve": "0.1.5"
   }
 }

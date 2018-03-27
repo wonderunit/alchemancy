@@ -1,4 +1,4 @@
-import Brush from './brush.js'
+const Brush = require('./brush.js')
 const loader = new PIXI.loaders.Loader()
 
 
@@ -138,9 +138,9 @@ standardBrushes.forEach((brush)=> {
   }
 })
 
-loader.load((loader, resources) => {
-})
+// loader.load((loader, resources) => {
+// })
 
 let value = {brushes: brushes, brushResources: loader}
 
-export default value
+module.exports = value

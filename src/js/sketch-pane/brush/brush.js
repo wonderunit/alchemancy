@@ -40,7 +40,7 @@ const defaultBrushSettings = {
 
 }
 
-export default class Brush {
+module.exports = class Brush {
 
   constructor (settings) {
     this.settings = Object.assign({}, defaultBrushSettings, settings)
