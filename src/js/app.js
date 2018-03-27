@@ -819,6 +819,11 @@ sketchPane
         // to detect small pixel shifts on texture render,
         //   wait for a bit, then render to the actual texture
         setTimeout(() => {
+          // hacky fix to calculate vFilterCoord properly
+          sketchPane.strokeContainer.getLocalBounds()
+          sketchPane.liveStrokeContainer.getLocalBounds()
+          sketchPane.offscreenContainer.getLocalBounds()
+
           sketchPane.stampStroke(
             sketchPane.strokeContainer,
             sketchPane.layerContainer.children[sketchPane.layer].texture
@@ -832,6 +837,11 @@ sketchPane
         drawNodeTest(guiState.nodeTest)
 
         setTimeout(() => {
+          // hacky fix to calculate vFilterCoord properly
+          sketchPane.strokeContainer.getLocalBounds()
+          sketchPane.liveStrokeContainer.getLocalBounds()
+          sketchPane.offscreenContainer.getLocalBounds()
+
           sketchPane.stampStroke(
             guiState.nodeTest.container,
             sketchPane.layerContainer.children[sketchPane.layer].texture
