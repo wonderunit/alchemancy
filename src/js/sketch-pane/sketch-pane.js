@@ -10,7 +10,6 @@ const BrushNodeFilter = require('./brush/brush-node-filter.js')
   set size
 
 
-  live drawing
   spacing between nodes
   get rid of grid
   erase by setting the alpha of the current layer
