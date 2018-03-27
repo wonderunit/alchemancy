@@ -304,8 +304,8 @@ module.exports = class SketchPane {
   centerContainer () {
     this.sketchpaneContainer.pivot.set(this.width / 2, this.height / 2)
     this.sketchpaneContainer.position.set(
-      this.app.renderer.width / 2,
-      this.app.renderer.height / 2
+      Math.floor(this.app.renderer.width / 2),
+      Math.floor(this.app.renderer.height / 2)
     )
   }
 
