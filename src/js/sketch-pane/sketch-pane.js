@@ -25,6 +25,11 @@ const BrushNodeFilter = require('./brush/brush-node-filter.js')
 */
 
 module.exports = class SketchPane {
+  constructor () {
+    this.layerSprites = []
+    this.layerBackground = null
+  }
+
   saveLayer () {
     console.log('SAVE!')
 
@@ -123,13 +128,17 @@ module.exports = class SketchPane {
       brushes.brushResources.load()
     })
 
-    this.setup()
     await this.loadTextureSprites({ brushImagePath: './src/img/brush' })
 
+    this.setup()
+
     this.setSize(1200, 900)
+
     this.newLayer()
     this.newLayer()
     this.newLayer()
+
+    this.setLayer(1)
 
     // this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
     // this.loadLayers(['grid', 'layer01'])
@@ -177,11 +186,18 @@ module.exports = class SketchPane {
 
     // static stroke
     this.strokeContainer = new PIXI.Container()
+    this.strokeContainer.name = 'static'
     this.layerContainer.addChild(this.strokeContainer)
 
     // live stroke
     this.liveStrokeContainer = new PIXI.Container()
-    this.sketchpaneContainer.addChild(this.liveStrokeContainer)
+    this.liveStrokeContainer.name = 'live'
+    this.layerContainer.addChild(this.liveStrokeContainer)
+
+    // off-screen container
+    this.offscreenContainer = new PIXI.Container()
+    this.offscreenContainer.name = 'offscreen'
+    this.layerContainer.addChild(this.offscreenContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
@@ -230,7 +246,9 @@ module.exports = class SketchPane {
     background.beginFill('0x' + bgColor.toHex())
     background.drawRect(0, 0, this.width, this.height)
     background.endFill()
+    background.name = 'background'
     this.layerContainer.addChild(background)
+    this.layerBackground = background
     this.centerContainer()
   }
 
@@ -239,10 +257,10 @@ module.exports = class SketchPane {
     let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
     // renderTexture.baseTexture.premultipliedAlpha = false
     let renderTextureSprite = new PIXI.Sprite(renderTexture)
+    renderTextureSprite.name = `Layer ${this.layerSprites.length}`
     this.layerContainer.addChild(renderTextureSprite)
+    this.layerSprites.push(renderTextureSprite)
     this.centerContainer()
-    this.layer = 1
-    this.layerContainer.setChildIndex(this.strokeContainer, this.layer + 1)
   }
 
   loadLayers (layers) {
@@ -806,9 +824,23 @@ module.exports = class SketchPane {
     }
   }
 
-  setLayer (layer) {
-    this.layer = layer
-    this.layerContainer.setChildIndex(this.strokeContainer, this.layer + 1)
+  // set layer by number (1-indexed)
+  setLayer (number) {
+    let layerSprite = this.layerSprites[number - 1]
+
+    this.layerContainer.setChildIndex(this.layerBackground, 0)
+
+    let n = 0
+    for (let layer of this.layerSprites) {
+      this.layerContainer.setChildIndex(layer, ++n)
+      if (layer === layerSprite) {
+        this.layer = n
+
+        this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
+        this.layerContainer.setChildIndex(this.strokeContainer, ++n)
+        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++n)
+      }
+    }
   }
 
   clearLayer (layer) {
