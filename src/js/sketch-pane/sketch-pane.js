@@ -133,22 +133,31 @@ module.exports = class SketchPane {
 
     this.setSize(1200, 900)
 
-    this.newLayer()
-    this.newLayer()
-    this.newLayer()
-    this.newLayer()
-    this.setLayer(this.layers.length)
+    // this.newLayer()
+    // this.newLayer()
+    // this.newLayer()
+    // this.newLayer()
+    // this.setLayer(this.layers.length)
 
-    // // NOTE example images are 1000 x 800
-    // let basenames = ['grid', 'layer01', 'layer02', 'layer03']
-    // basenames.forEach(basename =>
-    //   PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
-    // PIXI.loader.load((loader, resources) => {
-    //   basenames.forEach(basename =>
-    //     this.renderToLayer(resources[basename].texture, this.newLayer()))
-    // 
-    //   this.setLayer(this.layers.length)
-    // })
+    // NOTE example images are 1000 x 800
+    await new Promise(resolve => {
+      let basenames = ['grid']//, 'layer01', 'layer02', 'layer03']
+      basenames.forEach(basename =>
+        PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
+      PIXI.loader.load((loader, resources) => {
+        basenames.forEach(basename =>
+          // TODO handle crop/center
+          this.renderToLayer(
+            new PIXI.Sprite(resources[basename].texture),
+            this.newLayer(),
+            true)
+        )
+
+        this.setLayer(this.layers.length)
+
+        resolve()
+      })
+    })
   }
   setup () {
     paper.setup()
@@ -267,24 +276,16 @@ module.exports = class SketchPane {
       name: `Layer ${index + 1}`,
       sprite: new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
     }
+    layer.sprite.name = layer.name
 
     this.layerContainer.position.set(0, 0)
     // layer.sprite.texture.baseTexture.premultipliedAlpha = false
-    layer.sprite.name = layer.name
     this.layerContainer.addChild(layer.sprite)
     this.centerContainer()
 
     this.layers[index] = layer
 
     return this.layers[index]
-  }
-
-  renderToLayer (texture, layer) {
-    // TODO handle crop/center
-    this.app.renderer.render(
-      new PIXI.Sprite(texture),
-      layer.sprite.texture
-    )
   }
 
   centerContainer () {
@@ -329,11 +330,11 @@ module.exports = class SketchPane {
     }
   }
 
-  stampStroke (strokeContainer, texture) {
+  renderToLayer (source, layer, clear = undefined) {
     this.app.renderer.render(
-      strokeContainer,
-      texture,
-      false
+      source,
+      layer.sprite.texture,
+      clear
     )
   }
 
@@ -726,9 +727,10 @@ module.exports = class SketchPane {
       )
 
       // stamp to layer texture
-      this.stampStroke(
+      this.renderToLayer(
         this.strokeContainer,
-        this.layerContainer.children[this.layer].texture
+        this.layers[this.layer - 1],
+        false
       )
       this.disposeContainer(this.strokeContainer)
 
@@ -755,9 +757,10 @@ module.exports = class SketchPane {
       )
 
       // stamp to layer texture
-      this.stampStroke(
+      this.renderToLayer(
         this.strokeContainer,
-        this.layerContainer.children[this.layer].texture
+        this.layers[this.layer - 1],
+        false
       )
       this.disposeContainer(this.strokeContainer)
 
@@ -829,9 +832,9 @@ module.exports = class SketchPane {
     if (!layer) {
       layer = this.layer
     }
-    this.app.renderer.render(
+    this.renderToLayer(
       this.strokeContainer,
-      this.layerContainer.children[layer].texture,
+      this.layers[layer - 1],
       true
     )
   }

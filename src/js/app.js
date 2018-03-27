@@ -788,9 +788,9 @@ sketchPane
           // sketchPane.clearLayer()
           drawSpriteLineTest()
           // setTimeout(() => {
-          //   sketchPane.stampStroke(
+          //   sketchPane.renderToLayer(
           //     sketchPane.strokeContainer,
-          //     sketchPane.layerContainer.children[sketchPane.layer].texture
+          //     sketchPane.layers[sketchPane.layer - 1]
           //   )
           //   sketchPane.disposeContainer(sketchPane.strokeContainer)
           // }, 500)
@@ -828,9 +828,9 @@ sketchPane
           sketchPane.liveStrokeContainer.getLocalBounds()
           sketchPane.offscreenContainer.getLocalBounds()
 
-          sketchPane.stampStroke(
+          sketchPane.renderToLayer(
             sketchPane.strokeContainer,
-            sketchPane.layerContainer.children[sketchPane.layer].texture
+            sketchPane.layers[sketchPane.layer - 1]
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           sketchPane.disposeContainer(sketchPane.offscreenContainer)
@@ -848,9 +848,9 @@ sketchPane
           sketchPane.liveStrokeContainer.getLocalBounds()
           sketchPane.offscreenContainer.getLocalBounds()
 
-          sketchPane.stampStroke(
+          sketchPane.renderToLayer(
             guiState.nodeTest.container,
-            sketchPane.layerContainer.children[sketchPane.layer].texture
+            sketchPane.layers[sketchPane.layer - 1]
           )
           sketchPane.disposeContainer(guiState.nodeTest.container)
           sketchPane.disposeContainer(sketchPane.offscreenContainer)
@@ -877,6 +877,7 @@ sketchPane
     // sketchPane.brushSize = 13
     // sketchPane.brush.settings.spacing = 0.25
     // gui.open()
+    sketchPane.brushSize = 32
 
     window.requestAnimationFrame(animate)
   })
