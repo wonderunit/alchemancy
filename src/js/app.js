@@ -734,15 +734,15 @@ sketchPane
       }).listen()
       plotLineTestFolder.open()
 
-      let delayedTextureRenderTest = gui.addFolder('render-to-texture test (with delay)')
-      delayedTextureRenderTest.add(guiState.delayedTextureRenderTest, 'enabled').onChange(function (enabled) {
+      let delayedTextureRenderTestFolder = gui.addFolder('render-to-texture test (with delay)')
+      delayedTextureRenderTestFolder.add(guiState.delayedTextureRenderTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           sketchPane.clearLayer()
         }
       }).listen()
-      delayedTextureRenderTest.open()
+      delayedTextureRenderTestFolder.open()
 
       let drawTexturedBackgroundTestFolder = gui.addFolder('grain background test')
       drawTexturedBackgroundTestFolder.add(guiState.drawTexturedBackgroundTest, 'enabled').onChange(function (enabled) {
