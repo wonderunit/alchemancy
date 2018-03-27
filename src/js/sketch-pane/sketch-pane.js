@@ -256,49 +256,39 @@ module.exports = class SketchPane {
     let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
     // renderTexture.baseTexture.premultipliedAlpha = false
     let renderTextureSprite = new PIXI.Sprite(renderTexture)
-    renderTextureSprite.name = `Layer ${this.layerSprites.length}`
+    renderTextureSprite.name = `Layer ${this.layerSprites.length + 1}`
     this.layerContainer.addChild(renderTextureSprite)
     this.layerSprites.push(renderTextureSprite)
     this.centerContainer()
+    return this.layerSprites.indexOf(renderTextureSprite) + 1
   }
 
-  // loadLayers (layers) {
-  //   this.layers = layers
-  // 
-  //   layers.forEach(layer => {
-  //     PIXI.loader.add(layer, './src/img/layers/' + layer + '.png')
-  //   })
-  //   PIXI.loader.load((loader, resources) => {
-  //     console.log(resources)
-  // 
-  //     this.width = 1000
-  //     this.height = 800
-  // 
-  //     let mask = new PIXI.Graphics()
-  //     mask.beginFill(0x0, 1)
-  //     mask.drawRect(0, 0, this.width, this.height)
-  //     mask.endFill()
-  //     this.layerContainer.mask = mask
-  //     this.sketchpaneContainer.addChild(mask)
-  // 
-  //     this.layers.forEach((layer, index) => {
-  //       this.layerContainer.position.set(0, 0)
-  //       let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
-  //       let renderTextureSprite = new PIXI.Sprite(renderTexture)
-  //       this.app.renderer.render(
-  //         new PIXI.Sprite(resources[layer].texture),
-  //         renderTexture
-  //       )
-  //       this.layerContainer.addChild(renderTextureSprite)
-  //     })
-  // 
-  //     this.centerContainer()
-  // 
-  //     this.layer = 1
-  // 
-  //     this.layerContainer.setChildIndex(this.strokeContainer, this.layer + 1)
-  //   })
-  // }
+  loadLayers (layers) {
+    layers.forEach(layer => {
+      PIXI.loader.add(layer, './src/img/layers/' + layer + '.png')
+    })
+    PIXI.loader.load((loader, resources) => {
+      // this.width = 1000
+      // this.height = 800
+
+      layers.forEach((layer, index) => {
+        let num = this.newLayer()
+
+        let sprite = new PIXI.Sprite(resources[layer].texture)
+
+        // console.log('rendering', sprite, 'to', this.layerSprites[num - 1].name)
+
+        // TODO handle crop/center
+        this.app.renderer.render(
+          sprite,
+          this.layerSprites[num - 1].texture
+        )
+      })
+
+      this.centerContainer()
+      this.setLayer(1)
+    })
+  }
 
   centerContainer () {
     this.sketchpaneContainer.pivot.set(this.width / 2, this.height / 2)
