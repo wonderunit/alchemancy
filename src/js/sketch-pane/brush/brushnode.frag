@@ -15,7 +15,7 @@ uniform float uBleed;
 uniform float uGrainRotation;
 uniform float uGrainScale;
 
-uniform float u_x_offset; // TODO could we use filterArea.zw ?
+uniform float u_x_offset;
 uniform float u_y_offset;
 uniform float u_grain_zoom;
 uniform float u_alpha;
