@@ -461,10 +461,6 @@ module.exports = class SketchPane {
     // DEPRECATED
     //
     filter.uniforms.uGrainRotation = brush.settings.rotation
-
-    filter.uniforms.u_texture_size = Util.nearestPow2(nodeSize)
-
-    filter.uniforms.u_size = nodeSize
     //
     //
     //

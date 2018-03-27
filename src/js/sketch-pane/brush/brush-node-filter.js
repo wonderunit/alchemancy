@@ -16,8 +16,6 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
         uBleed: { type: '1f', value: 0 },
         uGrainRotation: { type: '1f', value: 0 },
         uGrainScale: { type: '1f', value: 1 },
-        u_size: { type: '1f', value: 100 },
-        u_texture_size: { type: '1f', value: 100 },
         u_x_offset: { type: '1f', value: 0 },
         u_y_offset: { type: '1f', value: 0 },
         u_grain_zoom: { type: '1f', value: 1 },
