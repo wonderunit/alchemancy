@@ -435,7 +435,12 @@ module.exports = class SketchPane {
     //
     // filter setup
     //
-    let filter = new BrushNodeFilter(this.grainImageSprites[brush.settings.grainImage])
+    // TODO can we avoid generating a new sprite each time?
+    //      (only used for texture, positioning, transform matrix)
+    let grainSprite = new PIXI.Sprite(this.grainImageSprites[brush.settings.grainImage].texture)
+    this.offscreenContainer.addChild(grainSprite)
+
+    let filter = new BrushNodeFilter(grainSprite)
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     filter.filterArea = this.app.screen
@@ -527,6 +532,7 @@ module.exports = class SketchPane {
         this.renderLive(true) // forceRender
 
         this.disposeContainer(this.liveStrokeContainer)
+        this.disposeContainer(this.offscreenContainer)
       }
     }
 
