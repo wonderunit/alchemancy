@@ -472,13 +472,6 @@ module.exports = class SketchPane {
     filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement
     filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement
 
-    filter.uniforms.u_brushTex =
-      this.brushImageSprites[brush.settings.brushImage]._texture
-
-    // passed as sprite, in filter, instead
-    // filter.uniforms.u_grainTex =
-    //   this.grainImageSprites[brush.settings.grainImage]._texture
-
     // subpixel offset
     filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
     // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)

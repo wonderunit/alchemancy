@@ -21,7 +21,6 @@ module.exports = class BrushNodeFilter extends PIXI.Filter {
         u_x_offset: { type: '1f', value: 0 },
         u_y_offset: { type: '1f', value: 0 },
         u_grain_zoom: { type: '1f', value: 1 },
-        u_brushTex: { type: 'sampler2D', value: '' },
         u_grainTex: { type: 'sampler2D', value: '' },
 
         u_offset_px: { type: 'vec2' },
