@@ -338,6 +338,11 @@ module.exports = class SketchPane {
     )
   }
 
+  // for clarity. never clears texture when rendering.
+  stampStroke (source, layer) {
+    this.renderToLayer(source, layer, false)
+  }
+
   addStrokeNode (
     r,
     g,
@@ -727,10 +732,9 @@ module.exports = class SketchPane {
       )
 
       // stamp to layer texture
-      this.renderToLayer(
+      this.stampStroke(
         this.strokeContainer,
-        this.layers[this.layer - 1],
-        false
+        this.layers[this.layer - 1]
       )
       this.disposeContainer(this.strokeContainer)
 
@@ -757,10 +761,9 @@ module.exports = class SketchPane {
       )
 
       // stamp to layer texture
-      this.renderToLayer(
+      this.stampStroke(
         this.strokeContainer,
-        this.layers[this.layer - 1],
-        false
+        this.layers[this.layer - 1]
       )
       this.disposeContainer(this.strokeContainer)
 
