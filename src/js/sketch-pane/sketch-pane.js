@@ -187,16 +187,22 @@ module.exports = class SketchPane {
     // static stroke
     this.strokeContainer = new PIXI.Container()
     this.strokeContainer.name = 'static'
+    this.strokeContainer.width = this.width
+    this.strokeContainer.height = this.height
     this.layerContainer.addChild(this.strokeContainer)
 
     // live stroke
     this.liveStrokeContainer = new PIXI.Container()
     this.liveStrokeContainer.name = 'live'
+    this.liveStrokeContainer.width = this.width
+    this.liveStrokeContainer.height = this.height
     this.layerContainer.addChild(this.liveStrokeContainer)
 
     // off-screen container
     this.offscreenContainer = new PIXI.Container()
     this.offscreenContainer.name = 'offscreen'
+    this.offscreenContainer.width = this.width
+    this.offscreenContainer.height = this.height
     this.layerContainer.addChild(this.offscreenContainer)
 
     this.app.stage.addChild(this.sketchpaneContainer)
