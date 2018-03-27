@@ -133,21 +133,22 @@ module.exports = class SketchPane {
 
     this.setSize(1200, 900)
 
-    // this.newLayer()
-    // this.newLayer()
-    // this.newLayer()
-    // this.setLayer(this.layers.length)
+    this.newLayer()
+    this.newLayer()
+    this.newLayer()
+    this.newLayer()
+    this.setLayer(this.layers.length)
 
-    // NOTE example images are 1000 x 800
-    let basenames = ['grid', 'layer01', 'layer02', 'layer03']
-    basenames.forEach(basename =>
-      PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
-    PIXI.loader.load((loader, resources) => {
-      basenames.forEach(basename =>
-        this.renderToLayer(resources[basename].texture, this.newLayer()))
-
-      this.setLayer(this.layers.length)
-    })
+    // // NOTE example images are 1000 x 800
+    // let basenames = ['grid', 'layer01', 'layer02', 'layer03']
+    // basenames.forEach(basename =>
+    //   PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
+    // PIXI.loader.load((loader, resources) => {
+    //   basenames.forEach(basename =>
+    //     this.renderToLayer(resources[basename].texture, this.newLayer()))
+    // 
+    //   this.setLayer(this.layers.length)
+    // })
   }
   setup () {
     paper.setup()
