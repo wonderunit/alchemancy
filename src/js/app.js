@@ -560,6 +560,23 @@ sketchPane
       )
     }
 
+    const drawTexturedBackgroundTest = (state) => {
+      let container = guiState.drawTexturedBackgroundTest.container
+
+      container.removeChildren()
+      for (let child of container.children) {
+        child.destroy({
+          children: true,
+
+          texture: false,
+          baseTexture: false
+        })
+      }
+
+      let sprite = PIXI.Sprite.from(sketchPane.grainImageSprites[sketchPane.brush.settings.grainImage].texture)
+      container.addChild(sprite)
+    }
+
     /*
     setTimeout(() => {
       // sketchPane.brushSize = 8
@@ -633,7 +650,12 @@ sketchPane
       },
 
       delayedTextureRenderTest: {
-        enabled: true
+        enabled: false
+      },
+
+      drawTexturedBackgroundTest: {
+        enabled: false,
+        container: sketchPane.sketchpaneContainer.addChild(new PIXI.Container())
       },
 
       calculated: {
@@ -722,6 +744,16 @@ sketchPane
       }).listen()
       delayedTextureRenderTest.open()
 
+      let drawTexturedBackgroundTestFolder = gui.addFolder('grain background test')
+      drawTexturedBackgroundTestFolder.add(guiState.drawTexturedBackgroundTest, 'enabled').onChange(function (enabled) {
+        if (!enabled) {
+          if (guiState.drawTexturedBackgroundTest.container) {
+            sketchPane.disposeContainer(guiState.drawTexturedBackgroundTest.container)
+          }
+        }
+      }).listen()
+      drawTexturedBackgroundTestFolder.open()
+
       // HACK sync values every 250 msecs
       setInterval(() => {
         guiState.calculated.color = {
@@ -744,6 +776,10 @@ sketchPane
 
       // setup drawPressureLine loop
       setInterval(() => {
+        if (guiState.drawTexturedBackgroundTest.enabled) {
+          drawTexturedBackgroundTest()
+        }
+
         if (guiState.pressureLineTest.enabled) {
           sketchPane.clearLayer()
           drawPressureLine()
