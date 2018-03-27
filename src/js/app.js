@@ -91,6 +91,10 @@ sketchPane
       sketchPane.setLayer(3)
     })
 
+    document.getElementById('l-4').addEventListener('click', function (e) {
+      sketchPane.setLayer(4)
+    })
+
     document.getElementById('b-1').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.brushes.pencil
       sketchPane.brushSize = 4

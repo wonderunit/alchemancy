@@ -25,7 +25,7 @@ const BrushNodeFilter = require('./brush/brush-node-filter.js')
 
 module.exports = class SketchPane {
   constructor () {
-    this.layerSprites = []
+    this.layers = []
     this.layerBackground = null
   }
 
@@ -133,14 +133,21 @@ module.exports = class SketchPane {
 
     this.setSize(1200, 900)
 
-    this.newLayer()
-    this.newLayer()
-    this.newLayer()
+    // this.newLayer()
+    // this.newLayer()
+    // this.newLayer()
+    // this.setLayer(this.layers.length)
 
-    this.setLayer(1)
+    // NOTE example images are 1000 x 800
+    let basenames = ['grid', 'layer01', 'layer02', 'layer03']
+    basenames.forEach(basename =>
+      PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
+    PIXI.loader.load((loader, resources) => {
+      basenames.forEach(basename =>
+        this.renderToLayer(resources[basename].texture, this.newLayer()))
 
-    // this.loadLayers(['grid', 'layer01', 'layer02', 'layer03'])
-    // this.loadLayers(['grid', 'layer01'])
+      this.setLayer(this.layers.length)
+    })
   }
   setup () {
     paper.setup()
@@ -252,42 +259,31 @@ module.exports = class SketchPane {
   }
 
   newLayer () {
+    let index = this.layers.length
+
+    let layer = {
+      index,
+      name: `Layer ${index + 1}`,
+      sprite: new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
+    }
+
     this.layerContainer.position.set(0, 0)
-    let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
-    // renderTexture.baseTexture.premultipliedAlpha = false
-    let renderTextureSprite = new PIXI.Sprite(renderTexture)
-    renderTextureSprite.name = `Layer ${this.layerSprites.length + 1}`
-    this.layerContainer.addChild(renderTextureSprite)
-    this.layerSprites.push(renderTextureSprite)
+    // layer.sprite.texture.baseTexture.premultipliedAlpha = false
+    layer.sprite.name = layer.name
+    this.layerContainer.addChild(layer.sprite)
     this.centerContainer()
-    return this.layerSprites.indexOf(renderTextureSprite) + 1
+
+    this.layers[index] = layer
+
+    return this.layers[index]
   }
 
-  loadLayers (layers) {
-    layers.forEach(layer => {
-      PIXI.loader.add(layer, './src/img/layers/' + layer + '.png')
-    })
-    PIXI.loader.load((loader, resources) => {
-      // this.width = 1000
-      // this.height = 800
-
-      layers.forEach((layer, index) => {
-        let num = this.newLayer()
-
-        let sprite = new PIXI.Sprite(resources[layer].texture)
-
-        // console.log('rendering', sprite, 'to', this.layerSprites[num - 1].name)
-
-        // TODO handle crop/center
-        this.app.renderer.render(
-          sprite,
-          this.layerSprites[num - 1].texture
-        )
-      })
-
-      this.centerContainer()
-      this.setLayer(1)
-    })
+  renderToLayer (texture, layer) {
+    // TODO handle crop/center
+    this.app.renderer.render(
+      new PIXI.Sprite(texture),
+      layer.sprite.texture
+    )
   }
 
   centerContainer () {
@@ -811,14 +807,14 @@ module.exports = class SketchPane {
 
   // set layer by number (1-indexed)
   setLayer (number) {
-    let layerSprite = this.layerSprites[number - 1]
+    let layerSprite = this.layers[number - 1].sprite
 
     this.layerContainer.setChildIndex(this.layerBackground, 0)
 
     let n = 0
-    for (let layer of this.layerSprites) {
-      this.layerContainer.setChildIndex(layer, ++n)
-      if (layer === layerSprite) {
+    for (let layer of this.layers) {
+      this.layerContainer.setChildIndex(layer.sprite, ++n)
+      if (layer.sprite === layerSprite) {
         this.layer = n
 
         this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
