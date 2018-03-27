@@ -455,15 +455,19 @@ module.exports = class SketchPane {
     filter.uniforms.uBleed =
       Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
-    filter.uniforms.uGrainRotation =
-      brush.settings.rotation
     filter.uniforms.uGrainScale = brush.settings.scale
 
+    //
+    //
     // DEPRECATED
-    filter.uniforms.u_texture_size = Util.nearestPow2(
-      nodeSize
-    )
+    //
+    filter.uniforms.uGrainRotation = brush.settings.rotation
+
+    filter.uniforms.u_texture_size = Util.nearestPow2(nodeSize)
+
     filter.uniforms.u_size = nodeSize
+    //
+    //
     //
 
     filter.uniforms.u_x_offset =
