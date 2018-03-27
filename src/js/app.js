@@ -829,6 +829,7 @@ sketchPane
             sketchPane.layerContainer.children[sketchPane.layer].texture
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.disposeContainer(sketchPane.offscreenContainer)
         }, 375)
       }
 
@@ -847,6 +848,7 @@ sketchPane
             sketchPane.layerContainer.children[sketchPane.layer].texture
           )
           sketchPane.disposeContainer(guiState.nodeTest.container)
+          sketchPane.disposeContainer(sketchPane.offscreenContainer)
         }, 250)
       }
     }, 750)
