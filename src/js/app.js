@@ -766,15 +766,9 @@ sketchPane
       gui.width = 285
       gui.close()
 
-      // setup drawNodeTest loop
       onRender = elapsed => {
-        if (guiState.nodeTest.enabled) {
-          sketchPane.disposeContainer(guiState.nodeTest.container)
-          drawNodeTest(guiState.nodeTest)
-        }
       }
 
-      // setup drawPressureLine loop
       setInterval(() => {
         if (guiState.drawTexturedBackgroundTest.enabled) {
           drawTexturedBackgroundTest()
@@ -831,6 +825,19 @@ sketchPane
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
         }, 375)
+      }
+
+      if (guiState.nodeTest.enabled) {
+        sketchPane.disposeContainer(guiState.nodeTest.container)
+        drawNodeTest(guiState.nodeTest)
+
+        setTimeout(() => {
+          sketchPane.stampStroke(
+            guiState.nodeTest.container,
+            sketchPane.layerContainer.children[sketchPane.layer].texture
+          )
+          sketchPane.disposeContainer(guiState.nodeTest.container)
+        }, 250)
       }
     }, 750)
 
