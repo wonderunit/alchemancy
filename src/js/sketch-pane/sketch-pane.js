@@ -470,10 +470,8 @@ module.exports = class SketchPane {
     //
     //
 
-    filter.uniforms.u_x_offset =
-      (x + grainOffsetX) * brush.settings.movement
-    filter.uniforms.u_y_offset =
-      (y + grainOffsetY) * brush.settings.movement
+    filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement
+    filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement
 
     filter.uniforms.u_brushTex =
       this.brushImageSprites[brush.settings.brushImage]._texture
