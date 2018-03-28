@@ -141,7 +141,7 @@ module.exports = class SketchPane {
 
     // NOTE example images are 1000 x 800
     await new Promise(resolve => {
-      let basenames = ['grid']//, 'layer01', 'layer02', 'layer03']
+      let basenames = ['grid', 'layer01', 'layer02', 'layer03']
       basenames.forEach(basename =>
         PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
       PIXI.loader.load((loader, resources) => {
@@ -158,6 +158,21 @@ module.exports = class SketchPane {
         resolve()
       })
     })
+
+    //
+    //
+    //
+    // HACK force erase mode
+    //
+    this.isErasing = true
+    if (this.isErasing) {
+      this.brushColor = { r: 0.0, g: 0.0, b: 0.0 }
+      // TODO instead of hiding these
+      //      _never render to them_ in erase mode
+      //      always render to the erase mode container variants
+      this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
+      this.strokeContainer.parent.removeChild(this.strokeContainer)
+    }
   }
   setup () {
     paper.setup()
@@ -195,9 +210,11 @@ module.exports = class SketchPane {
     this.brushColor = { r: 0, g: 0, b: 0 }
 
     this.sketchpaneContainer = new PIXI.Container()
+    this.sketchpaneContainer.name = 'sketchpaneContainer'
 
     // layer
     this.layerContainer = new PIXI.Container()
+    this.layerContainer.name = 'layerContainer'
     this.sketchpaneContainer.addChild(this.layerContainer)
 
     // static stroke
@@ -214,6 +231,10 @@ module.exports = class SketchPane {
     this.offscreenContainer = new PIXI.Container()
     this.offscreenContainer.name = 'offscreen'
     this.layerContainer.addChild(this.offscreenContainer)
+
+    // erase mask
+    this.eraseMask = new PIXI.Sprite()
+    this.eraseMask.name = 'eraseMask'
 
     this.app.stage.addChild(this.sketchpaneContainer)
     this.sketchpaneContainer.scale.set(1)
@@ -250,8 +271,8 @@ module.exports = class SketchPane {
     mask.beginFill(0x0, 1)
     mask.drawRect(0, 0, this.width, this.height)
     mask.endFill()
-    this.layerContainer.mask = mask
-    this.sketchpaneContainer.addChild(mask)
+    // this.layerContainer.mask = mask
+    // this.sketchpaneContainer.addChild(mask)
 
     if (!color) {
       color = 'white'
@@ -731,11 +752,16 @@ module.exports = class SketchPane {
         this.strokeContainer
       )
 
-      // stamp to layer texture
-      this.stampStroke(
-        this.strokeContainer,
-        this.layers[this.layer - 1]
-      )
+      if (this.isErasing) {
+        // stamp to erase texture
+        this.updateMask(this.strokeContainer, true)
+      } else {
+        // stamp to layer texture
+        this.stampStroke(
+          this.strokeContainer,
+          this.layers[this.layer - 1]
+        )
+      }
       this.disposeContainer(this.strokeContainer)
 
       return
@@ -760,11 +786,15 @@ module.exports = class SketchPane {
         this.strokeContainer
       )
 
-      // stamp to layer texture
-      this.stampStroke(
-        this.strokeContainer,
-        this.layers[this.layer - 1]
-      )
+      if (this.isErasing) {
+        this.updateMask(this.strokeContainer)
+      } else {
+        // stamp to layer texture
+        this.stampStroke(
+          this.strokeContainer,
+          this.layers[this.layer - 1]
+        )
+      }
       this.disposeContainer(this.strokeContainer)
 
       this.lastStaticIndex = b
@@ -807,13 +837,82 @@ module.exports = class SketchPane {
         this.liveStrokeContainer
       )
       this.lastSpacing = tmpLastSpacing
+      if (this.isErasing) {
+        this.updateMask(this.liveStrokeContainer)
+      }
         // this.brushSize = tmpSize
         // this.brush.settings.spacing = tmpSpacing
     }
   }
 
+  updateMask (source, finalize = false) {
+    let layer = this.layers[this.layer - 1]
+
+    // we're starting a new round
+    if (!layer.sprite.mask) {
+      // apply a transform
+      this.eraseMask.transform.updateTransform(this.layerContainer.transform)
+
+      // TODO GC old texture?
+      this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
+
+      let graphics = new PIXI.Graphics()
+        .beginFill(0xff0000, 1.0)
+        .drawRect(0, 0, this.width, this.height)
+        .endFill()
+      this.app.renderer.render(
+        graphics,
+        this.eraseMask.texture,
+        false
+      )
+    }
+
+    this.app.renderer.render(
+      source,
+      this.eraseMask.texture,
+      false
+    )
+
+    layer.sprite.mask = this.eraseMask
+
+    // if finalizing,
+    // we stamp to the erase texture
+    // AND apply the erase texture to the actual layer texture,
+    // then clear the mask texture
+    // and remove the mask from the layer
+    if (finalize) {
+      let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
+
+      this.app.renderer.render(
+        layer.sprite,
+        renderTexture,
+        true,
+        null,
+        true // skipUpdateTransform
+      )
+
+      let finalizedSprite = new PIXI.Sprite.from(renderTexture)
+
+      // undo the transform
+      finalizedSprite.x -= this.eraseMask.transform.worldTransform.tx
+      finalizedSprite.y -= this.eraseMask.transform.worldTransform.ty
+
+      this.app.renderer.render(
+        finalizedSprite,
+        layer.sprite.texture,
+        true
+      )
+
+      layer.sprite.transform.updateTransform(this.layerContainer.transform)
+
+      layer.sprite.mask = null
+    }
+  }
+
   // set layer by number (1-indexed)
   setLayer (number) {
+    if (this.pointerDown) return // HACK prevent layer change during draw
+
     let layerSprite = this.layers[number - 1].sprite
 
     this.layerContainer.setChildIndex(this.layerBackground, 0)
