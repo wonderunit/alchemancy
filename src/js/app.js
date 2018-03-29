@@ -236,7 +236,8 @@ sketchPane
     })
 
     document.getElementById('save').addEventListener('click', function (e) {
-      sketchPane.saveLayer()
+      let image = sketchPane.saveLayer()
+      console.log('got image', image)
     })
 
     const onSpacingClick = e => {

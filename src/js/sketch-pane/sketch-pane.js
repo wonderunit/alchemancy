@@ -28,95 +28,15 @@ module.exports = class SketchPane {
     this.layerBackground = null
   }
 
-  saveLayer () {
-    console.log('SAVE!')
+  saveLayer (index) {
+    index = (index == null) ? this.layer : index
 
-    //     //renderer.bindRenderTarget(textureBuffer)
-    //     //console.log(BYTES_PER_PIXEL)
-    //     const webglPixels = new Uint8Array(4 * this.width * this.height);
-
-    //     console.log(this.app.renderer)
-
-    //    const gl = this.app.renderer.view.getContext("webgl", {
-    //   premultipliedAlpha: true, alpha: true  // Ask for non-premultiplied alpha
-    // });
-
-    //    let texture = (this.layerContainer.children[this.layer].texture.baseTexture._glTextures[0].texture)
-
-    //   var fb = gl.createFramebuffer();
-    //   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-
-    // // gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    // gl.clearColor(1,1,1,1);
-    // gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // // Turn off rendering to alpha
-    // gl.colorMask(true, true, true, true);
-    //  gl.enable(gl.BLEND);
-    //  //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    //   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-    // //gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
-    //  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-
-    //   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-    // // gl.disable(gl.BLEND);
-    // //   gl.disable(gl.DEPTH_TEST);
-
-    // //gl.enable(gl.BLEND);
-    // //gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-    //   // this.app.renderer.bindRenderTexture(this.layerContainer.children[this.layer].texture)
-
-    //     console.log(webglPixels)
-
-    //     gl.readPixels(0,0, this.width, this.height, gl.RGBA, gl.UNSIGNED_BYTE, webglPixels)
-
-    //    console.log(webglPixels)
-
-    //    const background = new PIXI.CanvasRenderTarget(this.width, this.height)
-    //    const canvasData = background.context.getImageData(0, 0, this.width, this.height);
-    //    console.log(canvasData)
-    //    canvasData.data.set(webglPixels);
-    //    background.context.putImageData(canvasData, 0, 0)
-
-    //    console.log(background)
-    //    document.body.appendChild(background.canvas)
-    //    // new PIXI.extract.WebGLExtract()
-
-    //     console.log()
-    //     document.body.appendChild(this.app.renderer.plugins.extract.image(this.layerContainer.children[this.layer].texture))
-
-    // const app = new PIXI.Application({transparent: true, backgroundColor: 0x000, width: 150, height: 150, preserveDrawingBuffer: true});
-
-    // const graphics = new PIXI.Graphics()
-    //     .beginFill(0xFFffcc,0.5)
-    //     .drawCircle(0, 0, 50);
-
-    // //app.renderer.render(graphics)
-    // app.stage.position.set(0,0)
-    //  app.stage.addChild(new PIXI.Sprite(this.layerContainer.children[this.layer].texture))
-    //  app.stage.addChild(graphics)
-
-    // // Render the graphics as an HTMLImageElement
-    // //const image = app.renderer.plugins.extract.image(graphics);
-    //  document.body.appendChild(app.view);
-    //   console.log("asdasd")
-
-    //  setTimeout(()=>{
-    //   console.log("asdasd")
-    //   console.log(app.view)
-    //   const image = app.view.toDataURL()
-    //   console.log(image)
-    //   let i = new Image()
-    //   i.src = image
-    //   document.body.appendChild(i);
-
-    //  }, 1000)
-
-    // document.body.appendChild(this.app.renderer.plugins.extract.image(new PIXI.Sprite(this.layerContainer.children[this.layer].texture)))
+    // render the current layer as an HTMLImageElement
+    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
+    // #image calls #canvas and then converts to #base64 and finally returns an HTMLImageElement (no onload)
+    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
+    // #pixels just reads the raw pixels via gl.readPixels and returns a Uint8ClampedArray
+    return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
   }
 
   async load () {
