@@ -497,8 +497,8 @@ module.exports = class SketchPane {
   resize () {
     this.app.renderer.resize(window.innerWidth, window.innerHeight)
     this.sketchpaneContainer.position.set(
-      this.app.renderer.width / 2,
-      this.app.renderer.height / 2
+      Math.floor(this.app.renderer.width / 2),
+      Math.floor(this.app.renderer.height / 2)
     )
   }
 
