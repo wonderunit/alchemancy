@@ -21,17 +21,6 @@ module.exports = class SketchPane {
     this.setSize(1200, 900)
   }
 
-  saveLayer (index) {
-    index = (index == null) ? this.layer : index
-
-    // render the current layer as an HTMLImageElement
-    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    // #image calls #canvas and then converts to #base64 and finally returns an HTMLImageElement (no onload)
-    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
-    // #pixels just reads the raw pixels via gl.readPixels and returns a Uint8ClampedArray
-    return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
-  }
-
   async load ({ brushImagePath }) {
     await this.loadBrushTextures(brushImagePath)
 
@@ -706,6 +695,17 @@ module.exports = class SketchPane {
       layer.sprite.mask = null
       this.layerContainer.removeChild(this.eraseMask)
     }
+  }
+
+  saveLayer (index) {
+    index = (index == null) ? this.layer : index
+
+    // render the current layer as an HTMLImageElement
+    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
+    // #image calls #canvas and then converts to #base64 and finally returns an HTMLImageElement (no onload)
+    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
+    // #pixels just reads the raw pixels via gl.readPixels and returns a Uint8ClampedArray
+    return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
   }
 
   clearLayer (layer) {
