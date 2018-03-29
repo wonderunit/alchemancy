@@ -158,6 +158,7 @@ module.exports = class SketchPane {
       })
     })
   }
+
   setup () {
     paper.setup()
     PIXI.settings.FILTER_RESOLUTION = 1
@@ -306,6 +307,14 @@ module.exports = class SketchPane {
     )
   }
 
+  resize () {
+    this.app.renderer.resize(window.innerWidth, window.innerHeight)
+    this.sketchpaneContainer.position.set(
+      Math.floor(this.app.renderer.width / 2),
+      Math.floor(this.app.renderer.height / 2)
+    )
+  }
+
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
   async loadTextureSprites ({ brushImagePath }) {
@@ -351,6 +360,19 @@ module.exports = class SketchPane {
   // for clarity. never clears texture when rendering.
   stampStroke (source, layer) {
     this.renderToLayer(source, layer, false)
+  }
+
+  disposeContainer (container) {
+    for (let child of container.children) {
+      child.destroy({
+        children: true,
+
+        // because we re-use the brush texture
+        texture: false,
+        baseTexture: false
+      })
+    }
+    container.removeChildren()
   }
 
   addStrokeNode (
@@ -483,14 +505,6 @@ module.exports = class SketchPane {
     strokeContainer.addChild(sprite)
   }
 
-  resize () {
-    this.app.renderer.resize(window.innerWidth, window.innerHeight)
-    this.sketchpaneContainer.position.set(
-      Math.floor(this.app.renderer.width / 2),
-      Math.floor(this.app.renderer.height / 2)
-    )
-  }
-
   pointerdown (e) {
     this.pointerDown = true
 
@@ -543,19 +557,6 @@ module.exports = class SketchPane {
 
     this.pointerDown = false
     this.app.view.style.cursor = 'auto'
-  }
-
-  disposeContainer (container) {
-    for (let child of container.children) {
-      child.destroy({
-        children: true,
-
-        // because we re-use the brush texture
-        texture: false,
-        baseTexture: false
-      })
-    }
-    container.removeChildren()
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
@@ -913,6 +914,17 @@ module.exports = class SketchPane {
     }
   }
 
+  clearLayer (layer) {
+    if (!layer) {
+      layer = this.layer
+    }
+    this.renderToLayer(
+      this.strokeContainer,
+      this.layers[layer],
+      true
+    )
+  }
+
   // set layer by index (0-indexed)
   setLayer (index) {
     if (this.pointerDown) return // prevent layer change during draw
@@ -941,16 +953,5 @@ module.exports = class SketchPane {
     if (this.pointerDown) return // prevent erase mode change during draw
 
     this.isErasing = value
-  }
-
-  clearLayer (layer) {
-    if (!layer) {
-      layer = this.layer
-    }
-    this.renderToLayer(
-      this.strokeContainer,
-      this.layers[layer],
-      true
-    )
   }
 }
