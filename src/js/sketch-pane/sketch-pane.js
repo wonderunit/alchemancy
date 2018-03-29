@@ -165,7 +165,6 @@ module.exports = class SketchPane {
     //
     this.isErasing = true
     if (this.isErasing) {
-      this.brushColor = { r: 0.0, g: 0.0, b: 0.0 }
       this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
     }
   }
@@ -630,9 +629,9 @@ module.exports = class SketchPane {
       )
 
       interpolatedStrokeInput.push([
-        this.brushColor.r,
-        this.brushColor.g,
-        this.brushColor.b,
+        this.isErasing ? 0 : this.brushColor.r,
+        this.isErasing ? 0 : this.brushColor.g,
+        this.isErasing ? 0 : this.brushColor.b,
         this.brushSize,
         this.brushOpacity,
         point.x,
