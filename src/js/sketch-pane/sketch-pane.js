@@ -12,7 +12,6 @@ const BrushNodeFilter = require('./brush/brush-node-filter.js')
 
   spacing between nodes
   get rid of grid
-  erase by setting the alpha of the current layer
   save layers to png
 
 
