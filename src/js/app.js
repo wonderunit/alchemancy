@@ -98,19 +98,19 @@ sketchPane
       }
     })
 
-    document.getElementById('l-1').addEventListener('click', function (e) {
+    document.getElementById('l-0').addEventListener('click', function (e) {
       sketchPane.setLayer(0)
     })
 
-    document.getElementById('l-2').addEventListener('click', function (e) {
+    document.getElementById('l-1').addEventListener('click', function (e) {
       sketchPane.setLayer(1)
     })
 
-    document.getElementById('l-3').addEventListener('click', function (e) {
+    document.getElementById('l-2').addEventListener('click', function (e) {
       sketchPane.setLayer(2)
     })
 
-    document.getElementById('l-4').addEventListener('click', function (e) {
+    document.getElementById('l-3').addEventListener('click', function (e) {
       sketchPane.setLayer(3)
     })
 
