@@ -1,4 +1,4 @@
-/* global paper PIXI tinycolor */
+/* global paper PIXI */
 const Util = require('./util.js')
 const brushes = require('./brush/brushes.js')
 const BrushNodeFilter = require('./brush/brush-node-filter.js')
@@ -251,32 +251,30 @@ module.exports = class SketchPane {
     // this.spin = true
   }
 
-  setSize (width, height, color) {
+  setSize (width, height, backgroundColor = undefined) {
     this.width = width
     this.height = height
 
     let mask = new PIXI.Graphics()
-    mask.beginFill(0x0, 1)
-    mask.drawRect(0, 0, this.width, this.height)
-    mask.endFill()
-    // this.layerContainer.mask = mask
-    // this.sketchpaneContainer.addChild(mask)
+      .beginFill(0x0, 1)
+      .drawRect(0, 0, this.width, this.height)
+      .endFill()
+    this.layerContainer.mask = mask
+    this.sketchpaneContainer.addChild(mask)
 
-    if (!color) {
-      color = 'white'
-    }
-    let bgColor = tinycolor(color)
-    bgColor.toHex()
+    backgroundColor = backgroundColor == null ? 0xffffff : backgroundColor
+
     let background = new PIXI.Graphics()
-    background.beginFill('0x' + bgColor.toHex())
-    background.drawRect(0, 0, this.width, this.height)
-    background.endFill()
+      .beginFill(backgroundColor)
+      .drawRect(0, 0, this.width, this.height)
+      .endFill()
     background.name = 'background'
     this.layerContainer.addChild(background)
-    this.layerBackground = background
-    this.centerContainer()
 
+    this.layerBackground = background
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
+
+    this.centerContainer()
   }
 
   newLayer () {
