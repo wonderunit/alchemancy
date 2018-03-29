@@ -167,11 +167,7 @@ module.exports = class SketchPane {
     this.isErasing = true
     if (this.isErasing) {
       this.brushColor = { r: 0.0, g: 0.0, b: 0.0 }
-      // TODO instead of hiding these
-      //      _never render to them_ in erase mode
-      //      always render to the erase mode container variants
       this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
-      this.strokeContainer.parent.removeChild(this.strokeContainer)
     }
   }
   setup () {
