@@ -40,13 +40,11 @@ sketchPane
     window.addEventListener('keydown', function (e) {
       // console.log(e)
       switch (e.key) {
-        case '.':
+        case ']':
           sketchPane.brushSize = Math.round(sketchPane.brushSize * 1.5)
-          console.log(sketchPane.brushSize)
           break
-        case ',':
+        case '[':
           sketchPane.brushSize = Math.round(sketchPane.brushSize / 1.5)
-          console.log(sketchPane.brushSize)
           break
         case '1':
           sketchPane.color = {
