@@ -36,30 +36,7 @@ module.exports = class SketchPane {
     this.setSize(1200, 900)
 
     // this.newLayer()
-    // this.newLayer()
-    // this.newLayer()
-    // this.newLayer()
     // this.setLayer(this.layers.length - 1)
-
-    // NOTE example images are 1000 x 800
-    await new Promise(resolve => {
-      let basenames = ['grid', 'layer01', 'layer02', 'layer03']
-      basenames.forEach(basename =>
-        PIXI.loader.add(basename, './src/img/layers/' + basename + '.png'))
-      PIXI.loader.load((loader, resources) => {
-        basenames.forEach(basename =>
-          // TODO handle crop/center
-          this.renderToLayer(
-            new PIXI.Sprite(resources[basename].texture),
-            this.newLayer(),
-            true)
-        )
-
-        this.setLayer(this.layers.length - 1)
-
-        resolve()
-      })
-    })
   }
 
   setup () {
@@ -83,7 +60,6 @@ module.exports = class SketchPane {
     this.app.renderer.roundPixels = false
 
     // this.app.renderer.transparent = true
-    document.body.appendChild(this.app.view)
 
     this.brushes = brushes
     this.brush = this.brushes.brushes.default
@@ -196,6 +172,14 @@ module.exports = class SketchPane {
     this.layers[index] = layer
 
     return this.layers[index]
+  }
+
+  newLayerFrom (image) {
+    // TODO handle crop / center
+    this.renderToLayer(
+      new PIXI.Sprite.from(image), // eslint-disable-line new-cap
+      this.newLayer()
+    )
   }
 
   centerContainer () {

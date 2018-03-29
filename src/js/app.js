@@ -3,10 +3,28 @@
 const sketchPane = new SketchPane()
 const gui = new dat.GUI()
 
+const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03'].map(basename => './src/img/layers/' + basename + '.png')
+
+const loadLayers = filepaths => {
+  return new Promise(resolve => {
+    filepaths.forEach(filepath => PIXI.loader.add(filepath, filepath))
+    PIXI.loader.load((loader, resources) => {
+      for (let filepath of filepaths) {
+        sketchPane.newLayerFrom(resources[filepath].texture)
+      }
+      resolve()
+    })
+  })
+}
+
 sketchPane
   .load()
+  // NOTE example images are 1000 × 800
+  .then(() => loadLayers(layerFilePaths))
+  .then(() => sketchPane.setLayer(sketchPane.layers.length - 1))
   .then(() => {
     window.sketchPane = sketchPane
+    document.body.appendChild(sketchPane.app.view)
 
     console.log('ready')
 
