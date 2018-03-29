@@ -218,16 +218,20 @@ module.exports = class SketchPane {
     this.sketchpaneContainer.addChild(this.layerContainer)
 
     // static stroke
+    // - not shown to user
+    // - used only as a temporary area to setup for texture rendering
     this.strokeContainer = new PIXI.Container()
     this.strokeContainer.name = 'static'
     this.layerContainer.addChild(this.strokeContainer)
 
     // live stroke
+    // - shown to user
     this.liveStrokeContainer = new PIXI.Container()
     this.liveStrokeContainer.name = 'live'
     this.layerContainer.addChild(this.liveStrokeContainer)
 
     // off-screen container
+    // - used for placement of grain sprites
     this.offscreenContainer = new PIXI.Container()
     this.offscreenContainer.name = 'offscreen'
     this.layerContainer.addChild(this.offscreenContainer)
