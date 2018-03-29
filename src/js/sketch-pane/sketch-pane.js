@@ -104,23 +104,6 @@ module.exports = class SketchPane {
     this.strokeInput = []
     this.strokePath = undefined
     this.lastStaticIndex = 0
-
-    this.app.ticker.add(e => {
-      // this.brushSize = Math.sin(this.counter/30)*200+300
-
-      if (this.spin) {
-        this.sketchpaneContainer.rotation += 0.01
-        this.sketchpaneContainer.scale.set(
-          Math.sin(this.counter / 30) * 1 + 1.8
-        )
-      } else {
-        this.sketchpaneContainer.rotation = 0
-        this.sketchpaneContainer.scale.set(1)
-      }
-      this.counter++
-    })
-
-    // this.spin = true
   }
 
   setSize (width, height) {

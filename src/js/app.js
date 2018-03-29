@@ -245,7 +245,7 @@ sketchPane
     })
 
     document.getElementById('spin').addEventListener('click', function (e) {
-      sketchPane.spin = !sketchPane.spin
+      guiState.spin = !guiState.spin
     })
 
     document.getElementById('save').addEventListener('click', function (e) {
@@ -682,9 +682,25 @@ sketchPane
 
       calculated: {
         color: { r: sketchPane.brushColor.r * 255, g: sketchPane.brushColor.g * 255, b: sketchPane.brushColor.b * 255 }
-      }
+      },
+
+      spin: false
     }
     const initGUI = (gui) => {
+      sketchPane.app.ticker.add(e => {
+        // sketchPane.brushSize = Math.sin(sketchPane.counter/30)*200+300
+        if (guiState.spin) {
+          sketchPane.sketchpaneContainer.rotation += 0.01
+          sketchPane.sketchpaneContainer.scale.set(
+            Math.sin(sketchPane.counter / 30) * 1 + 1.8
+          )
+        } else {
+          sketchPane.sketchpaneContainer.rotation = 0
+          sketchPane.sketchpaneContainer.scale.set(1)
+        }
+        sketchPane.counter++
+      })
+
       let sketchPaneFolder = gui.addFolder('sketchPane')
       sketchPaneFolder.add(guiState, 'brush')
         .options(Object.keys(sketchPane.brushes))
