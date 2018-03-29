@@ -852,10 +852,6 @@ module.exports = class SketchPane {
 
     // we're starting a new round
     if (!layer.sprite.mask) {
-      //
-      // TODO GC old texture?
-      //
-
       this.layerContainer.addChild(this.eraseMask)
 
       // start the mask with a solid red background
