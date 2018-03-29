@@ -222,7 +222,6 @@ module.exports = class SketchPane {
     // - used only as a temporary area to setup for texture rendering
     this.strokeContainer = new PIXI.Container()
     this.strokeContainer.name = 'static'
-    this.layerContainer.addChild(this.strokeContainer)
 
     // live stroke
     // - shown to user
@@ -927,7 +926,6 @@ module.exports = class SketchPane {
         this.layer = n
 
         this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
-        this.layerContainer.setChildIndex(this.strokeContainer, ++n)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++n)
       }
     }
