@@ -287,6 +287,8 @@ module.exports = class SketchPane {
     this.layerContainer.addChild(background)
     this.layerBackground = background
     this.centerContainer()
+
+    this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
   }
 
   newLayer () {
@@ -850,12 +852,13 @@ module.exports = class SketchPane {
 
     // we're starting a new round
     if (!layer.sprite.mask) {
-      // apply a transform
-      this.eraseMask.transform.updateTransform(this.layerContainer.transform)
-
+      //
       // TODO GC old texture?
-      this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
+      //
 
+      this.layerContainer.addChild(this.eraseMask)
+
+      // start the mask with a solid red background
       let graphics = new PIXI.Graphics()
         .beginFill(0xff0000, 1.0)
         .drawRect(0, 0, this.width, this.height)
@@ -863,17 +866,19 @@ module.exports = class SketchPane {
       this.app.renderer.render(
         graphics,
         this.eraseMask.texture,
-        false
+        true
       )
+
+      // start using the mask
+      layer.sprite.mask = this.eraseMask
     }
 
+    // render the white strokes onto the red mask
     this.app.renderer.render(
       source,
       this.eraseMask.texture,
       false
     )
-
-    layer.sprite.mask = this.eraseMask
 
     // if finalizing,
     // we stamp to the erase texture
@@ -881,31 +886,30 @@ module.exports = class SketchPane {
     // then clear the mask texture
     // and remove the mask from the layer
     if (finalize) {
+      // render the masked sprite to a temporary render texture
       let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
-
       this.app.renderer.render(
         layer.sprite,
         renderTexture,
         true,
-        null,
+        // reverse the transform so we're rendering at 0,0
+        layer.sprite.transform.worldTransform.invert(),
         true // skipUpdateTransform
       )
+      let finalizedSprite = new PIXI.Sprite.from(renderTexture) // eslint-disable-line new-cap
 
-      let finalizedSprite = new PIXI.Sprite.from(renderTexture)
-
-      // undo the transform
-      finalizedSprite.x -= this.eraseMask.transform.worldTransform.tx
-      finalizedSprite.y -= this.eraseMask.transform.worldTransform.ty
-
+      // replace the layer sprite's texture with the "baked" finalizedTexture
       this.app.renderer.render(
         finalizedSprite,
         layer.sprite.texture,
         true
       )
 
-      layer.sprite.transform.updateTransform(this.layerContainer.transform)
-
+      //
+      // TODO GC finalizedSprite
+      //
       layer.sprite.mask = null
+      this.layerContainer.removeChild(this.eraseMask)
     }
   }
 
