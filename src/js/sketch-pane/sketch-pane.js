@@ -501,6 +501,15 @@ module.exports = class SketchPane {
 
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
+
+      if (this.isErasing) {
+        if (this.liveStrokeContainer.parent) {
+          this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
+        }
+      } else {
+        this.layerContainer.addChild(this.liveStrokeContainer)
+      }
+
       this.renderLive()
 
       this.app.view.style.cursor = 'crosshair'
@@ -523,13 +532,7 @@ module.exports = class SketchPane {
       if (this.pointerDown) {
         this.addMouseEventAsPoint(e)
 
-        if (this.isErasing) {
-          if (this.liveStrokeContainer.parent) {
-            this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
-          }
-        } else {
-          this.layerContainer.addChild(this.liveStrokeContainer)
-        }
+        this.layerContainer.addChild(this.liveStrokeContainer)
 
         this.renderLive(true) // forceRender
 
