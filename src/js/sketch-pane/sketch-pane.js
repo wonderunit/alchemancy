@@ -251,7 +251,7 @@ module.exports = class SketchPane {
     // this.spin = true
   }
 
-  setSize (width, height, backgroundColor = undefined) {
+  setSize (width, height) {
     this.width = width
     this.height = height
 
@@ -262,10 +262,8 @@ module.exports = class SketchPane {
     this.layerContainer.mask = mask
     this.sketchpaneContainer.addChild(mask)
 
-    backgroundColor = backgroundColor == null ? 0xffffff : backgroundColor
-
     let background = new PIXI.Graphics()
-      .beginFill(backgroundColor)
+      .beginFill(0xffffff)
       .drawRect(0, 0, this.width, this.height)
       .endFill()
     background.name = 'background'
