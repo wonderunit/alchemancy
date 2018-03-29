@@ -75,12 +75,6 @@ module.exports = class SketchPane {
     this.liveStrokeContainer.name = 'live'
     this.layerContainer.addChild(this.liveStrokeContainer)
 
-    // off-screen container
-    // - used for placement of grain sprites
-    this.offscreenContainer = new PIXI.Container()
-    this.offscreenContainer.name = 'offscreen'
-    this.layerContainer.addChild(this.offscreenContainer)
-
     // erase mask
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
@@ -303,12 +297,7 @@ module.exports = class SketchPane {
     //
     // filter setup
     //
-    // TODO can we avoid generating a new sprite each time?
-    //      (only used for texture, positioning, transform matrix)
-    let grainSprite = new PIXI.Sprite(this.images.grain[brush.settings.grainImage].texture)
-    this.offscreenContainer.addChild(grainSprite)
-
-    let filter = new BrushNodeFilter(grainSprite)
+    let filter = new BrushNodeFilter(this.images.grain[brush.settings.grainImage])
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     filter.filterArea = this.app.screen
@@ -395,7 +384,6 @@ module.exports = class SketchPane {
         this.renderLive(true) // forceRender
 
         this.disposeContainer(this.liveStrokeContainer)
-        this.disposeContainer(this.offscreenContainer)
       }
     }
 
@@ -733,7 +721,6 @@ module.exports = class SketchPane {
 
       if (layer.sprite === layerSprite) {
         this.layer = childIndex - 1
-        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
       childIndex++
