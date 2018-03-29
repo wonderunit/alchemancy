@@ -1,4 +1,6 @@
-/* global paper PIXI */
+const PIXI = require('pixi.js')
+const paper = require('paper')
+
 const Util = require('./util.js')
 const brushes = require('./brush/brushes.js')
 const BrushNodeFilter = require('./brush/brush-node-filter.js')
