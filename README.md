@@ -1,5 +1,6 @@
-# alchemancy
-Alchemancy Mark III - Wonder Unit's drawing system
+# Alchemancy Mark III
+
+## Wonder Unit’s drawing system
 
 ### Development
 
@@ -31,3 +32,7 @@ Publish to `gh-pages`
     npm run clean # cleanup
 
     git co master # done!
+
+### License
+
+© 2018 Wonder Unit. All Rights Reserved.
