@@ -826,23 +826,29 @@ module.exports = class SketchPane {
       // TODO for 1...3 points (both live AND forceRender) render a curve?
       //
 
-      // debug
-        // let tmpSize = this.brushSize
-        // let tmpSpacing = this.brush.settings.spacing
-        // this.brushSize *= 2
-        // this.brush.settings.spacing = 1
-      let tmpLastSpacing = this.lastSpacing
-      this.renderStroke(
-        this.strokeInput.slice(a, b + 1),
-        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
-        this.liveStrokeContainer
-      )
-      this.lastSpacing = tmpLastSpacing
       if (this.isErasing) {
-        this.updateMask(this.liveStrokeContainer)
-      }
+        // TODO find a good way to add live strokes to erase mask
+        // this.updateMask(this.liveStrokeContainer)
+      } else {
+        // debug
+          // let tmpSize = this.brushSize
+          // let tmpSpacing = this.brush.settings.spacing
+          // this.brushSize *= 2
+          // this.brush.settings.spacing = 1
+
+        // store the current spacing
+        let tmpLastSpacing = this.lastSpacing
+        // draw a live stroke
+        this.renderStroke(
+          this.strokeInput.slice(a, b + 1),
+          new paper.Path(this.strokePath.segments.slice(a, b + 1)),
+          this.liveStrokeContainer
+        )
+        // revert the spacing so the real stroke will be correct
+        this.lastSpacing = tmpLastSpacing
         // this.brushSize = tmpSize
         // this.brush.settings.spacing = tmpSpacing
+      }
     }
   }
 
