@@ -3,25 +3,6 @@ const Util = require('./util.js')
 const brushes = require('./brush/brushes.js')
 const BrushNodeFilter = require('./brush/brush-node-filter.js')
 
-/*
-
-  TODO:
-
-  set size
-
-
-  spacing between nodes
-  get rid of grid
-  save layers to png
-
-
-
-    loadPreview
-      load texture
-      display
-
-*/
-
 module.exports = class SketchPane {
   constructor () {
     this.layers = []
