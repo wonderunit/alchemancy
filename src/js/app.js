@@ -18,14 +18,11 @@ const loadLayers = filepaths => {
 }
 
 sketchPane
-  .load()
+  .load({ brushImagePath: './src/img/brush' })
   // NOTE example images are 1000 × 800
   .then(() => loadLayers(layerFilePaths))
   .then(() => sketchPane.setLayer(sketchPane.layers.length - 1))
   .then(() => {
-    window.sketchPane = sketchPane
-    document.body.appendChild(sketchPane.app.view)
-
     console.log('ready')
 
     let stats = new Stats()
@@ -84,10 +81,10 @@ sketchPane
           sketchPane.opacity = Math.random() * 0.8 + 0.2
           break
         case '6':
-          sketchPane.brush = sketchPane.brushes.brushes.pen
+          sketchPane.brush = sketchPane.brushes.pen
           break
         case '7':
-          sketchPane.brush = sketchPane.brushes.brushes.pencil
+          sketchPane.brush = sketchPane.brushes.pencil
           break
         case 'c':
           sketchPane.clearLayer()
@@ -115,21 +112,21 @@ sketchPane
     })
 
     document.getElementById('b-1').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.pencil
+      sketchPane.brush = sketchPane.brushes.pencil
       sketchPane.brushSize = 4
       sketchPane.brushOpacity = 0.8
       sketchPane.brushColor = { r: 0.05, g: 0.05, b: 0.05 }
     })
 
     document.getElementById('b-2').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.pen
+      sketchPane.brush = sketchPane.brushes.pen
       sketchPane.brushSize = 4
       sketchPane.brushOpacity = 0.9
       sketchPane.brushColor = { r: 0, g: 0, b: 0 }
     })
 
     document.getElementById('b-copic').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.copic
+      sketchPane.brush = sketchPane.brushes.copic
       sketchPane.brushSize = 40
       sketchPane.brushOpacity = 0.6
       let val = 0.8
@@ -138,29 +135,29 @@ sketchPane
     })
 
     document.getElementById('b-3').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.charcoal
+      sketchPane.brush = sketchPane.brushes.charcoal
       sketchPane.brushSize = 50
       sketchPane.brushOpacity = 0.6
       sketchPane.brushColor = { r: 0.6, g: 0.6, b: 1 }
     })
 
     document.getElementById('b-4').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      sketchPane.brush = sketchPane.brushes.watercolor
       sketchPane.brushSize = 100
       sketchPane.brushOpacity = 0.4
       sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
     })
 
     document.getElementById('b-5').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.clouds
+      sketchPane.brush = sketchPane.brushes.clouds
     })
 
     document.getElementById('b-6').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.slate
+      sketchPane.brush = sketchPane.brushes.slate
     })
 
     document.getElementById('b-7').addEventListener('click', function (e) {
-      sketchPane.brush = sketchPane.brushes.brushes.brushpen
+      sketchPane.brush = sketchPane.brushes.brushpen
       sketchPane.brushSize = 15
       sketchPane.brushOpacity = 1
       sketchPane.brushColor = { r: 0, g: 0, b: 0 }
@@ -286,7 +283,7 @@ sketchPane
     })
 
     const drawStrokes = () => {
-      // sketchPane.brush = sketchPane.brushes.brushes.pen
+      // sketchPane.brush = sketchPane.brushes.pen
       // sketchPane.brushSize = 30
       // sketchPane.brushOpacity = 0.9
       // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
@@ -322,17 +319,17 @@ sketchPane
     }
 
     const plotLines = (px = 550, py = 400) => {
-      // sketchPane.brush = sketchPane.brushes.brushes.pen
+      // sketchPane.brush = sketchPane.brushes.pen
       // sketchPane.brushSize = 4
       // sketchPane.brushOpacity = 0.9
       // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
 
-      // sketchPane.brush = sketchPane.brushes.brushes.brushpen
+      // sketchPane.brush = sketchPane.brushes.brushpen
       // sketchPane.brushSize = 15
       // sketchPane.brushOpacity = 1
       // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
 
-      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brush = sketchPane.brushes.watercolor
       // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
@@ -606,13 +603,13 @@ sketchPane
     setTimeout(() => {
       // sketchPane.brushSize = 8
 
-      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brush = sketchPane.brushes.watercolor
       // sketchPane.brushSize = 75
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
       // drawPressureWave(550, 350)
 
-      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brush = sketchPane.brushes.watercolor
       // sketchPane.brushSize = 75
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
@@ -624,7 +621,7 @@ sketchPane
       // })
       // plotLines(p1.x, p1.y)
 
-      // sketchPane.brush = sketchPane.brushes.brushes.watercolor
+      // sketchPane.brush = sketchPane.brushes.watercolor
       // sketchPane.brushSize = 50
       // sketchPane.brushOpacity = 0.4
       // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
@@ -690,9 +687,9 @@ sketchPane
     const initGUI = (gui) => {
       let sketchPaneFolder = gui.addFolder('sketchPane')
       sketchPaneFolder.add(guiState, 'brush')
-        .options(Object.keys(sketchPane.brushes.brushes))
+        .options(Object.keys(sketchPane.brushes))
         .onChange(function (value) {
-          sketchPane.brush = sketchPane.brushes.brushes[value]
+          sketchPane.brush = sketchPane.brushes[value]
         })
       sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 256).listen()
       sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 16).name('brushSize (fine)').listen()
@@ -891,14 +888,8 @@ sketchPane
 
     initGUI(gui)
 
-    //
-    //
-    // OVERRIDES
-    //
-    // sketchPane.brushSize = 13
-    // sketchPane.brush.settings.spacing = 0.25
-    // gui.open()
-    sketchPane.brushSize = 32
+    window.sketchPane = sketchPane
+    document.body.appendChild(sketchPane.app.view)
 
     window.requestAnimationFrame(animate)
   })

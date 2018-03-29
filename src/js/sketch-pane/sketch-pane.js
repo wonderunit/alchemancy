@@ -9,6 +9,11 @@ module.exports = class SketchPane {
   constructor () {
     this.layers = []
     this.layerBackground = null
+
+    this.images = {
+      brush: {},
+      grain: {}
+    }
   }
 
   saveLayer (index) {
@@ -22,18 +27,11 @@ module.exports = class SketchPane {
     return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
   }
 
-  async load () {
-    await new Promise((resolve, reject) => {
-      brushes.brushResources.onComplete.add(resolve)
-      brushes.brushResources.onError.add(reject)
-      brushes.brushResources.load()
-    })
-
-    await this.loadTextureSprites({ brushImagePath: './src/img/brush' })
-
+  async load ({ brushImagePath }) {
     this.setup()
-
     this.setSize(1200, 900)
+
+    await this.loadBrushTextures(brushImagePath)
 
     // this.newLayer()
     // this.setLayer(this.layers.length - 1)
@@ -62,16 +60,11 @@ module.exports = class SketchPane {
     // this.app.renderer.transparent = true
 
     this.brushes = brushes
-    this.brush = this.brushes.brushes.default
 
+    this.brush = this.brushes.pencil
     this.brushColor = { r: 0, g: 0, b: 0 }
-    this.brushSize = 49
-    this.brushOpacity = 0.41
-
-    this.brush = this.brushes.brushes.pen
     this.brushSize = 4
     this.brushOpacity = 0.9
-    this.brushColor = { r: 0, g: 0, b: 0 }
 
     this.sketchpaneContainer = new PIXI.Container()
     this.sketchpaneContainer.name = 'sketchpaneContainer'
@@ -200,36 +193,35 @@ module.exports = class SketchPane {
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
-  async loadTextureSprites ({ brushImagePath }) {
-    let brushImageNames = [...new Set(Object.values(brushes.brushes).map(b => b.settings.brushImage))]
-    let grainImageNames = [...new Set(Object.values(brushes.brushes).map(b => b.settings.grainImage))]
-
-    this.brushImageSprites = []
-    this.grainImageSprites = []
+  async loadBrushTextures (brushImagePath) {
+    // get unique file names
+    let brushImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.brushImage))]
+    let grainImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.grainImage))]
 
     let promises = []
-    for (let [names, dict] of [[ brushImageNames, this.brushImageSprites ], [ grainImageNames, this.grainImageSprites ]]) {
+    for (let [names, dict] of [[ brushImageNames, this.images.brush ], [ grainImageNames, this.images.grain ]]) {
       for (let name of names) {
         let sprite = PIXI.Sprite.fromImage(`${brushImagePath}/${name}.png`)
         sprite.renderable = false
+
         dict[name] = sprite
+
         let texture = sprite._texture.baseTexture
         if (texture.hasLoaded) {
           promises.push(Promise.resolve(sprite))
         } else if (texture.isLoading) {
           promises.push(
             new Promise((resolve, reject) => {
-              texture.on('loaded', (result) => resolve(texture))
-              texture.on('error', (err) => reject(err))
+              texture.on('loaded', result => resolve(texture))
+              texture.on('error', err => reject(err))
             })
           )
         } else {
           promises.push(Promise.reject(new Error()))
         }
       }
-
-      await Promise.all(promises)
     }
+    await Promise.all(promises)
   }
 
   renderToLayer (source, layer, clear = undefined) {
@@ -287,12 +279,9 @@ module.exports = class SketchPane {
     // to allow us to draw a rotated texture,
     //   we increase the size to accommodate for up to 45 degrees of rotation
 
-    // let brushNodeSprite = new PIXI.Sprite(PIXI.Texture.WHITE) // PIXI.Texture.EMPTY
-
     // eslint-disable-next-line new-cap
     let sprite = new PIXI.Sprite.from(
-      // brushes.brushResources.resources[brush.settings.brushImage].data
-      brushes.brushResources.resources[brush.settings.brushImage].texture
+      this.images.brush[brush.settings.brushImage].texture
     )
 
     //
@@ -344,7 +333,7 @@ module.exports = class SketchPane {
     //
     // TODO can we avoid generating a new sprite each time?
     //      (only used for texture, positioning, transform matrix)
-    let grainSprite = new PIXI.Sprite(this.grainImageSprites[brush.settings.grainImage].texture)
+    let grainSprite = new PIXI.Sprite(this.images.grain[brush.settings.grainImage].texture)
     this.offscreenContainer.addChild(grainSprite)
 
     let filter = new BrushNodeFilter(grainSprite)

@@ -1,9 +1,6 @@
-const PIXI = require('pixi.js')
+const Brush = require('./brush')
 
-const Brush = require('./brush.js')
-const loader = new PIXI.loaders.Loader()
-
-const standardBrushes = [
+module.exports = [
   {
     name: 'default', // Name of the brush preset
     descriptiveName: 'Default Brush' // Name of the brush preset
@@ -117,27 +114,7 @@ const standardBrushes = [
     movement: 1, // % the grain is offset as the brush moves. 0 static. 100 rolling. 100 is like paper
     spacing: 0.05 // spacing in between brush nodes
   }
-]
-
-let brushes = {}
-
-standardBrushes.forEach(brush => {
+].reduce((brushes, brush) => {
   brushes[brush.name] = new Brush(brush)
-
-  if (!loader.resources[brushes[brush.name].settings.brushImage]) {
-    loader.add(
-      brushes[brush.name].settings.brushImage,
-      'src/img/brush/' + brushes[brush.name].settings.brushImage + '.png'
-    )
-  }
-  if (!loader.resources[brushes[brush.name].settings.grainImage]) {
-    loader.add(
-      brushes[brush.name].settings.grainImage,
-      'src/img/brush/' + brushes[brush.name].settings.grainImage + '.png'
-    )
-  }
-})
-
-let value = { brushes: brushes, brushResources: loader }
-
-module.exports = value
+  return brushes
+}, {})
