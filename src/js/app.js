@@ -1,7 +1,7 @@
-/* global PIXI */
+/* global dat PIXI SketchPane Stats */
 
-const sketchPane = new window.SketchPane()
-const gui = new window.dat.GUI()
+const sketchPane = new SketchPane()
+const gui = new dat.GUI()
 
 sketchPane
   .load()
@@ -10,7 +10,7 @@ sketchPane
 
     console.log('ready')
 
-    let stats = new window.Stats()
+    let stats = new Stats()
     stats.showPanel(0)
     document.body.appendChild(stats.dom)
 
@@ -434,7 +434,8 @@ sketchPane
         y = py + (t * 0)
         // pressure = t
 
-        let sprite = new window.PIXI.Sprite.from(
+        // eslint-disable-next-line new-cap
+        let sprite = new PIXI.Sprite.from(
           sketchPane.brushes.brushResources.resources[sketchPane.brush.settings.brushImage].texture.clone()
         )
 
@@ -452,7 +453,7 @@ sketchPane
         let dY = y - sprite.y
         let dS = nodeSize / sprite.width
 
-        let filter = new window.PIXI.Filter(
+        let filter = new PIXI.Filter(
           null,
           `
           varying vec2 vTextureCoord;
