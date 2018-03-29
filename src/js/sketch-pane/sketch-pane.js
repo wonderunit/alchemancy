@@ -157,16 +157,6 @@ module.exports = class SketchPane {
         resolve()
       })
     })
-
-    //
-    //
-    //
-    // HACK force erase mode
-    //
-    this.isErasing = true
-    if (this.isErasing) {
-      this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
-    }
   }
   setup () {
     paper.setup()
@@ -532,6 +522,15 @@ module.exports = class SketchPane {
     if (e.target === this.app.view) {
       if (this.pointerDown) {
         this.addMouseEventAsPoint(e)
+
+        if (this.isErasing) {
+          if (this.liveStrokeContainer.parent) {
+            this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
+          }
+        } else {
+          this.layerContainer.addChild(this.liveStrokeContainer)
+        }
+
         this.renderLive(true) // forceRender
 
         this.disposeContainer(this.liveStrokeContainer)
@@ -928,6 +927,16 @@ module.exports = class SketchPane {
         this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++n)
       }
+    }
+  }
+
+  getIsErasing () {
+    return this.isErasing
+  }
+
+  setIsErasing (value) {
+    if (!this.pointerDown) {
+      this.isErasing = value
     }
   }
 
