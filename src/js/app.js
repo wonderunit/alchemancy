@@ -83,19 +83,19 @@ sketchPane
     })
 
     document.getElementById('l-1').addEventListener('click', function (e) {
-      sketchPane.setLayer(1)
+      sketchPane.setLayer(0)
     })
 
     document.getElementById('l-2').addEventListener('click', function (e) {
-      sketchPane.setLayer(2)
+      sketchPane.setLayer(1)
     })
 
     document.getElementById('l-3').addEventListener('click', function (e) {
-      sketchPane.setLayer(3)
+      sketchPane.setLayer(2)
     })
 
     document.getElementById('l-4').addEventListener('click', function (e) {
-      sketchPane.setLayer(4)
+      sketchPane.setLayer(3)
     })
 
     document.getElementById('b-1').addEventListener('click', function (e) {
@@ -793,7 +793,7 @@ sketchPane
           // setTimeout(() => {
           //   sketchPane.renderToLayer(
           //     sketchPane.strokeContainer,
-          //     sketchPane.layers[sketchPane.layer - 1]
+          //     sketchPane.layers[sketchPane.layer]
           //   )
           //   sketchPane.disposeContainer(sketchPane.strokeContainer)
           // }, 500)
@@ -833,7 +833,7 @@ sketchPane
 
           sketchPane.renderToLayer(
             sketchPane.strokeContainer,
-            sketchPane.layers[sketchPane.layer - 1]
+            sketchPane.layers[sketchPane.layer]
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           sketchPane.disposeContainer(sketchPane.offscreenContainer)
@@ -853,7 +853,7 @@ sketchPane
 
           sketchPane.renderToLayer(
             guiState.nodeTest.container,
-            sketchPane.layers[sketchPane.layer - 1]
+            sketchPane.layers[sketchPane.layer]
           )
           sketchPane.disposeContainer(guiState.nodeTest.container)
           sketchPane.disposeContainer(sketchPane.offscreenContainer)

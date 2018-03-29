@@ -136,7 +136,7 @@ module.exports = class SketchPane {
     // this.newLayer()
     // this.newLayer()
     // this.newLayer()
-    // this.setLayer(this.layers.length)
+    // this.setLayer(this.layers.length - 1)
 
     // NOTE example images are 1000 x 800
     await new Promise(resolve => {
@@ -152,7 +152,7 @@ module.exports = class SketchPane {
             true)
         )
 
-        this.setLayer(this.layers.length)
+        this.setLayer(this.layers.length - 1)
 
         resolve()
       })
@@ -727,7 +727,7 @@ module.exports = class SketchPane {
 
     // debug
       // console.log('\n')
-      // console.log('   add @', len - 1)
+      // console.log('   add @', len)
 
     // forceRender is called on pointerup
     if (forceRender) {
@@ -760,7 +760,7 @@ module.exports = class SketchPane {
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
-          this.layers[this.layer - 1]
+          this.layers[this.layer]
         )
       }
       this.disposeContainer(this.strokeContainer)
@@ -793,7 +793,7 @@ module.exports = class SketchPane {
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
-          this.layers[this.layer - 1]
+          this.layers[this.layer]
         )
       }
       this.disposeContainer(this.strokeContainer)
@@ -853,7 +853,7 @@ module.exports = class SketchPane {
   }
 
   updateMask (source, finalize = false) {
-    let layer = this.layers[this.layer - 1]
+    let layer = this.layers[this.layer]
 
     // we're starting a new round
     if (!layer.sprite.mask) {
@@ -913,20 +913,20 @@ module.exports = class SketchPane {
     }
   }
 
-  // set layer by number (1-indexed)
-  setLayer (number) {
+  // set layer by index (0-indexed)
+  setLayer (index) {
     if (this.pointerDown) return // HACK prevent layer change during draw
 
-    let layerSprite = this.layers[number - 1].sprite
+    let layerSprite = this.layers[index].sprite
 
     this.layerContainer.setChildIndex(this.layerBackground, 0)
 
     let n = 0
     for (let layer of this.layers) {
+      this.layer = n
       this.layerContainer.setChildIndex(layer.sprite, ++n)
-      if (layer.sprite === layerSprite) {
-        this.layer = n
 
+      if (layer.sprite === layerSprite) {
         this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++n)
       }
@@ -949,7 +949,7 @@ module.exports = class SketchPane {
     }
     this.renderToLayer(
       this.strokeContainer,
-      this.layers[layer - 1],
+      this.layers[layer],
       true
     )
   }
