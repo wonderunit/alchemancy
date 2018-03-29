@@ -755,15 +755,16 @@ module.exports = class SketchPane {
 
     this.layerContainer.setChildIndex(this.layerBackground, 0)
 
-    let n = 0
+    let childIndex = 1
     for (let layer of this.layers) {
-      this.layer = n
-      this.layerContainer.setChildIndex(layer.sprite, ++n)
+      this.layerContainer.setChildIndex(layer.sprite, childIndex)
 
       if (layer.sprite === layerSprite) {
-        this.layerContainer.setChildIndex(this.offscreenContainer, ++n)
-        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++n)
+        this.layer = childIndex - 1
+        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
+        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
+      childIndex++
     }
   }
 
