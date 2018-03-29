@@ -915,7 +915,7 @@ module.exports = class SketchPane {
 
   // set layer by index (0-indexed)
   setLayer (index) {
-    if (this.pointerDown) return // HACK prevent layer change during draw
+    if (this.pointerDown) return // prevent layer change during draw
 
     let layerSprite = this.layers[index].sprite
 
@@ -938,9 +938,9 @@ module.exports = class SketchPane {
   }
 
   setIsErasing (value) {
-    if (!this.pointerDown) {
-      this.isErasing = value
-    }
+    if (this.pointerDown) return // prevent erase mode change during draw
+
+    this.isErasing = value
   }
 
   clearLayer (layer) {
