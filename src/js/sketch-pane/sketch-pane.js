@@ -901,9 +901,8 @@ module.exports = class SketchPane {
         true
       )
 
-      //
-      // TODO GC finalizedSprite
-      //
+      finalizedSprite.destroy({ texture: true, baseTexture: false })
+
       layer.sprite.mask = null
       this.layerContainer.removeChild(this.eraseMask)
     }
