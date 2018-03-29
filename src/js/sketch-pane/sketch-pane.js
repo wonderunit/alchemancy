@@ -14,6 +14,11 @@ module.exports = class SketchPane {
       brush: {},
       grain: {}
     }
+
+    this.brushes = brushes
+
+    this.setup()
+    this.setSize(1200, 900)
   }
 
   saveLayer (index) {
@@ -28,9 +33,6 @@ module.exports = class SketchPane {
   }
 
   async load ({ brushImagePath }) {
-    this.setup()
-    this.setSize(1200, 900)
-
     await this.loadBrushTextures(brushImagePath)
 
     // this.newLayer()
@@ -58,8 +60,6 @@ module.exports = class SketchPane {
     this.app.renderer.roundPixels = false
 
     // this.app.renderer.transparent = true
-
-    this.brushes = brushes
 
     this.brush = this.brushes.pencil
     this.brushColor = { r: 0, g: 0, b: 0 }
