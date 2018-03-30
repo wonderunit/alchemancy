@@ -75,6 +75,13 @@ module.exports = class SketchPane {
     this.liveStrokeContainer.name = 'live'
     this.layerContainer.addChild(this.liveStrokeContainer)
 
+    // off-screen container
+    // - used for placement of grain sprites
+    this.offscreenContainer = new PIXI.Container()
+    this.offscreenContainer.name = 'offscreen'
+    this.offscreenContainer.renderable = false
+    this.layerContainer.addChild(this.offscreenContainer)
+
     // erase mask
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
@@ -297,7 +304,11 @@ module.exports = class SketchPane {
     //
     // filter setup
     //
-    let filter = new BrushNodeFilter(this.images.grain[brush.settings.grainImage])
+    // TODO can we avoid creating a new grain sprite for each render?
+    //      used for rendering grain filter texture at correct position
+    let grainSprite = this.images.grain[brush.settings.grainImage]
+    this.offscreenContainer.addChild(grainSprite)
+    let filter = new BrushNodeFilter(grainSprite)
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     filter.filterArea = this.app.screen
@@ -384,6 +395,7 @@ module.exports = class SketchPane {
         this.renderLive(true) // forceRender
 
         this.disposeContainer(this.liveStrokeContainer)
+        this.offscreenContainer.removeChildren()
       }
     }
 
@@ -566,6 +578,7 @@ module.exports = class SketchPane {
         )
       }
       this.disposeContainer(this.strokeContainer)
+      this.offscreenContainer.removeChildren()
 
       return
     }
@@ -593,6 +606,7 @@ module.exports = class SketchPane {
         )
       }
       this.disposeContainer(this.strokeContainer)
+      this.offscreenContainer.removeChildren()
 
       this.lastStaticIndex = b
     }
@@ -721,6 +735,7 @@ module.exports = class SketchPane {
 
       if (layer.sprite === layerSprite) {
         this.layer = childIndex - 1
+        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
       childIndex++
