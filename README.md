@@ -27,7 +27,7 @@ Publish to `gh-pages`
     npm run clean
     npm run build
     git add -f dist/sketch-pane.js
-    git commit -m "add dist"
+    git commit -m "update dist/sketch-pane.js"
     git push origin gh-pages
     npm run clean # cleanup
 

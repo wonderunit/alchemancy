@@ -1,10 +1,23 @@
 const path = require('path')
 
 module.exports = {
-  mode: 'production',
-  entry: './src/js/index.js',
+  mode: process.env.MODE,
+  entry: {
+    'sketch-pane': './src/js/index.js'
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendor',
+          chunks: 'all'
+        }
+      }
+    }
+  },
   output: {
-    filename: 'sketch-pane.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     library: 'SketchPane',
     libraryTarget: 'var',
@@ -17,5 +30,14 @@ module.exports = {
         loader: 'shader-loader'
       }
     ]
-  }
+  },
+  ...process.env.MODE === 'development'
+    ? {
+      serve: {
+        dev: {
+          publicPath: '/dist'
+        }
+      }
+    }
+    : {}
 }
