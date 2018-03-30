@@ -45,6 +45,13 @@ sketchPane
     window.addEventListener('pointerdown', function (e) {
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
+      // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
+      if (e.buttons === 32 || e.altKey) {
+        sketchPane.setIsErasing(true)
+      } else {
+        sketchPane.setIsErasing(false)
+      }
+
       sketchPane.pointerdown(e)
     })
 
@@ -52,6 +59,7 @@ sketchPane
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
       sketchPane.pointerup(e)
+      sketchPane.setIsErasing(false)
     })
 
     window.addEventListener('pointermove', function (e) {
