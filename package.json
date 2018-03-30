@@ -4,7 +4,7 @@
   "description": "Alchemancy Mark III - Wonder Unit's drawing system",
   "main": "src/sketch-pane.js",
   "files": [
-    "dist/sketch-pane.js",
+    "dist/sketch-pane.js"
   ],
   "scripts": {
     "clean": "trash dist/sketch-pane.js",
