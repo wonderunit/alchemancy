@@ -309,6 +309,8 @@ module.exports = class SketchPane {
     //      used for rendering grain filter texture at correct position
     let grainSprite = this.images.grain[brush.settings.grainImage]
     this.offscreenContainer.addChild(grainSprite)
+    // hacky fix to calculate vFilterCoord properly
+    this.offscreenContainer.getLocalBounds()
     let filter = new BrushNodeFilter(grainSprite)
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
@@ -549,7 +551,6 @@ module.exports = class SketchPane {
 
     // forceRender is called on pointerup
     if (forceRender) {
-
       let final = this.strokeInput.length - 1
       let a = this.lastStaticIndex
       let b = final
