@@ -20,7 +20,7 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     library: 'SketchPane',
-    libraryTarget: 'var',
+    libraryTarget: 'umd',
     publicPath: '/dist'
   },
   module: {
