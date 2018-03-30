@@ -19,9 +19,17 @@ const loadLayers = filepaths => {
 
 sketchPane
   .load({ brushImagePath: './src/img/brush' })
+
   // NOTE example images are 1000 × 800
   .then(() => loadLayers(layerFilePaths))
+
+  // .then(() => sketchPane.newLayer())
+  // .then(() => sketchPane.newLayer())
+  // .then(() => sketchPane.newLayer())
+  // .then(() => sketchPane.newLayer())
+
   .then(() => sketchPane.setLayer(sketchPane.layers.length - 1))
+
   .then(() => {
     console.log('ready')
 
