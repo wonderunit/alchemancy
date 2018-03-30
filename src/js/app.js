@@ -860,12 +860,14 @@ sketchPane
           // hacky fix to calculate vFilterCoord properly
           sketchPane.strokeContainer.getLocalBounds()
           sketchPane.liveStrokeContainer.getLocalBounds()
+          sketchPane.offscreenContainer.getLocalBounds()
 
           sketchPane.renderToLayer(
             sketchPane.strokeContainer,
             sketchPane.layers[sketchPane.layer]
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
+          sketchPane.offscreenContainer.removeChildren()
         }, 375)
       }
 
@@ -878,12 +880,14 @@ sketchPane
           // hacky fix to calculate vFilterCoord properly
           sketchPane.strokeContainer.getLocalBounds()
           sketchPane.liveStrokeContainer.getLocalBounds()
+          sketchPane.offscreenContainer.getLocalBounds()
 
           sketchPane.renderToLayer(
             guiState.nodeTest.container,
             sketchPane.layers[sketchPane.layer]
           )
           sketchPane.disposeContainer(guiState.nodeTest.container)
+          sketchPane.offscreenContainer.removeChildren()
         }, 250)
       }
     }, 750)
