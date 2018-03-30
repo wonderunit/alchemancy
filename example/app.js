@@ -3,7 +3,8 @@
 const sketchPane = new SketchPane()
 const gui = new dat.GUI()
 
-const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03'].map(basename => './src/img/layers/' + basename + '.png')
+const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03']
+  .map(basename => './example/img/layers/' + basename + '.png')
 
 const loadLayers = filepaths => {
   return new Promise(resolve => {
