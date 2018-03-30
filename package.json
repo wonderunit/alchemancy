@@ -2,7 +2,7 @@
   "name": "alchemancy",
   "version": "1.0.0",
   "description": "Alchemancy Mark III - Wonder Unit's drawing system",
-  "main": "src/js/index.js",
+  "main": "dist/sketch-pane.js",
   "files": [
     "dist/sketch-pane.js",
     "src/"
