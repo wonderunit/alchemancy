@@ -106,9 +106,6 @@ sketchPane
         case 'c':
           sketchPane.clearLayer()
           break
-        case 'e':
-          sketchPane.setIsErasing(!sketchPane.getIsErasing())
-          break
       }
     })
 
