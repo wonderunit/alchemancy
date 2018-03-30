@@ -94,6 +94,7 @@ module.exports = class SketchPane {
     this.strokeInput = []
     this.strokePath = undefined
     this.lastStaticIndex = 0
+    this.strokeGrainOffset = { x: 0, y: 0 }
   }
 
   setSize (width, height) {
@@ -356,6 +357,9 @@ module.exports = class SketchPane {
     this.strokePath = new paper.Path()
     this.lastStaticIndex = 0
     this.lastSpacing = undefined
+    this.strokeGrainOffset = this.brush.settings.randomOffset
+      ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
+      : { x: 0, y: 0 }
 
     if (e.target === this.app.view) {
       this.addMouseEventAsPoint(e)
@@ -434,12 +438,6 @@ module.exports = class SketchPane {
 
     // console.log(spacing)
 
-    let grainOffset = { x: 0, y: 0 }
-    if (this.brush.settings.randomOffset) {
-      grainOffset.x = Math.floor(Math.random() * 100)
-      grainOffset.y = Math.floor(Math.random() * 100)
-    }
-
     if (this.lastSpacing == null) this.lastSpacing = spacing
     let start = (spacing - this.lastSpacing)
     let i = 0
@@ -487,8 +485,8 @@ module.exports = class SketchPane {
         tiltAngle,
         tilt,
         this.brush,
-        grainOffset.x,
-        grainOffset.y
+        this.strokeGrainOffset.x,
+        this.strokeGrainOffset.y
       ])
       k = i
     }
