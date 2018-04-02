@@ -2,15 +2,15 @@
   "name": "alchemancy",
   "version": "1.0.0",
   "description": "Alchemancy Mark III - Wonder Unit's drawing system",
-  "main": "dist/sketch-pane.js",
+  "main": "./dist/sketch-pane.common.js",
   "files": [
-    "dist/sketch-pane.js",
+    "dist/sketch-pane.common.js",
     "src/"
   ],
   "scripts": {
     "clean": "trash dist/sketch-pane.js",
     "watch": "MODE=development webpack --watch",
-    "start": "MODE=development webpack-serve --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
+    "start": "MODE=development npx webpack-serve --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
     "build": "MODE=production webpack"
   },
   "repository": {
@@ -29,7 +29,7 @@
     "trash-cli": "1.4.0",
     "webpack": "4.4.1",
     "webpack-cli": "2.0.13",
-    "webpack-serve": "0.3.0"
+    "webpack-serve": "0.3.1"
   },
   "dependencies": {
     "paper": "0.11.5",
