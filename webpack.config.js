@@ -6,17 +6,7 @@ const createConfig = opt => {
     entry: {
       'sketch-pane': './src/js/index.js'
     },
-    optimization: {
-      splitChunks: {
-        cacheGroups: {
-          commons: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendor',
-            chunks: 'all'
-          }
-        }
-      }
-    },
+    optimization: opt.optimization,
     output: {
       filename: opt.output.filename,
       path: path.resolve(__dirname, 'dist'),
@@ -32,6 +22,7 @@ const createConfig = opt => {
         }
       ]
     },
+    externals: opt.externals,
     ...process.env.WEBPACK_SERVE === 'development'
       ? {
         serve: {
@@ -45,6 +36,23 @@ const createConfig = opt => {
 }
 
 module.exports = [
-  createConfig({ output: { filename: '[name].browser.js', libraryTarget: 'var' } }),
-  createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' } })
+  createConfig({ output: { filename: '[name].browser.js', libraryTarget: 'var' },
+    optimization: {
+      splitChunks: {
+        cacheGroups: {
+          commons: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendor',
+            chunks: 'all'
+          }
+        }
+      }
+    }
+  }),
+  createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' },
+    externals: {
+      'pixi.js': 'pixi.js',
+      'paper': 'paper'
+    }
+  })
 ]
