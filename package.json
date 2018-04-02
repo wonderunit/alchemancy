@@ -8,7 +8,7 @@
     "src/"
   ],
   "scripts": {
-    "clean": "trash dist/sketch-pane.js",
+    "clean": "trash dist/*",
     "watch": "MODE=development webpack --watch",
     "start": "MODE=development npx webpack-serve --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
     "build": "MODE=production webpack"
