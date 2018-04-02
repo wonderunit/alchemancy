@@ -509,7 +509,9 @@ module.exports = class SketchPane {
   }
 
   addMouseEventAsPoint (e) {
-    let pressure = e.pressure
+    let pressure = e.pointerType === 'mouse'
+      ? e.pressure > 0 ? 0.8 : 0 // override mouse pressure to 0.8 (if more than zero)
+      : e.pressure
     let x =
       (e.x - this.sketchpaneContainer.x) / this.sketchpaneContainer.scale.x +
       this.width / 2
