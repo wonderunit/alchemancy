@@ -510,7 +510,7 @@ module.exports = class SketchPane {
 
   addMouseEventAsPoint (e) {
     let pressure = e.pointerType === 'mouse'
-      ? e.pressure > 0 ? 0.8 : 0 // override mouse pressure to 0.8 (if more than zero)
+      ? e.pressure > 0 ? 0.5 : 0 // override mouse pressure to 0.8 (if more than zero)
       : e.pressure
     let x =
       (e.x - this.sketchpaneContainer.x) / this.sketchpaneContainer.scale.x +
@@ -525,7 +525,9 @@ module.exports = class SketchPane {
       this.height / 2,
       -this.sketchpaneContainer.rotation
     )
-    let tiltAngle = Util.calcTiltAngle(e.tiltX, e.tiltY)
+    let tiltAngle = e.pointerType === 'mouse'
+      ? {angle: -90, tilt: 37}
+      : Util.calcTiltAngle(e.tiltX, e.tiltY)
 
     this.strokeInput.push({
       x: corrected.x,
