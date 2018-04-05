@@ -49,7 +49,12 @@ sketchPane
 
       // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
       if (e.buttons === 32 || e.altKey) {
-        sketchPane.setErasableLayers([sketchPane.layer.index])
+        // + shift to multi-erase
+        if (e.shiftKey) {
+          sketchPane.setErasableLayers([1, 2, 3])
+        } else {
+          sketchPane.setErasableLayers([sketchPane.layer.index])
+        }
         sketchPane.setIsErasing(true)
       } else {
         sketchPane.setIsErasing(false)
