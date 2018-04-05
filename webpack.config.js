@@ -27,40 +27,43 @@ const createConfig = opt => {
   }
 }
 
-module.exports = [
-  createConfig({ output: { filename: '[name].browser.js', libraryTarget: 'var' },
-    optimization: {
-      splitChunks: {
-        cacheGroups: {
-          commons: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendor',
-            chunks: 'all'
-          }
+const browserConfig = createConfig({ output: { filename: '[name].browser.js', libraryTarget: 'var' },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendor',
+          chunks: 'all'
         }
       }
-    },
-    ...process.env.WEBPACK_SERVE
-      ? {
-        serve: {
-          dev: {
-            publicPath: '/dist'
-          },
-          // to force serving development dist/ when production files exist on filesystem
-          add: (app, middleware, options) => {
-            middleware.webpack()
-            middleware.content()
-          }
-        }
-      }
-      : {}
-  }),
+    }
+  },
   ...process.env.WEBPACK_SERVE
-    ? []
-    : [ createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' },
-      externals: {
-        'pixi.js': 'pixi.js',
-        'paper': 'paper'
+    ? {
+      serve: {
+        dev: {
+          publicPath: '/dist'
+        },
+        // to force serving development dist/ when production files exist on filesystem
+        add: (app, middleware, options) => {
+          middleware.webpack()
+          middleware.content()
+        }
       }
-    }) ]
-]
+    }
+    : {}
+})
+
+const nodeConfig = createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' },
+  externals: {
+    'pixi.js': 'pixi.js',
+    'paper': 'paper'
+  }
+})
+
+module.exports = process.env.WEBPACK_SERVE
+  // always produce browser output
+  ? browserConfig
+  // only produce commonjs output if we're not in the dev server mode
+  : [ browserConfig, nodeConfig ]
