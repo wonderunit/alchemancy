@@ -1,12 +1,11 @@
 /* global dat PIXI SketchPane Stats */
 
-const sketchPane = new SketchPane()
 const gui = new dat.GUI()
 
 const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03']
   .map(basename => './example/img/layers/' + basename + '.png')
 
-const loadLayers = filepaths => {
+const loadLayers = (sketchPane, filepaths) => {
   return new Promise(resolve => {
     filepaths.forEach(filepath => PIXI.loader.add(filepath, filepath))
     PIXI.loader.load((loader, resources) => {
@@ -18,11 +17,14 @@ const loadLayers = filepaths => {
   })
 }
 
+const sketchPane = new SketchPane()
+sketchPane.setSize(1200, 900)
+
 sketchPane
   .load({ brushImagePath: './src/img/brush' })
 
   // NOTE example images are 1000 × 800
-  .then(() => loadLayers(layerFilePaths))
+  .then(() => loadLayers(sketchPane, layerFilePaths))
 
   // .then(() => sketchPane.newLayer())
   // .then(() => sketchPane.newLayer())

@@ -19,7 +19,6 @@ module.exports = class SketchPane {
     this.brushes = brushes
 
     this.setup()
-    this.setSize(1200, 900)
   }
 
   async load ({ brushImagePath }) {
