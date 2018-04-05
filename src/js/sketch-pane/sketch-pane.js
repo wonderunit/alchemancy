@@ -28,7 +28,7 @@ module.exports = class SketchPane {
     await this.loadBrushTextures(brushImagePath)
 
     // this.newLayer()
-    // this.setLayer(this.layers.length - 1)
+    // this.selectLayer(this.layers.length - 1)
   }
 
   setup () {
@@ -746,7 +746,7 @@ module.exports = class SketchPane {
   }
 
   // set layer by index (0-indexed)
-  setLayer (index) {
+  selectLayer (index) {
     if (this.pointerDown) return // prevent layer change during draw
 
     let layerSprite = this.layers[index].sprite
@@ -787,5 +787,9 @@ module.exports = class SketchPane {
 
   getErasableLayers (indexes) {
     return this.erasableLayers.map(layer => layer.index).sort((a, b) => a - b)
+  }
+
+  getDOMElement () {
+    return sketchPane.app.view
   }
 }

@@ -31,7 +31,7 @@ sketchPane
   // .then(() => sketchPane.newLayer())
   // .then(() => sketchPane.newLayer())
 
-  .then(() => sketchPane.setLayer(sketchPane.layers.length - 1))
+  .then(() => sketchPane.selectLayer(sketchPane.layers.length - 1))
 
   .then(() => {
     console.log('ready')
@@ -118,19 +118,19 @@ sketchPane
     })
 
     document.getElementById('l-0').addEventListener('click', function (e) {
-      sketchPane.setLayer(0)
+      sketchPane.selectLayer(0)
     })
 
     document.getElementById('l-1').addEventListener('click', function (e) {
-      sketchPane.setLayer(1)
+      sketchPane.selectLayer(1)
     })
 
     document.getElementById('l-2').addEventListener('click', function (e) {
-      sketchPane.setLayer(2)
+      sketchPane.selectLayer(2)
     })
 
     document.getElementById('l-3').addEventListener('click', function (e) {
-      sketchPane.setLayer(3)
+      sketchPane.selectLayer(3)
     })
 
     document.getElementById('b-1').addEventListener('click', function (e) {
