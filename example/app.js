@@ -60,13 +60,13 @@ sketchPane
         sketchPane.setIsErasing(false)
       }
 
-      sketchPane.pointerdown(e)
+      sketchPane.down(e)
     })
 
     window.addEventListener('pointerup', function (e) {
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
-      sketchPane.pointerup(e)
+      sketchPane.up(e)
       sketchPane.setIsErasing(false)
     })
 
@@ -74,7 +74,7 @@ sketchPane
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
       // if (e.target.parentNode !== document.body) return
-      sketchPane.pointermove(e)
+      sketchPane.move(e)
     })
 
     window.addEventListener('keydown', function (e) {
@@ -320,23 +320,23 @@ sketchPane
 
       ;(async function () {
         // let dur = 100
-        sketchPane.pointerdown(fakeEvent({ x: 350, y: 300 }))
+        sketchPane.down(fakeEvent({ x: 350, y: 300 }))
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(fakeEvent({ x: 350 + 70, y: 305 }))
+        sketchPane.move(fakeEvent({ x: 350 + 70, y: 305 }))
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70, y: 310 }))
+        sketchPane.move(fakeEvent({ x: 350 + 70 + 70, y: 310 }))
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(fakeEvent({ x: 350 + 70 + 70 + 70, y: 310 }))
+        sketchPane.move(fakeEvent({ x: 350 + 70 + 70 + 70, y: 310 }))
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(
+        sketchPane.move(
           fakeEvent({ x: 350 + 70 + 70 + 70 + 70, y: 310 })
         )
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointermove(
+        sketchPane.move(
           fakeEvent({ x: 350 + 70 + 70 + 70 + 70 + 70, y: 310 })
         )
         // await new Promise(resolve => setTimeout(resolve, dur))
-        sketchPane.pointerup(fakeEvent({ x: 700, y: 310 }))
+        sketchPane.up(fakeEvent({ x: 700, y: 310 }))
       })()
     }
 
@@ -446,11 +446,11 @@ sketchPane
     //     // sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
     //     // sketchPane.renderLive()
     //     if (i === 0) {
-    //       sketchPane.pointerdown(fakeEvent({ x, y, pressure }))
+    //       sketchPane.down(fakeEvent({ x, y, pressure }))
     //     }
-    //     sketchPane.pointermove(fakeEvent({ x, y, pressure }))
+    //     sketchPane.move(fakeEvent({ x, y, pressure }))
     //   }
-    //   sketchPane.pointerup(fakeEvent({ x, y, pressure }))
+    //   sketchPane.up(fakeEvent({ x, y, pressure }))
     // }
 
     // a direct sprite test
@@ -573,11 +573,11 @@ sketchPane
         y = t * 1 + py
         pressure = t
         if (t === 0) {
-          sketchPane.pointerdown(fakeEvent({ x, y, pressure }))
+          sketchPane.down(fakeEvent({ x, y, pressure }))
         }
-        sketchPane.pointermove(fakeEvent({ x, y, pressure }))
+        sketchPane.move(fakeEvent({ x, y, pressure }))
         if (t === 1) {
-          sketchPane.pointerup(fakeEvent({ x, y, pressure }))
+          sketchPane.up(fakeEvent({ x, y, pressure }))
         }
       }
     }

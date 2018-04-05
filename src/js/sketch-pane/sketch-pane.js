@@ -355,7 +355,7 @@ module.exports = class SketchPane {
     strokeContainer.addChild(sprite)
   }
 
-  pointerdown (e) {
+  down (e) {
     this.pointerDown = true
 
     this.strokeInput = []
@@ -383,7 +383,7 @@ module.exports = class SketchPane {
     }
   }
 
-  pointermove (e) {
+  move (e) {
     // to prevent off-canvas move events:
     // if (e.target !== this.app.view) return
 
@@ -394,7 +394,7 @@ module.exports = class SketchPane {
     }
   }
 
-  pointerup (e) {
+  up (e) {
     if (e.target === this.app.view) {
       if (this.pointerDown) {
         this.addMouseEventAsPoint(e)
@@ -556,7 +556,7 @@ module.exports = class SketchPane {
   renderLive (forceRender = false) {
     let len = this.strokeInput.length
 
-    // forceRender is called on pointerup
+    // forceRender is called on up
     if (forceRender) {
       let final = this.strokeInput.length - 1
       let a = this.lastStaticIndex
