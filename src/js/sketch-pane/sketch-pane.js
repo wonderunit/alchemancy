@@ -16,6 +16,9 @@ module.exports = class SketchPane {
       grain: {}
     }
 
+    this.isErasing = false
+    this.erasableLayers = []
+
     this.brushes = brushes
 
     this.setup()
@@ -642,7 +645,16 @@ module.exports = class SketchPane {
   }
 
   updateMask (source, finalize = false) {
-    let layer = this.layers[this.layer]
+    // note which layers will be erased when finalized
+    // if empty, default to current layer
+    if (!this.erasableLayers.length) {
+      this.erasableLayers = [
+        this.layers[this.layer]
+      ]
+    }
+
+    // find the top-most layer
+    let layer = this.erasableLayers.sort((a, b) => b.index - a.index)[0]
 
     // we're starting a new round
     if (!layer.sprite.mask) {
@@ -660,10 +672,12 @@ module.exports = class SketchPane {
       )
 
       // start using the mask
-      layer.sprite.mask = this.eraseMask
+      for (let layer of this.erasableLayers) {
+        layer.sprite.mask = this.eraseMask
+      }
     }
 
-    // render the white strokes onto the red mask
+    // render the white strokes onto the red filled erase mask texture
     this.app.renderer.render(
       source,
       this.eraseMask.texture,
@@ -671,35 +685,42 @@ module.exports = class SketchPane {
     )
 
     // if finalizing,
-    // we stamp to the erase texture
-    // AND apply the erase texture to the actual layer texture,
-    // then clear the mask texture
-    // and remove the mask from the layer
     if (finalize) {
-      // render the masked sprite to a temporary render texture
-      let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
-      this.app.renderer.render(
-        layer.sprite,
-        renderTexture,
-        true,
-        // reverse the transform so we're rendering at 0,0
-        layer.sprite.transform.worldTransform.invert(),
-        true // skipUpdateTransform
-      )
-      let finalizedSprite = new PIXI.Sprite.from(renderTexture) // eslint-disable-line new-cap
+      for (let layer of this.erasableLayers) {
+        layer.sprite.mask = this.eraseMask
+        this.stampMask(layer.sprite)
+        layer.sprite.mask = null
+      }
 
-      // replace the layer sprite's texture with the "baked" finalizedTexture
-      this.app.renderer.render(
-        finalizedSprite,
-        layer.sprite.texture,
-        true
-      )
-
-      finalizedSprite.destroy({ texture: true, baseTexture: false })
-
-      layer.sprite.mask = null
+      // TODO GC the eraseMask texture?
       this.layerContainer.removeChild(this.eraseMask)
     }
+  }
+
+  // apply the erase texture to the actual layer texture
+  //
+  // FIXME why are transforms so convoluted?
+  stampMask (sprite) {
+    // render the masked sprite to a temporary render texture
+    let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
+    this.app.renderer.render(
+      sprite,
+      renderTexture,
+      true,
+      // reverse the transform so we're rendering at 0,0
+      sprite.transform.worldTransform.invert(),
+      true // skipUpdateTransform
+    )
+    let finalizedSprite = new PIXI.Sprite.from(renderTexture) // eslint-disable-line new-cap
+
+    // replace the layer sprite's texture with the "baked" finalizedTexture
+    this.app.renderer.render(
+      finalizedSprite,
+      sprite.texture,
+      true
+    )
+
+    finalizedSprite.destroy({ texture: true, baseTexture: false })
   }
 
   saveLayer (index) {
@@ -753,5 +774,18 @@ module.exports = class SketchPane {
     if (this.pointerDown) return // prevent erase mode change during draw
 
     this.isErasing = value
+  }
+
+  setErasableLayers (indexes) {
+    this.erasableLayers = []
+    for (let layer of this.layers) {
+      if (indexes.includes(layer.index)) {
+        this.erasableLayers.push(layer)
+      }
+    }
+  }
+
+  getErasableLayers (indexes) {
+    return this.erasableLayers.map(layer => layer.index).sort((a, b) => a - b)
   }
 }
