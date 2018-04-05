@@ -8,7 +8,8 @@ const BrushNodeFilter = require('./brush/brush-node-filter')
 module.exports = class SketchPane {
   constructor () {
     this.layers = []
-    this.layerBackground = null
+    this.layerMask = undefined
+    this.layerBackground = undefined
 
     this.images = {
       brush: {},
@@ -101,21 +102,21 @@ module.exports = class SketchPane {
     this.width = width
     this.height = height
 
-    let mask = new PIXI.Graphics()
+    this.layerMask = new PIXI.Graphics()
       .beginFill(0x0, 1)
       .drawRect(0, 0, this.width, this.height)
       .endFill()
-    this.layerContainer.mask = mask
-    this.sketchpaneContainer.addChild(mask)
+    this.layerMask.name = 'layerMask'
+    this.layerContainer.mask = this.layerMask
+    this.sketchpaneContainer.addChild(this.layerMask)
 
-    let background = new PIXI.Graphics()
+    this.layerBackground = new PIXI.Graphics()
       .beginFill(0xffffff)
       .drawRect(0, 0, this.width, this.height)
       .endFill()
-    background.name = 'background'
-    this.layerContainer.addChild(background)
+    this.layerBackground.name = 'background'
+    this.layerContainer.addChild(this.layerBackground)
 
-    this.layerBackground = background
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
 
     this.centerContainer()
