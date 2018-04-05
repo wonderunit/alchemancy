@@ -6,7 +6,7 @@ const createConfig = opt => {
     entry: {
       'sketch-pane': './src/js/index.js'
     },
-    optimization: opt.optimization,
+    ...opt.optimization ? { optimization: opt.optimization } : {},
     output: {
       filename: opt.output.filename,
       path: path.resolve(__dirname, 'dist'),
@@ -22,16 +22,8 @@ const createConfig = opt => {
         }
       ]
     },
-    externals: opt.externals,
-    ...process.env.WEBPACK_SERVE === 'development'
-      ? {
-        serve: {
-          dev: {
-            publicPath: '/dist'
-          }
-        }
-      }
-      : {}
+    ...opt.externals ? { externals: opt.externals } : {},
+    ...opt.serve ? { serve: opt.serve } : {}
   }
 }
 
@@ -47,12 +39,28 @@ module.exports = [
           }
         }
       }
-    }
+    },
+    ...process.env.WEBPACK_SERVE
+      ? {
+        serve: {
+          dev: {
+            publicPath: '/dist'
+          },
+          // to force serving development dist/ when production files exist on filesystem
+          add: (app, middleware, options) => {
+            middleware.webpack()
+            middleware.content()
+          }
+        }
+      }
+      : {}
   }),
-  createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' },
-    externals: {
-      'pixi.js': 'pixi.js',
-      'paper': 'paper'
-    }
-  })
+  ...process.env.WEBPACK_SERVE
+    ? []
+    : [ createConfig({ output: { filename: '[name].common.js', libraryTarget: 'commonjs2' },
+      externals: {
+        'pixi.js': 'pixi.js',
+        'paper': 'paper'
+      }
+    }) ]
 ]
