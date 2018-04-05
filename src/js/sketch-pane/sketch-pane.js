@@ -790,6 +790,6 @@ module.exports = class SketchPane {
   }
 
   getDOMElement () {
-    return sketchPane.app.view
+    return this.app.view
   }
 }
