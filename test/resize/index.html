@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style media="screen">
+    /* main-window */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #333333;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+      display: flex;
+      flex-direction: row;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #drag-handle {
+      position: absolute;
+      width: 100vw;
+      z-index: 600;
+      height: 70px;
+      -webkit-app-region: drag;
+      pointer-events: none;
+    }
+
+    #scenes {
+      min-width: 200px;
+      max-width: 200px;
+      display: none;
+      overflow: scroll;
+      height: 100vh;
+      box-shadow: 0px 0px 2px rgba(0,0,0,0.3);
+      z-index: 999;
+      background: #333;
+
+    }
+
+    body::-webkit-scrollbar {
+        display: none;
+    }
+
+    #scenes::-webkit-scrollbar {
+        display: none;
+    }
+
+    #script {
+      background: #444;
+      width: 200px;
+      display: none;
+      overflow: scroll;
+      height: 100vh;
+      border-right: 1px solid rgba(0,0,0,0.1);
+
+    }
+
+    #script::-webkit-scrollbar {
+        display: none;
+    }
+
+    #storyboarder-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #thumbnail-container {
+      position: relative;
+      height: 100px;
+      width: 100%;
+      overflow: scroll;
+      /*scroll-behavior: smooth;*/
+    }
+
+    #thumbnail-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    #thumbnail-drawer {
+      box-sizing: border-box;
+      position: absolute;
+      top: 10px;
+      display: flex;
+    }
+
+    #thumbnail-cursor {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin-top: 7px;
+
+      width: 0;
+      height: 0;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 10px solid #999;
+      transition: left .1s ease-in;
+      animation-delay: 0s;
+      animation-duration: 0.5s;
+      animation-timing-function: ease-in;
+      animation-iteration-count: infinite;
+      animation-name: bounce;
+    }
+
+    @keyframes bounce {
+      0% {
+        top: 5px;
+      }
+      50% {
+        top: -7px;
+      }
+      100% {
+        top: 5px;
+      }
+    }
+
+    #scene-timeline-container .board__caption,
+    #thumbnail-drawer .thumbnail .caption {
+      flex: 1;
+      margin-left: 2px;
+      margin-right: 2px;
+      font-weight: 100;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-align: center;
+      min-width:0;
+      opacity: 0.8;
+    }
+
+    #board-metadata::-webkit-scrollbar {
+        display: none;
+    }
+
+    .board-metadata-container::-webkit-scrollbar {
+      display: none;
+    }
+
+    #board-metadata {
+      display: flex;
+      position: relative;
+      width: 350px;
+      transition: 0.3s width;
+    }
+
+    .board-metadata-container {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+
+      padding-top: 10px;
+      padding-right: 15px; /* spacing for scrollbar */
+      padding-bottom: 25px; /* make room for 50px shadow */
+      padding-left: 15px;
+
+      overflow-y: scroll;
+    }
+
+    #board-metadata:after {
+      content: " ";
+      display: block;
+      position: absolute;
+      width: 100%;
+      height: 50px;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(51,51,51,0.0) 0%, rgba(51,51,51,1.0) 100%);
+      pointer-events: none;
+    }
+
+    .inline {
+      display: inline-block;
+    }
+
+    #canvas-caption {
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 5px;
+      padding: .3vw .6vw;
+      position: absolute;
+      font-size: 1.6vw;
+      font-weight: 500;
+      color: white;
+      text-transform: uppercase;
+      left: 50%;
+      transform: translate(-50%,0);
+      margin: 0;
+      width: fit-content;
+      max-width: 55vw;
+      display: none;
+      text-rendering: optimizeLegibility;
+      z-index: 200;
+      text-shadow: 0 1px 0px rgba(0,0,0,.6);
+      font-weight: 100;
+      bottom: 70px;
+    }
+
+    #timeline {
+      height: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+      margin-top: 15px;
+      color: #fff;
+    }
+
+    @media only screen and (max-width: 1500px) {
+      #scenes {
+        min-width: 100px;
+        max-width: 100px;
+      }
+
+      #script {
+        min-width: 100px;
+        max-width: 100px;
+      }
+
+      #board-metadata {
+        width: 300px;
+      }
+    }
+
+    /* storyboarder-sketch-pane */
+    #sketch-body {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      height: 1px;
+    }
+
+    #storyboarder-sketch-pane {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #storyboarder-sketch-pane .container {
+      /*transform: scale(0.0,0.0) translate(0,0);*/
+      /*transform-origin: 0 0;*/
+      position: relative;
+      overflow: hidden;
+      background: white;
+      /*border-radius: 13px;*/
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+      cursor: none;
+    }
+    </style>
+    <style>
+      /* overrides */
+      #scenes {
+        display: flex;
+      }
+      #script {
+        display: flex;
+      }
+      #toolbar {
+        height: 130px;
+      }
+    </style>
+    <style>
+      /* additions */
+
+      /* #sketch-body {
+        display: flex;
+        flex: 1;
+      } */
+      /* #storyboarder-sketch-pane {
+        flex: 1;
+        background-color: purple;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      } */
+      #board-metadata {
+        /* transition: 0.3s width; */
+        transition: none;
+      }
+
+      #storyboarder-sketch-pane .container {
+        flex-shrink: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #storyboarder-sketch-pane .container canvas {
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="drag-handle"></div>
+    <div id="scenes"></div>
+    <div id="script"></div>
+    <div id="storyboarder-main">
+      <div id="toolbar">
+      </div>
+      <div id="sketch-body">
+        <div id="storyboarder-sketch-pane">
+          <div class="container"></div>
+        </div>
+        <div id="board-metadata">
+          <div class="board-metadata-container">
+          </div>
+        </div>
+      </div>
+      <div id="thumbnail-container"></div>
+      <div id="scene-timeline-container"></div>
+      <div id="timeline"></div>
+      <div id="playback"></div>
+    </div>
+    <div id="notifications" class="notifications"></div>
+  <script src="../dist/vendor.browser.js"></script>
+  <script src="../dist/sketch-pane.browser.js"></script>
+  <script>
+    const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03']
+      .map(basename => '../example/img/layers/' + basename + '.png')
+
+    const loadLayers = (sketchPane, filepaths) => {
+      return new Promise(resolve => {
+        filepaths.forEach(filepath => PIXI.loader.add(filepath, filepath))
+        PIXI.loader.load((loader, resources) => {
+          for (let filepath of filepaths) {
+            sketchPane.newLayerFrom(resources[filepath].texture)
+          }
+          resolve()
+        })
+      })
+    }
+
+    const sketchPane = new SketchPane()
+    sketchPane.setImageSize(1200, 900)
+
+    sketchPane
+      .load({ brushImagePath: '../src/img/brush' })
+
+      // NOTE example images are 1000 × 800
+      .then(() => loadLayers(sketchPane, layerFilePaths))
+
+      .then(() => sketchPane.selectLayer(sketchPane.layers.length - 1))
+
+      .then(() => {
+        console.log('ready')
+
+        let element = sketchPane.getDOMElement()
+
+        let container = document.querySelector('#storyboarder-sketch-pane .container')
+        container.appendChild(element)
+
+        let ro = new ResizeObserver(entries => {
+          const { width, height } = entries[0].contentRect
+          sketchPane.resize(width, height)
+        })
+        ro.observe(element.parentNode)
+
+        window.addEventListener('pointerdown', e => sketchPane.down(e))
+        window.addEventListener('pointerup', e => sketchPane.up(e))
+        window.addEventListener('pointermove', e => sketchPane.move(e))
+
+        window.sketchPane = sketchPane
+      })
+  </script>
+  </body>
+</html>
