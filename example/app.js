@@ -315,7 +315,7 @@ sketchPane
       for (let i = 0; i < Math.PI * 2 * 2; i++) {
         let x = 350 + i * 50
         let y = 400 + Math.cos(i) * 50
-        sketchPane.addMouseEventAsPoint(fakeEvent({ x, y }))
+        sketchPane.addPointerEventAsPoint(fakeEvent({ x, y }))
         sketchPane.renderLive()
       }
 
@@ -444,7 +444,7 @@ sketchPane
     //     x = px + i * (100 / Math.PI)
     //     y = py + (Math.cos(i) * 50)
     //     pressure = i / end
-    //     // sketchPane.addMouseEventAsPoint(fakeEvent({ x, y, pressure }))
+    //     // sketchPane.addPointerEventAsPoint(fakeEvent({ x, y, pressure }))
     //     // sketchPane.renderLive()
     //     if (i === 0) {
     //       sketchPane.down(fakeEvent({ x, y, pressure }))

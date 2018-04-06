@@ -390,7 +390,7 @@ module.exports = class SketchPane {
       : { x: 0, y: 0 }
 
     if (e.target === this.app.view) {
-      this.addMouseEventAsPoint(e)
+      this.addPointerEventAsPoint(e)
 
       if (this.isErasing) {
         if (this.liveStrokeContainer.parent) {
@@ -411,7 +411,7 @@ module.exports = class SketchPane {
     // if (e.target !== this.app.view) return
 
     if (this.pointerDown) {
-      this.addMouseEventAsPoint(e)
+      this.addPointerEventAsPoint(e)
       this.renderLive()
       this.app.view.style.cursor = 'crosshair'
     }
@@ -420,7 +420,7 @@ module.exports = class SketchPane {
   up (e) {
     if (e.target === this.app.view) {
       if (this.pointerDown) {
-        this.addMouseEventAsPoint(e)
+        this.addPointerEventAsPoint(e)
 
         this.layerContainer.addChild(this.liveStrokeContainer)
 
@@ -534,25 +534,17 @@ module.exports = class SketchPane {
     }
   }
 
-  addMouseEventAsPoint (e) {
+  addPointerEventAsPoint (e) {
+    let corrected = this.sketchpaneContainer.toLocal(
+      { x: e.offsetX, y: e.offsetY },
+      this.app.stage)
+
     let pressure = e.pointerType === 'mouse'
-      ? e.pressure > 0 ? 0.5 : 0 // override mouse pressure to 0.8 (if more than zero)
+      ? e.pressure > 0 ? 0.5 : 0
       : e.pressure
-    let x =
-      (e.x - this.sketchpaneContainer.x) / this.sketchpaneContainer.scale.x +
-      this.width / 2
-    let y =
-      (e.y - this.sketchpaneContainer.y) / this.sketchpaneContainer.scale.y +
-      this.height / 2
-    let corrected = Util.rotatePoint(
-      x,
-      y,
-      this.width / 2,
-      this.height / 2,
-      -this.sketchpaneContainer.rotation
-    )
+
     let tiltAngle = e.pointerType === 'mouse'
-      ? {angle: -90, tilt: 37}
+      ? { angle: -90, tilt: 37 }
       : Util.calcTiltAngle(e.tiltX, e.tiltY)
 
     this.strokeInput.push({
