@@ -49,7 +49,7 @@ module.exports = class SketchPane {
 
       // preserveDrawingBuffer: true,  // for toDataUrl on the webgl context
 
-      // transparent: true,
+      transparent: true,
       // resolution: 2,
       antialias: false
       // powerPreference: 'high-performance'
