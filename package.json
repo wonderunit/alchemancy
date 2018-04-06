@@ -11,7 +11,8 @@
     "clean": "trash dist/*",
     "watch": "MODE=development webpack --watch",
     "start": "MODE=development webpack-serve --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
-    "build": "MODE=production webpack"
+    "build": "MODE=production webpack",
+    "build:dev": "MODE=development webpack"
   },
   "repository": {
     "type": "git",
