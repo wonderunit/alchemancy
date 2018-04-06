@@ -21,6 +21,8 @@ module.exports = class SketchPane {
 
     this.brushes = brushes
 
+    this.viewportRect = undefined
+
     this.setup()
   }
 
@@ -189,6 +191,8 @@ module.exports = class SketchPane {
       Math.floor(this.app.renderer.width / 2),
       Math.floor(this.app.renderer.height / 2)
     )
+
+    this.viewportRect = this.app.view.getBoundingClientRect()
   }
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
@@ -536,7 +540,7 @@ module.exports = class SketchPane {
 
   addPointerEventAsPoint (e) {
     let corrected = this.sketchpaneContainer.toLocal(
-      { x: e.offsetX, y: e.offsetY },
+      { x: e.x - this.viewportRect.x, y: e.y - this.viewportRect.y },
       this.app.stage)
 
     let pressure = e.pointerType === 'mouse'
