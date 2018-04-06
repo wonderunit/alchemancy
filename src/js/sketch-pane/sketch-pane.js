@@ -100,7 +100,7 @@ module.exports = class SketchPane {
     this.strokeGrainOffset = { x: 0, y: 0 }
   }
 
-  setSize (width, height) {
+  setImageSize (width, height) {
     this.width = width
     this.height = height
 

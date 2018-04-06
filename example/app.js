@@ -18,7 +18,7 @@ const loadLayers = (sketchPane, filepaths) => {
 }
 
 const sketchPane = new SketchPane()
-sketchPane.setSize(1200, 900)
+sketchPane.setImageSize(1200, 900)
 
 sketchPane
   .load({ brushImagePath: './src/img/brush' })
