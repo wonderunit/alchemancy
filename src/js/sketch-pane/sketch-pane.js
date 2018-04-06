@@ -40,11 +40,15 @@ module.exports = class SketchPane {
     PIXI.utils.skipHello()
 
     this.app = new PIXI.Application({
-      width: window.innerWidth,
-      height: window.innerHeight,
+      // width: window.innerWidth,
+      // height: window.innerHeight,
+
       // antialias: false,
-      // preserveDrawingBuffer: true,
+
+      // preserveDrawingBuffer: true,  // for toDataUrl on the webgl context
+
       // transparent: true,
+      // resolution: 2,
       antialias: false
       // powerPreference: 'high-performance'
     })
@@ -160,8 +164,27 @@ module.exports = class SketchPane {
     )
   }
 
-  resize () {
-    this.app.renderer.resize(window.innerWidth, window.innerHeight)
+  // resizeToParent () {
+  //   this.resizeToElement(this.app.view.parentElement)
+  // }
+  //
+  // resizeToElement (element) {
+  //   const { width, height } = element.getBoundingClientRect()
+  //   this.resize(width, height)
+  // }
+
+  resize (width, height) {
+    this.app.renderer.resize(width, height)
+
+    // fit aspect ratio, set scale
+    const frameAspectRatio = width / height
+    const imageAspectRatio = this.width / this.height
+    let dim = (frameAspectRatio > imageAspectRatio)
+      ? [this.width * height / this.height, height]
+      : [width, this.height * width / this.width]
+    let scale = dim[0] / this.width
+    this.sketchpaneContainer.scale.set(scale)
+
     this.sketchpaneContainer.position.set(
       Math.floor(this.app.renderer.width / 2),
       Math.floor(this.app.renderer.height / 2)

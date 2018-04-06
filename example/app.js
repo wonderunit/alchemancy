@@ -19,6 +19,7 @@ const loadLayers = (sketchPane, filepaths) => {
 
 const sketchPane = new SketchPane()
 sketchPane.setImageSize(1200, 900)
+sketchPane.resize(window.innerWidth, window.innerHeight)
 
 sketchPane
   .load({ brushImagePath: './src/img/brush' })
@@ -41,7 +42,7 @@ sketchPane
     document.body.appendChild(stats.dom)
 
     window.addEventListener('resize', function (e) {
-      sketchPane.resize()
+      sketchPane.resize(window.innerWidth, window.innerHeight)
     })
 
     window.addEventListener('pointerdown', function (e) {
