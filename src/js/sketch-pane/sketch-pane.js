@@ -218,14 +218,6 @@ module.exports = class SketchPane {
     this.setDefaultBrush()
   }
 
-  // set default brush
-  setDefaultBrush () {
-    this.brush = this.brushes.pencil
-    this.brushColor = { r: 0, g: 0, b: 0 }
-    this.brushSize = 4
-    this.brushOpacity = 0.9
-  }
-
   renderToLayer (source, layer, clear = undefined) {
     this.app.renderer.render(
       source,
@@ -781,6 +773,14 @@ module.exports = class SketchPane {
       }
       childIndex++
     }
+  }
+
+  // set default brush
+  setDefaultBrush () {
+    this.brush = this.brushes.pencil
+    this.brushColor = { r: 0, g: 0, b: 0 }
+    this.brushSize = 4
+    this.brushOpacity = 0.9
   }
 
   getIsErasing () {
