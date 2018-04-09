@@ -6,7 +6,7 @@ const brushes = require('./brush/brushes')
 const BrushNodeFilter = require('./brush/brush-node-filter')
 
 module.exports = class SketchPane {
-  constructor () {
+  constructor (options = { backgroundColor: '0xffffff' }) {
     this.layers = []
     this.layerMask = undefined
     this.layerBackground = undefined
@@ -23,10 +23,10 @@ module.exports = class SketchPane {
 
     this.viewportRect = undefined
 
-    this.setup()
+    this.setup(options)
   }
 
-  setup () {
+  setup (options) {
     paper.setup()
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
@@ -42,7 +42,7 @@ module.exports = class SketchPane {
 
       // preserveDrawingBuffer: true,  // for toDataUrl on the webgl context
 
-      transparent: true,
+      backgroundColor: options.backgroundColor,
       // resolution: 2,
       antialias: false
       // powerPreference: 'high-performance'
