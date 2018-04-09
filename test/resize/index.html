@@ -344,7 +344,7 @@
     sketchPane.setImageSize(1200, 900)
 
     sketchPane
-      .load({ brushImagePath: '../src/img/brush' })
+      .loadBrushes({ brushImagePath: '../src/img/brush' })
 
       // NOTE example images are 1000 × 800
       .then(() => loadLayers(sketchPane, layerFilePaths))

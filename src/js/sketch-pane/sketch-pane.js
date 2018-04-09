@@ -26,13 +26,6 @@ module.exports = class SketchPane {
     this.setup()
   }
 
-  async load ({ brushImagePath }) {
-    await this.loadBrushTextures(brushImagePath)
-
-    // this.newLayer()
-    // this.selectLayer(this.layers.length - 1)
-  }
-
   setup () {
     paper.setup()
     PIXI.settings.FILTER_RESOLUTION = 1
@@ -58,11 +51,6 @@ module.exports = class SketchPane {
     this.app.renderer.roundPixels = false
 
     // this.app.renderer.transparent = true
-
-    this.brush = this.brushes.pencil
-    this.brushColor = { r: 0, g: 0, b: 0 }
-    this.brushSize = 4
-    this.brushOpacity = 0.9
 
     this.sketchpaneContainer = new PIXI.Container()
     this.sketchpaneContainer.name = 'sketchpaneContainer'
@@ -197,7 +185,7 @@ module.exports = class SketchPane {
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
-  async loadBrushTextures (brushImagePath) {
+  async loadBrushes ({ brushImagePath }) {
     // get unique file names
     let brushImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.brushImage))]
     let grainImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.grainImage))]
@@ -226,6 +214,16 @@ module.exports = class SketchPane {
       }
     }
     await Promise.all(promises)
+
+    this.setDefaultBrush()
+  }
+
+  // set default brush
+  setDefaultBrush () {
+    this.brush = this.brushes.pencil
+    this.brushColor = { r: 0, g: 0, b: 0 }
+    this.brushSize = 4
+    this.brushOpacity = 0.9
   }
 
   renderToLayer (source, layer, clear = undefined) {
