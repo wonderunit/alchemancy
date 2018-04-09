@@ -802,10 +802,6 @@ module.exports = class SketchPane {
     }
   }
 
-  getErasableLayers (indexes) {
-    return this.erasableLayers.map(layer => layer.index).sort((a, b) => a - b)
-  }
-
   getDOMElement () {
     return this.app.view
   }
