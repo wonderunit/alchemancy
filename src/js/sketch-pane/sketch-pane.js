@@ -733,7 +733,7 @@ module.exports = class SketchPane {
   }
 
   // TODO handle crop / center
-  replaceLayer (source, index, clear = true) {
+  replaceLayer (index, source, clear = true) {
     index = (index == null) ? this.layer : index
 
     this.renderToLayer(
