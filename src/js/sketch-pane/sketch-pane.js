@@ -801,12 +801,20 @@ module.exports = class SketchPane {
     this.isErasing = value
   }
 
-  setErasableLayers (indexes) {
+  setErasableLayers (indices) {
     this.erasableLayers = []
     for (let layer of this.layers) {
-      if (indexes.includes(layer.index)) {
+      if (indices.includes(layer.index)) {
         this.erasableLayers.push(layer)
       }
+    }
+  }
+
+  getActiveLayerIndices () {
+    if (this.isErasing) {
+      return this.erasableLayers.map(layer => layer.index)
+    } else {
+      return [this.layer]
     }
   }
 
