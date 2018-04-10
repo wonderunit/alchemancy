@@ -728,14 +728,6 @@ module.exports = class SketchPane {
     finalizedSprite.destroy({ texture: true, baseTexture: false })
   }
 
-  getLayerCanvas (index) {
-    index = (index == null) ? this.layer : index
-
-    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
-    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite.texture)
-  }
-
   // TODO handle crop / center
   replaceLayer (index, source, clear = true) {
     index = (index == null) ? this.layer : index
@@ -747,15 +739,34 @@ module.exports = class SketchPane {
     )
   }
 
+  // DEPRECATED
+  getLayerCanvas (index) {
+    console.warn('SketchPane#getLayerCanvas is deprecated. Please fix the caller to use a different method.')
+    index = (index == null) ? this.layer : index
+
+    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
+    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
+    return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite.texture)
+  }
+
   exportLayer (index, format = 'base64') {
     index = (index == null) ? this.layer : index
 
+    // get pixels as Uint8Array
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    // #image calls #canvas and then converts to #base64 and finally returns an HTMLImageElement (no onload)
-    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
-    // #base64 calls #canvas and runs toDataURL on it
-    // #pixels just reads the raw pixels via gl.readPixels and returns a Uint8ClampedArray
-    return this.app.renderer.plugins.extract[format](this.layers[index].sprite.texture)
+    let pixels = this.app.renderer.plugins.extract.pixels(this.layers[index].sprite.texture)
+
+    // un-premultiply
+    Util.arrayPostDivide(pixels)
+
+    // convert to base64 PNG by writing to a canvas
+    const canvasBuffer = new PIXI.CanvasRenderTarget(this.width, this.height)
+    let canvasData = canvasBuffer.context.getImageData(0, 0, this.width, this.height)
+    canvasData.data.set(pixels)
+    canvasBuffer.context.putImageData(canvasData, 0, 0)
+
+    // return the bas64 data
+    return canvasBuffer.canvas.toDataURL().replace(/^data:image\/\w+;base64,/, '')
   }
 
   clearLayer (index) {

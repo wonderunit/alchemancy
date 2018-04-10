@@ -23,4 +23,17 @@ module.exports = class Util {
     amount = amount > 1 ? 1 : amount
     return value1 + (value2 - value1) * amount
   }
+
+  // via https://github.com/pixijs/pixi.js/pull/4632/files#diff-e38c1de4b0f48ed1293bccc38b07e6c1R123
+  // AKA un-premultiply
+  static arrayPostDivide (pixels) {
+    for (let i = 0; i < pixels.length; i += 4) {
+      const alpha = pixels[i + 3]
+      if (alpha) {
+        pixels[i] = Math.round(Math.min(pixels[i] * 255.0 / alpha, 255.0))
+        pixels[i + 1] = Math.round(Math.min(pixels[i + 1] * 255.0 / alpha, 255.0))
+        pixels[i + 2] = Math.round(Math.min(pixels[i + 2] * 255.0 / alpha, 255.0))
+      }
+    }
+  }
 }
