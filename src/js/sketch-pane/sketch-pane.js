@@ -138,14 +138,6 @@ module.exports = class SketchPane {
     return this.layers[index]
   }
 
-  newLayerFrom (image) {
-    // TODO handle crop / center
-    this.renderToLayer(
-      new PIXI.Sprite.from(image), // eslint-disable-line new-cap
-      this.newLayer()
-    )
-  }
-
   centerContainer () {
     this.sketchpaneContainer.pivot.set(this.width / 2, this.height / 2)
     this.sketchpaneContainer.position.set(
