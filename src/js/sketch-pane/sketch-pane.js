@@ -733,7 +733,7 @@ module.exports = class SketchPane {
 
     // #canvas reads the raw pixels and converts to an HTMLCanvasElement
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite)
+    return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite.texture)
   }
 
   // TODO handle crop / center
@@ -747,15 +747,15 @@ module.exports = class SketchPane {
     )
   }
 
-  saveLayer (index) {
+  exportLayer (index, format = 'base64') {
     index = (index == null) ? this.layer : index
 
-    // render the current layer as an HTMLImageElement
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
     // #image calls #canvas and then converts to #base64 and finally returns an HTMLImageElement (no onload)
     // #canvas reads the raw pixels and converts to an HTMLCanvasElement
+    // #base64 calls #canvas and runs toDataURL on it
     // #pixels just reads the raw pixels via gl.readPixels and returns a Uint8ClampedArray
-    return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
+    return this.app.renderer.plugins.extract[format](this.layers[index].sprite.texture)
   }
 
   clearLayer (index) {
