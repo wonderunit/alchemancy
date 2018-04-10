@@ -121,10 +121,12 @@ module.exports = class SketchPane {
   newLayer () {
     let index = this.layers.length
 
+    // create a layer object
     let layer = {
       index,
       name: `Layer ${index + 1}`,
-      sprite: new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
+      sprite: new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height)),
+      opacity: undefined
     }
     layer.sprite.name = layer.name
 
@@ -134,6 +136,8 @@ module.exports = class SketchPane {
     this.centerContainer()
 
     this.layers[index] = layer
+
+    this.setLayerOpacity(index, 1.0)
 
     return this.layers[index]
   }
@@ -816,6 +820,15 @@ module.exports = class SketchPane {
     } else {
       return [this.layer]
     }
+  }
+
+  getLayerOpacity (index) {
+    return this.layers[index].opacity
+  }
+
+  setLayerOpacity (index, opacity) {
+    this.layers[index].sprite.alpha = opacity
+    this.layers[index].opacity = opacity
   }
 
   getDOMElement () {
