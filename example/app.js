@@ -10,7 +10,8 @@ const loadLayers = (sketchPane, filepaths) => {
     filepaths.forEach(filepath => PIXI.loader.add(filepath, filepath))
     PIXI.loader.load((loader, resources) => {
       for (let filepath of filepaths) {
-        sketchPane.newLayerFrom(resources[filepath].texture)
+        let layer = sketchPane.newLayer()
+        sketchPane.replaceLayer(layer.index, resources[filepath].texture)
       }
       resolve()
     })

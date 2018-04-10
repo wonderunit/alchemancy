@@ -724,6 +724,25 @@ module.exports = class SketchPane {
     finalizedSprite.destroy({ texture: true, baseTexture: false })
   }
 
+  getLayerCanvas (index) {
+    index = (index == null) ? this.layer : index
+
+    // #canvas reads the raw pixels and converts to an HTMLCanvasElement
+    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
+    return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite)
+  }
+
+  // TODO handle crop / center
+  replaceLayer (source, index, clear = true) {
+    index = (index == null) ? this.layer : index
+
+    this.renderToLayer(
+      new PIXI.Sprite.from(source), // eslint-disable-line new-cap
+      this.layers[index],
+      clear
+    )
+  }
+
   saveLayer (index) {
     index = (index == null) ? this.layer : index
 
