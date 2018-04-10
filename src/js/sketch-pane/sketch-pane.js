@@ -496,9 +496,9 @@ module.exports = class SketchPane {
       )
 
       interpolatedStrokeInput.push([
-        this.isErasing ? 0 : this.brushColor.r,
-        this.isErasing ? 0 : this.brushColor.g,
-        this.isErasing ? 0 : this.brushColor.b,
+        this.isErasing ? 0 : ((this.brushColor >> 16) & 255) / 255,
+        this.isErasing ? 0 : ((this.brushColor >> 8) & 255) / 255,
+        this.isErasing ? 0 : (this.brushColor & 255) / 255,
         this.brushSize,
         this.brushOpacity,
         point.x,
@@ -778,7 +778,7 @@ module.exports = class SketchPane {
   // set default brush
   setDefaultBrush () {
     this.brush = this.brushes.pencil
-    this.brushColor = { r: 0, g: 0, b: 0 }
+    this.brushColor = 0x000000
     this.brushSize = 4
     this.brushOpacity = 0.9
   }

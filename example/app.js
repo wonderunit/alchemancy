@@ -17,6 +17,17 @@ const loadLayers = (sketchPane, filepaths) => {
   })
 }
 
+// via https://stackoverflow.com/a/16348977
+const intToHexColorString = number => {
+  let color = '#'
+  let i = 3
+  while (i--) {
+    let value = (number >> (i * 8)) & 0xFF
+    color += value.toString(16).padStart(2, '0')
+  }
+  return color
+}
+
 const sketchPane = new SketchPane()
 sketchPane.setImageSize(1200, 900)
 sketchPane.resize(window.innerWidth, window.innerHeight)
@@ -87,13 +98,13 @@ sketchPane
         case '[':
           sketchPane.brushSize = Math.round(sketchPane.brushSize / 1.5)
           break
-        case '1':
-          sketchPane.color = {
-            r: Math.random(),
-            g: Math.random(),
-            b: Math.random()
-          }
-          break
+        // case '1':
+        //   sketchPane.color = {
+        //     r: Math.random(),
+        //     g: Math.random(),
+        //     b: Math.random()
+        //   }
+        //   break
         case '2':
           sketchPane.size = 10
           break
@@ -138,37 +149,35 @@ sketchPane
       sketchPane.brush = sketchPane.brushes.pencil
       sketchPane.brushSize = 4
       sketchPane.brushOpacity = 0.8
-      sketchPane.brushColor = { r: 0.05, g: 0.05, b: 0.05 }
+      sketchPane.brushColor = 0xdddddd
     })
 
     document.getElementById('b-2').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.pen
       sketchPane.brushSize = 4
       sketchPane.brushOpacity = 0.9
-      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+      sketchPane.brushColor = 0x000000
     })
 
     document.getElementById('b-copic').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.copic
       sketchPane.brushSize = 40
       sketchPane.brushOpacity = 0.6
-      let val = 0.8
-      let val2 = 1
-      sketchPane.brushColor = { r: val, g: val, b: val2 }
+      sketchPane.brushColor = 0xccccff
     })
 
     document.getElementById('b-3').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.charcoal
       sketchPane.brushSize = 50
       sketchPane.brushOpacity = 0.6
-      sketchPane.brushColor = { r: 0.6, g: 0.6, b: 1 }
+      sketchPane.brushColor = 0x9999ff
     })
 
     document.getElementById('b-4').addEventListener('click', function (e) {
       sketchPane.brush = sketchPane.brushes.watercolor
       sketchPane.brushSize = 100
       sketchPane.brushOpacity = 0.4
-      sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
+      sketchPane.brushColor = 0xccccff
     })
 
     document.getElementById('b-5').addEventListener('click', function (e) {
@@ -183,48 +192,35 @@ sketchPane
       sketchPane.brush = sketchPane.brushes.brushpen
       sketchPane.brushSize = 15
       sketchPane.brushOpacity = 1
-      sketchPane.brushColor = { r: 0, g: 0, b: 0 }
+      sketchPane.brushColor = 0x000000
     })
 
     document.getElementById('c-1').addEventListener('click', function (e) {
-      let val = 0
-      sketchPane.brushColor = { r: val, g: val, b: val }
+      sketchPane.brushColor = 0x000000
     })
 
     document.getElementById('c-2').addEventListener('click', function (e) {
-      let val = 0.0
-      let val2 = 0.2
-      sketchPane.brushColor = { r: val, g: val, b: val2 }
+      sketchPane.brushColor = 0x000033
     })
 
     document.getElementById('c-3').addEventListener('click', function (e) {
-      let val = 0.3
-      let val2 = 0.6
-      sketchPane.brushColor = { r: val, g: val, b: val2 }
+      sketchPane.brushColor = 0x4d4d99
     })
 
     document.getElementById('c-4').addEventListener('click', function (e) {
-      let val = 0.7
-      let val2 = 0.8
-      sketchPane.brushColor = { r: val, g: val, b: val2 }
+      sketchPane.brushColor = 0xb3b3cc
     })
 
     document.getElementById('c-5').addEventListener('click', function (e) {
-      let val = 0.8
-      let val2 = 1
-      sketchPane.brushColor = { r: val, g: val, b: val2 }
+      sketchPane.brushColor = 0xccccff
     })
 
     document.getElementById('c-6').addEventListener('click', function (e) {
-      let val = 0.3
-      let val2 = 1
-      sketchPane.brushColor = { r: val2, g: val2, b: val }
+      sketchPane.brushColor = 0xffff4d
     })
 
     document.getElementById('c-7').addEventListener('click', function (e) {
-      // let val = Math.random() * 0.4 + 0.6
-      // let val2 = Math.random() * 0.4 + 0.2
-      sketchPane.brushColor = { r: 1, g: 1, b: 1 }
+      sketchPane.brushColor = 0xffffff
     })
 
     document.getElementById('s-1').addEventListener('click', function (e) {
@@ -361,9 +357,9 @@ sketchPane
       const plot = (x, y) => {
         angle = (angle + sketchPane.brushSize) % 360
         sketchPane.addStrokeNode(
-          sketchPane.brushColor.r,
-          sketchPane.brushColor.g,
-          sketchPane.brushColor.b,
+          ((sketchPane.brushColor >> 16) & 255) / 255,
+          ((sketchPane.brushColor >> 8) & 255) / 255,
+          (sketchPane.brushColor & 255) / 255,
           sketchPane.brushSize,
           sketchPane.brushOpacity,
           x,
@@ -588,9 +584,9 @@ sketchPane
       let y = Math.floor(sketchPane.sketchpaneContainer.height / 2)
 
       sketchPane.addStrokeNode(
-        sketchPane.brushColor.r,
-        sketchPane.brushColor.g,
-        sketchPane.brushColor.b,
+        ((sketchPane.brushColor >> 16) & 255) / 255,
+        ((sketchPane.brushColor >> 8) & 255) / 255,
+        (sketchPane.brushColor & 255) / 255,
         sketchPane.brushSize,
         sketchPane.brushOpacity,
         x + guiState.nodeTest.offsetX,
@@ -704,7 +700,7 @@ sketchPane
       },
 
       calculated: {
-        color: { r: sketchPane.brushColor.r * 255, g: sketchPane.brushColor.g * 255, b: sketchPane.brushColor.b * 255 }
+        color: intToHexColorString(sketchPane.brushColor)
       },
 
       spin: false
@@ -756,9 +752,8 @@ sketchPane
       nodeTestFolder.add(guiState.nodeTest, 'angle', 0, 360).step(15).listen()
       nodeTestFolder.addColor(guiState.calculated, 'color')
         .onChange(function (value) {
-          sketchPane.brushColor.r = value.r / 255
-          sketchPane.brushColor.g = value.g / 255
-          sketchPane.brushColor.b = value.b / 255
+          sketchPane.brushColor = parseInt(value.substr(1), 16)
+          console.log('gui color changed to', value, 'which means', sketchPane.brushColor)
         })
         .listen()
       nodeTestFolder.open()
@@ -817,11 +812,7 @@ sketchPane
 
       // HACK sync values every 250 msecs
       setInterval(() => {
-        guiState.calculated.color = {
-          r: sketchPane.brushColor.r * 255,
-          g: sketchPane.brushColor.g * 255,
-          b: sketchPane.brushColor.b * 255
-        }
+        guiState.calculated.color = intToHexColorString(sketchPane.brushColor)
       }, 250)
 
       gui.width = 285
