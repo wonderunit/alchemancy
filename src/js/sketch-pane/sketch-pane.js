@@ -743,14 +743,11 @@ module.exports = class SketchPane {
     return this.app.renderer.plugins.extract.image(this.layers[index].sprite)
   }
 
-  clearLayer (layer) {
-    if (!layer) {
-      layer = this.layer
-    }
-    this.renderToLayer(
-      this.strokeContainer,
-      this.layers[layer],
-      true
+  clearLayer (index) {
+    index = (index == null) ? this.layer : index
+
+    this.app.renderer.clearRenderTexture(
+      this.layers[index].sprite.texture
     )
   }
 

@@ -32,6 +32,16 @@ const sketchPane = new SketchPane()
 sketchPane.setImageSize(1200, 900)
 sketchPane.resize(window.innerWidth, window.innerHeight)
 
+// TODO can we just use sketchPane.clearLayer for this?
+//      or are the strokeContainer contents sometimes used?
+const forceClear = () => {
+  sketchPane.renderToLayer(
+    sketchPane.strokeContainer,
+    sketchPane.layers[sketchPane.layer],
+    true
+  )
+}
+
 sketchPane
   .loadBrushes({ brushImagePath: './src/img/brush' })
 
@@ -762,7 +772,7 @@ sketchPane
       pressureLineTestFolder.add(guiState.pressureLineTest, 'enabled').onChange(function (enabled) {
         if (!enabled) {
           // clear it
-          sketchPane.clearLayer()
+          forceClear()
         }
       }).listen()
       pressureLineTestFolder.open()
@@ -772,7 +782,7 @@ sketchPane
         if (!enabled) {
           // clear it
           sketchPane.disposeContainer(sketchPane.strokeContainer)
-          sketchPane.clearLayer()
+          forceClear()
         }
       }).listen()
       spriteLineTestFolder.add(guiState.spriteLineTest, 'spacing', 0.001, 2.0).listen()
@@ -785,7 +795,7 @@ sketchPane
         if (!enabled) {
           // clear it
           sketchPane.disposeContainer(sketchPane.strokeContainer)
-          sketchPane.clearLayer()
+          forceClear()
         }
       }).listen()
       plotLineTestFolder.open()
@@ -795,7 +805,7 @@ sketchPane
         if (!enabled) {
           // clear it
           sketchPane.disposeContainer(sketchPane.strokeContainer)
-          sketchPane.clearLayer()
+          forceClear()
         }
       }).listen()
       delayedTextureRenderTestFolder.open()
@@ -827,13 +837,13 @@ sketchPane
         }
 
         if (guiState.pressureLineTest.enabled) {
-          sketchPane.clearLayer()
+          forceClear()
           drawPressureLine()
         }
 
         if (guiState.spriteLineTest.enabled) {
           sketchPane.disposeContainer(sketchPane.strokeContainer)
-          // sketchPane.clearLayer()
+          // forceClear()
           drawSpriteLineTest()
           // setTimeout(() => {
           //   sketchPane.renderToLayer(
@@ -847,7 +857,7 @@ sketchPane
         if (guiState.plotLineTest.enabled) {
           // clear and draw plot lines to sprites
           sketchPane.disposeContainer(sketchPane.strokeContainer)
-          sketchPane.clearLayer()
+          forceClear()
           let p1 = sketchPane.strokeContainer.toGlobal({
             x: (sketchPane.sketchpaneContainer.width - 400) / 2,
             y: (sketchPane.sketchpaneContainer.height - 400) / 2
@@ -861,7 +871,7 @@ sketchPane
       if (guiState.delayedTextureRenderTest.enabled) {
         // clear and draw plot lines to sprites
         sketchPane.disposeContainer(sketchPane.strokeContainer)
-        sketchPane.clearLayer()
+        forceClear()
         let p1 = sketchPane.strokeContainer.toGlobal({
           x: (sketchPane.sketchpaneContainer.width - 400) / 2,
           y: (sketchPane.sketchpaneContainer.height - 400) / 2
@@ -886,7 +896,7 @@ sketchPane
       }
 
       if (guiState.nodeTest.enabled) {
-        sketchPane.clearLayer()
+        forceClear()
         sketchPane.disposeContainer(guiState.nodeTest.container)
         drawNodeTest(guiState.nodeTest)
 
