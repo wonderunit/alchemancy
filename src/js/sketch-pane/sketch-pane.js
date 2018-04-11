@@ -85,11 +85,6 @@ module.exports = class SketchPane {
 
     this.app.stage.addChild(this.sketchPaneContainer)
     this.sketchPaneContainer.scale.set(1)
-
-    this.strokeInput = []
-    this.strokePath = undefined
-    this.lastStaticIndex = 0
-    this.strokeGrainOffset = { x: 0, y: 0 }
   }
 
   setImageSize (width, height) {
@@ -376,7 +371,27 @@ module.exports = class SketchPane {
 
   down (e) {
     this.pointerDown = true
+    this.strokeBegin(e)
+    this.app.view.style.cursor = 'crosshair'
+  }
 
+  move (e) {
+    if (this.pointerDown) {
+      this.strokeContinue(e)
+      this.app.view.style.cursor = 'crosshair'
+    }
+  }
+
+  up (e) {
+    if (this.pointerDown) {
+      this.strokeEnd(e)
+      this.pointerDown = false
+      this.app.view.style.cursor = 'auto'
+    }
+  }
+
+  strokeBegin (e) {
+    // initialize stroke state
     this.strokeInput = []
     this.strokePath = new paper.Path()
     this.lastStaticIndex = 0
@@ -387,6 +402,7 @@ module.exports = class SketchPane {
 
     this.addPointerEventAsPoint(e)
 
+    // don't show the live container while we're erasing
     if (this.isErasing) {
       if (this.liveStrokeContainer.parent) {
         this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
@@ -396,24 +412,15 @@ module.exports = class SketchPane {
     }
 
     this.renderLive()
-
-    this.app.view.style.cursor = 'crosshair'
   }
 
-  move (e) {
-    // to prevent off-canvas move events:
-    // if (e.target !== this.app.view) return
-
+  strokeContinue (e) {
     this.addPointerEventAsPoint(e)
     this.renderLive()
-    this.app.view.style.cursor = 'crosshair'
   }
 
-  up (e) {
+  strokeEnd (e) {
     this.addPointerEventAsPoint(e)
-
-    // TODO why do we addChild here? for transform?
-    this.layerContainer.addChild(this.liveStrokeContainer)
 
     this.renderLive(true) // forceRender
 
@@ -422,8 +429,10 @@ module.exports = class SketchPane {
 
     this.layers.markDirtyIfActive()
 
-    this.app.view.style.cursor = 'auto'
-    this.pointerDown = false
+    // add the liveStrokeContainer back
+    if (this.isErasing) {
+      this.layerContainer.addChild(this.liveStrokeContainer)
+    }
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
@@ -572,11 +581,6 @@ module.exports = class SketchPane {
         console.warn('1 or fewer points remaining')
         return
       }
-
-      // ???
-      console.log('final render', a, b, final, a, b + 1)
-      // usually a=3 b=4
-      // sometimes a=2 b=4 ?
 
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
