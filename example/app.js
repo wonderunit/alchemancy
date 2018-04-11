@@ -278,10 +278,10 @@ sketchPane
       guiState.spin = !guiState.spin
     })
 
-    // document.getElementById('save').addEventListener('click', function (e) {
-    //   let image = sketchPane.saveLayer()
-    //   console.log('got image', image)
-    // })
+    document.getElementById('save').addEventListener('click', function (e) {
+      let data = sketchPane.exportLayer()
+      console.log('got PNG image data', data)
+    })
 
     const onSpacingClick = e => {
       sketchPane.brush.settings.spacing = parseFloat(e.target.textContent)
