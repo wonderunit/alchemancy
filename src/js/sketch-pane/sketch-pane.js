@@ -424,7 +424,7 @@ module.exports = class SketchPane {
   strokeEnd (e) {
     this.addPointerEventAsPoint(e)
 
-    this.drawStroke(true) // forceRender
+    this.drawStroke(true) // finalize
 
     this.disposeContainer(this.liveStrokeContainer)
     this.offscreenContainer.removeChildren()
@@ -574,14 +574,18 @@ module.exports = class SketchPane {
 
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
-  drawStroke (forceRender = false) {
+  drawStroke (finalize = false) {
     let len = this.strokeState.points.length
 
-    // forceRender is called on up
-    if (forceRender) {
-      let final = this.strokeState.points.length - 1
+    // finalize
+    // draws all remaining points we know of
+    // called on up
+    if (finalize) {
+      // TODO are we adding to the array causing the index to be off???
+      // the index of the last static point we drew
       let a = this.strokeState.lastStaticIndex
-      let b = final
+      // the last point we know of
+      let b = this.strokeState.points.length - 1
 
       // if ((b + 1) - a <= 1) {
       //   console.warn('1 or fewer points remaining')
@@ -602,6 +606,7 @@ module.exports = class SketchPane {
         this.strokeContainer
       )
 
+      // stamp
       if (this.isErasing) {
         // stamp to erase texture
         this.updateMask(this.strokeContainer, true)
@@ -618,20 +623,23 @@ module.exports = class SketchPane {
       return
     }
 
-    // can we render static?
+    // static
+    // do we have enough points to render a static stroke to the texture?
     if (len >= 3) {
       let last = this.strokeState.points.length - 1
       let a = last - 2
       let b = last - 1
 
-      // render to the static container
+      // draw to the static container
       this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
         new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
         this.strokeContainer
       )
 
+      // stamp
       if (this.isErasing) {
+        // stamp to the erase texture
         this.updateMask(this.strokeContainer)
       } else {
         // stamp to layer texture
@@ -646,7 +654,8 @@ module.exports = class SketchPane {
       this.strokeState.lastStaticIndex = b
     }
 
-    // can we render live?
+    // live
+    // do we have enough points to draw a live stroke to the container?
     if (len >= 2) {
       this.disposeContainer(this.liveStrokeContainer)
 
