@@ -392,13 +392,15 @@ module.exports = class SketchPane {
 
   strokeBegin (e) {
     // initialize stroke state
-    this.strokeInput = []
-    this.strokePath = new paper.Path()
-    this.lastStaticIndex = 0
-    this.lastSpacing = undefined
-    this.strokeGrainOffset = this.brush.settings.randomOffset
-      ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
-      : { x: 0, y: 0 }
+    this.strokeState = {
+      points: [],
+      path: new paper.Path(),
+      lastStaticIndex: 0,
+      lastSpacing: undefined,
+      grainOffset: this.brush.settings.randomOffset
+        ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
+        : { x: 0, y: 0 }
+    }
 
     this.addPointerEventAsPoint(e)
 
@@ -466,11 +468,11 @@ module.exports = class SketchPane {
 
     // console.log(spacing)
 
-    if (this.lastSpacing == null) this.lastSpacing = spacing
-    let start = (spacing - this.lastSpacing)
+    if (this.strokeState.lastSpacing == null) this.strokeState.lastSpacing = spacing
+    let start = (spacing - this.strokeState.lastSpacing)
     let i = 0
-    // default. pushes along in-between spacing when spacing - this.lastSpacing is > path.length
-    let k = path.length + -(this.lastSpacing + path.length)
+    // default. pushes along in-between spacing when spacing - this.strokeState.lastSpacing is > path.length
+    let k = path.length + -(this.strokeState.lastSpacing + path.length)
     for (i = start; i < path.length; i += spacing) {
       let point = path.getPointAt(i)
 
@@ -513,12 +515,12 @@ module.exports = class SketchPane {
         tiltAngle,
         tilt,
         this.brush,
-        this.strokeGrainOffset.x,
-        this.strokeGrainOffset.y
+        this.strokeState.grainOffset.x,
+        this.strokeState.grainOffset.y
       ])
       k = i
     }
-    this.lastSpacing = path.length - k
+    this.strokeState.lastSpacing = path.length - k
 
     return interpolatedStrokeInput
   }
@@ -536,8 +538,12 @@ module.exports = class SketchPane {
 
   addPointerEventAsPoint (e) {
     let corrected = this.sketchPaneContainer.toLocal(
-      { x: e.x - this.viewportRect.x, y: e.y - this.viewportRect.y },
-      this.app.stage)
+      {
+        x: e.x - this.viewportRect.x,
+        y: e.y - this.viewportRect.y
+      },
+      this.app.stage
+    )
 
     let pressure = e.pointerType === 'mouse'
       ? e.pressure > 0 ? 0.5 : 0
@@ -547,7 +553,7 @@ module.exports = class SketchPane {
       ? { angle: -90, tilt: 37 }
       : Util.calcTiltAngle(e.tiltX, e.tiltY)
 
-    this.strokeInput.push({
+    this.strokeState.points.push({
       x: corrected.x,
       y: corrected.y,
       pressure: pressure,
@@ -556,25 +562,25 @@ module.exports = class SketchPane {
     })
 
     // only keep track of input that hasn't been rendered static yet
-    this.strokeInput = this.strokeInput.slice(
-      Math.max(0, this.lastStaticIndex - 2),
-      this.strokeInput.length
+    this.strokeState.points = this.strokeState.points.slice(
+      Math.max(0, this.strokeState.lastStaticIndex - 2),
+      this.strokeState.points.length
     )
-    this.strokePath = new paper.Path(
-      this.strokeInput
+    this.strokeState.path = new paper.Path(
+      this.strokeState.points
     )
-    this.strokePath.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
+    this.strokeState.path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
   }
 
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
   renderLive (forceRender = false) {
-    let len = this.strokeInput.length
+    let len = this.strokeState.points.length
 
     // forceRender is called on up
     if (forceRender) {
-      let final = this.strokeInput.length - 1
-      let a = this.lastStaticIndex
+      let final = this.strokeState.points.length - 1
+      let a = this.strokeState.lastStaticIndex
       let b = final
 
       if ((b + 1) - a <= 1) {
@@ -583,8 +589,8 @@ module.exports = class SketchPane {
       }
 
       this.renderStroke(
-        this.strokeInput.slice(a, b + 1),
-        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
+        this.strokeState.points.slice(a, b + 1),
+        new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
         this.strokeContainer
       )
 
@@ -606,14 +612,14 @@ module.exports = class SketchPane {
 
     // can we render static?
     if (len >= 3) {
-      let last = this.strokeInput.length - 1
+      let last = this.strokeState.points.length - 1
       let a = last - 2
       let b = last - 1
 
       // render to the static container
       this.renderStroke(
-        this.strokeInput.slice(a, b + 1),
-        new paper.Path(this.strokePath.segments.slice(a, b + 1)),
+        this.strokeState.points.slice(a, b + 1),
+        new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
         this.strokeContainer
       )
 
@@ -629,14 +635,14 @@ module.exports = class SketchPane {
       this.disposeContainer(this.strokeContainer)
       this.offscreenContainer.removeChildren()
 
-      this.lastStaticIndex = b
+      this.strokeState.lastStaticIndex = b
     }
 
     // can we render live?
     if (len >= 2) {
       this.disposeContainer(this.liveStrokeContainer)
 
-      let last = this.strokeInput.length - 1
+      let last = this.strokeState.points.length - 1
       let a = last - 1
       let b = last
 
@@ -646,15 +652,15 @@ module.exports = class SketchPane {
         // this.updateMask(this.liveStrokeContainer)
       } else {
         // store the current spacing
-        let tmpLastSpacing = this.lastSpacing
+        let tmpLastSpacing = this.strokeState.lastSpacing
         // draw a live stroke
         this.renderStroke(
-          this.strokeInput.slice(a, b + 1),
-          new paper.Path(this.strokePath.segments.slice(a, b + 1)),
+          this.strokeState.points.slice(a, b + 1),
+          new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
           this.liveStrokeContainer
         )
         // revert the spacing so the real stroke will be correct
-        this.lastSpacing = tmpLastSpacing
+        this.strokeState.lastSpacing = tmpLastSpacing
       }
     }
   }
