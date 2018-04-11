@@ -86,8 +86,6 @@ module.exports = class SketchPane {
     this.app.stage.addChild(this.sketchPaneContainer)
     this.sketchPaneContainer.scale.set(1)
 
-    this.counter = 0
-
     this.strokeInput = []
     this.strokePath = undefined
     this.lastStaticIndex = 0

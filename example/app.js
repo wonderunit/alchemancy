@@ -717,18 +717,19 @@ sketchPane
       spin: false
     }
     const initGUI = (gui) => {
+      let counter = 0
       sketchPane.app.ticker.add(e => {
-        // sketchPane.brushSize = Math.sin(sketchPane.counter/30)*200+300
+        // sketchPane.brushSize = Math.sin(counter/30)*200+300
         if (guiState.spin) {
           sketchPane.sketchPaneContainer.rotation += 0.01
           sketchPane.sketchPaneContainer.scale.set(
-            Math.sin(sketchPane.counter / 30) * 1 + 1.8
+            Math.sin(counter / 30) * 1 + 1.8
           )
         } else {
           sketchPane.sketchPaneContainer.rotation = 0
           sketchPane.sketchPaneContainer.scale.set(1)
         }
-        sketchPane.counter++
+        counter++
       })
 
       let sketchPaneFolder = gui.addFolder('sketchPane')
