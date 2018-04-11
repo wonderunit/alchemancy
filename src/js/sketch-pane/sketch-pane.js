@@ -574,6 +574,11 @@ module.exports = class SketchPane {
         return
       }
 
+      // ???
+      console.log('final render', a, b, final, a, b + 1)
+      // usually a=3 b=4
+      // sometimes a=2 b=4 ?
+
       this.renderStroke(
         this.strokeInput.slice(a, b + 1),
         new paper.Path(this.strokePath.segments.slice(a, b + 1)),
@@ -804,6 +809,10 @@ module.exports = class SketchPane {
 
   setLayerOpacity (index, opacity) {
     this.layers[index].setOpacity(opacity)
+  }
+
+  getActiveLayerIndices () {
+    return this.layers.getActiveIndices()
   }
 
   getDOMElement () {
