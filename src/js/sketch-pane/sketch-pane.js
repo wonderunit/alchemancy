@@ -404,27 +404,25 @@ module.exports = class SketchPane {
     // to prevent off-canvas move events:
     // if (e.target !== this.app.view) return
 
-    if (this.pointerDown) {
-      this.addPointerEventAsPoint(e)
-      this.renderLive()
-      this.app.view.style.cursor = 'crosshair'
-    }
+    this.addPointerEventAsPoint(e)
+    this.renderLive()
+    this.app.view.style.cursor = 'crosshair'
   }
 
   up (e) {
-    if (this.pointerDown) {
-      this.addPointerEventAsPoint(e)
+    this.addPointerEventAsPoint(e)
 
-      this.layerContainer.addChild(this.liveStrokeContainer)
+    // TODO why do we addChild here? for transform?
+    this.layerContainer.addChild(this.liveStrokeContainer)
 
-      this.renderLive(true) // forceRender
+    this.renderLive(true) // forceRender
 
-      this.disposeContainer(this.liveStrokeContainer)
-      this.offscreenContainer.removeChildren()
-    }
+    this.disposeContainer(this.liveStrokeContainer)
+    this.offscreenContainer.removeChildren()
 
-    this.pointerDown = false
+
     this.app.view.style.cursor = 'auto'
+    this.pointerDown = false
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
