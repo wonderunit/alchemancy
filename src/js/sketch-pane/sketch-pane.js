@@ -115,30 +115,40 @@ module.exports = class SketchPane {
 
     this.centerContainer()
 
-    this.layers = new LayersCollection({ renderer: this.app.renderer, width: this.width, height: this.height })
-    this.layers.onAdd = index => {
-      let layer = this.layers[index]
-      // layer.sprite.texture.baseTexture.premultipliedAlpha = false
-      this.layerContainer.position.set(0, 0)
-      this.layerContainer.addChild(layer.sprite)
-      this.centerContainer()
-    }
-    this.layers.onSelect = index => {
-      let selectedLayer = this.layers[index]
+    this.layers = new LayersCollection({
+      renderer: this.app.renderer,
+      width: this.width,
+      height: this.height
+    })
+    this.layers.onAdd = this.onLayersCollectionAdd.bind(this)
+    this.layers.onSelect = this.onLayersCollectionSelect.bind(this)
+  }
 
-      this.layerContainer.setChildIndex(this.layerBackground, 0)
+  onLayersCollectionAdd (index) {
+    let layer = this.layers[index]
 
-      let childIndex = 1
-      for (let layer of this.layers) {
-        this.layerContainer.setChildIndex(layer.sprite, childIndex)
+    // layer.sprite.texture.baseTexture.premultipliedAlpha = false
+    this.layerContainer.position.set(0, 0)
+    this.layerContainer.addChild(layer.sprite)
 
-        if (layer.sprite === selectedLayer.sprite) {
-          this.layer = childIndex - 1
-          this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
-          this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
-        }
-        childIndex++
+    this.centerContainer()
+  }
+
+  onLayersCollectionSelect (index) {
+    let selectedLayer = this.layers[index]
+
+    this.layerContainer.setChildIndex(this.layerBackground, 0)
+
+    let childIndex = 1
+    for (let layer of this.layers) {
+      this.layerContainer.setChildIndex(layer.sprite, childIndex)
+
+      if (layer.sprite === selectedLayer.sprite) {
+        this.layer = childIndex - 1
+        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
+        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
+      childIndex++
     }
   }
 
@@ -738,7 +748,7 @@ module.exports = class SketchPane {
   exportLayer (index, format = 'base64') {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
-    this.layers[index].export(format)
+    return this.layers[index].export(format)
   }
 
   clearLayer (index) {
