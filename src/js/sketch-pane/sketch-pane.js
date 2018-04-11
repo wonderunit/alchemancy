@@ -52,13 +52,13 @@ module.exports = class SketchPane {
 
     // this.app.renderer.transparent = true
 
-    this.sketchpaneContainer = new PIXI.Container()
-    this.sketchpaneContainer.name = 'sketchpaneContainer'
+    this.sketchPaneContainer = new PIXI.Container()
+    this.sketchPaneContainer.name = 'sketchPaneContainer'
 
     // layer
     this.layerContainer = new PIXI.Container()
     this.layerContainer.name = 'layerContainer'
-    this.sketchpaneContainer.addChild(this.layerContainer)
+    this.sketchPaneContainer.addChild(this.layerContainer)
 
     // static stroke
     // - not shown to user
@@ -83,8 +83,8 @@ module.exports = class SketchPane {
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
 
-    this.app.stage.addChild(this.sketchpaneContainer)
-    this.sketchpaneContainer.scale.set(1)
+    this.app.stage.addChild(this.sketchPaneContainer)
+    this.sketchPaneContainer.scale.set(1)
 
     this.counter = 0
 
@@ -104,7 +104,7 @@ module.exports = class SketchPane {
       .endFill()
     this.layerMask.name = 'layerMask'
     this.layerContainer.mask = this.layerMask
-    this.sketchpaneContainer.addChild(this.layerMask)
+    this.sketchPaneContainer.addChild(this.layerMask)
 
     this.layerBackground = new PIXI.Graphics()
       .beginFill(0xffffff)
@@ -143,8 +143,8 @@ module.exports = class SketchPane {
   }
 
   centerContainer () {
-    this.sketchpaneContainer.pivot.set(this.width / 2, this.height / 2)
-    this.sketchpaneContainer.position.set(
+    this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
+    this.sketchPaneContainer.position.set(
       Math.floor(this.app.renderer.width / 2),
       Math.floor(this.app.renderer.height / 2)
     )
@@ -169,9 +169,9 @@ module.exports = class SketchPane {
       ? [this.width * height / this.height, height]
       : [width, this.height * width / this.width]
     let scale = dim[0] / this.width
-    this.sketchpaneContainer.scale.set(scale)
+    this.sketchPaneContainer.scale.set(scale)
 
-    this.sketchpaneContainer.position.set(
+    this.sketchPaneContainer.position.set(
       Math.floor(this.app.renderer.width / 2),
       Math.floor(this.app.renderer.height / 2)
     )
@@ -289,9 +289,9 @@ module.exports = class SketchPane {
 
     let nodeRotation
     if (brush.settings.azimuth) {
-      nodeRotation = angle * Math.PI / 180.0 - this.sketchpaneContainer.rotation
+      nodeRotation = angle * Math.PI / 180.0 - this.sketchPaneContainer.rotation
     } else {
-      nodeRotation = 0 - this.sketchpaneContainer.rotation
+      nodeRotation = 0 - this.sketchPaneContainer.rotation
     }
 
     //
@@ -525,7 +525,7 @@ module.exports = class SketchPane {
   }
 
   addPointerEventAsPoint (e) {
-    let corrected = this.sketchpaneContainer.toLocal(
+    let corrected = this.sketchPaneContainer.toLocal(
       { x: e.x - this.viewportRect.x, y: e.y - this.viewportRect.y },
       this.app.stage)
 

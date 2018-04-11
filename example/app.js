@@ -591,8 +591,8 @@ sketchPane
     }
 
     const drawNodeTest = (state) => {
-      let x = Math.floor(sketchPane.sketchpaneContainer.width / 2)
-      let y = Math.floor(sketchPane.sketchpaneContainer.height / 2)
+      let x = Math.floor(sketchPane.sketchPaneContainer.width / 2)
+      let y = Math.floor(sketchPane.sketchPaneContainer.height / 2)
 
       sketchPane.addStrokeNode(
         ((sketchPane.brushColor >> 16) & 255) / 255,
@@ -646,8 +646,8 @@ sketchPane
       // drawPressureLine(550, 350)
 
       // let p1 = sketchPane.strokeContainer.toGlobal({
-      //   x: (sketchPane.sketchpaneContainer.width - 400) / 2,
-      //   y: (sketchPane.sketchpaneContainer.height - 400) / 2
+      //   x: (sketchPane.sketchPaneContainer.width - 400) / 2,
+      //   y: (sketchPane.sketchPaneContainer.height - 400) / 2
       // })
       // plotLines(p1.x, p1.y)
 
@@ -660,8 +660,8 @@ sketchPane
       // draw a line from center with pressure
       // ;(function () {
       //   let { x, y } = sketchPane.strokeContainer.toGlobal({
-      //     x: sketchPane.sketchpaneContainer.parent.width / 2 - 540 / 2,
-      //     y: sketchPane.sketchpaneContainer.parent.height / 2
+      //     x: sketchPane.sketchPaneContainer.parent.width / 2 - 540 / 2,
+      //     y: sketchPane.sketchPaneContainer.parent.height / 2
       //   })
       //   sketchPane.brushSize = 10
       //   sketchPane.brush.settings.spacing = 0.5
@@ -707,7 +707,7 @@ sketchPane
 
       drawTexturedBackgroundTest: {
         enabled: false,
-        container: sketchPane.sketchpaneContainer.addChild(new PIXI.Container())
+        container: sketchPane.sketchPaneContainer.addChild(new PIXI.Container())
       },
 
       calculated: {
@@ -720,13 +720,13 @@ sketchPane
       sketchPane.app.ticker.add(e => {
         // sketchPane.brushSize = Math.sin(sketchPane.counter/30)*200+300
         if (guiState.spin) {
-          sketchPane.sketchpaneContainer.rotation += 0.01
-          sketchPane.sketchpaneContainer.scale.set(
+          sketchPane.sketchPaneContainer.rotation += 0.01
+          sketchPane.sketchPaneContainer.scale.set(
             Math.sin(sketchPane.counter / 30) * 1 + 1.8
           )
         } else {
-          sketchPane.sketchpaneContainer.rotation = 0
-          sketchPane.sketchpaneContainer.scale.set(1)
+          sketchPane.sketchPaneContainer.rotation = 0
+          sketchPane.sketchPaneContainer.scale.set(1)
         }
         sketchPane.counter++
       })
@@ -860,8 +860,8 @@ sketchPane
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           forceClear()
           let p1 = sketchPane.strokeContainer.toGlobal({
-            x: (sketchPane.sketchpaneContainer.width - 400) / 2,
-            y: (sketchPane.sketchpaneContainer.height - 400) / 2
+            x: (sketchPane.sketchPaneContainer.width - 400) / 2,
+            y: (sketchPane.sketchPaneContainer.height - 400) / 2
           })
           plotLines(p1.x, p1.y)
         }
@@ -874,8 +874,8 @@ sketchPane
         sketchPane.disposeContainer(sketchPane.strokeContainer)
         forceClear()
         let p1 = sketchPane.strokeContainer.toGlobal({
-          x: (sketchPane.sketchpaneContainer.width - 400) / 2,
-          y: (sketchPane.sketchpaneContainer.height - 400) / 2
+          x: (sketchPane.sketchPaneContainer.width - 400) / 2,
+          y: (sketchPane.sketchPaneContainer.height - 400) / 2
         })
         plotLines(p1.x, p1.y)
 
