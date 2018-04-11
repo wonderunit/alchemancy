@@ -61,10 +61,6 @@ sketchPane
   .then(() => {
     console.log('ready')
 
-    let stats = new Stats()
-    stats.showPanel(0)
-    document.body.appendChild(stats.dom)
-
     window.addEventListener('resize', function (e) {
       sketchPane.resize(window.innerWidth, window.innerHeight)
     })
@@ -88,6 +84,13 @@ sketchPane
       sketchPane.down(e)
     })
 
+    window.addEventListener('pointermove', function (e) {
+      if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
+
+      // if (e.target.parentNode !== document.body) return
+      sketchPane.move(e)
+    })
+
     window.addEventListener('pointerup', function (e) {
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
@@ -95,12 +98,9 @@ sketchPane
       sketchPane.setIsErasing(false)
     })
 
-    window.addEventListener('pointermove', function (e) {
-      if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
-
-      // if (e.target.parentNode !== document.body) return
-      sketchPane.move(e)
-    })
+    let stats = new Stats()
+    stats.showPanel(0)
+    document.body.appendChild(stats.dom)
 
     window.addEventListener('keydown', function (e) {
       // console.log(e)
