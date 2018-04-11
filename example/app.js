@@ -35,12 +35,10 @@ const sketchPane = new SketchPane({
 })
 sketchPane.resize(window.innerWidth, window.innerHeight)
 
-// TODO can we just use sketchPane.clearLayer for this?
-//      or are the strokeContainer contents sometimes used?
 const forceClear = () => {
-  sketchPane.renderToLayer(
+  sketchPane.app.renderer.render(
     sketchPane.strokeContainer,
-    sketchPane.layers[sketchPane.layer],
+    sketchPane.layers[sketchPane.getCurrentLayerIndex()].sprite.texture,
     true
   )
 }
@@ -481,7 +479,7 @@ sketchPane
 
         // eslint-disable-next-line new-cap
         let sprite = new PIXI.Sprite.from(
-          sketchPane.brushes.brushResources.resources[sketchPane.brush.settings.brushImage].texture.clone()
+          sketchPane.images.brush[sketchPane.brush.settings.brushImage].texture.clone()
         )
 
         let iS = Math.ceil(nodeSize)
@@ -627,7 +625,7 @@ sketchPane
         })
       }
 
-      let sprite = PIXI.Sprite.from(sketchPane.grainImageSprites[sketchPane.brush.settings.grainImage].texture)
+      let sprite = PIXI.Sprite.from(sketchPane.images.grain[sketchPane.brush.settings.grainImage].texture)
       container.addChild(sprite)
     }
 
@@ -890,9 +888,9 @@ sketchPane
           sketchPane.liveStrokeContainer.getLocalBounds()
           sketchPane.offscreenContainer.getLocalBounds()
 
-          sketchPane.renderToLayer(
+          sketchPane.app.renderer.render(
             sketchPane.strokeContainer,
-            sketchPane.layers[sketchPane.layer]
+            sketchPane.layers[sketchPane.getCurrentLayerIndex()].sprite.texture
           )
           sketchPane.disposeContainer(sketchPane.strokeContainer)
           sketchPane.offscreenContainer.removeChildren()
@@ -910,9 +908,9 @@ sketchPane
           sketchPane.liveStrokeContainer.getLocalBounds()
           sketchPane.offscreenContainer.getLocalBounds()
 
-          sketchPane.renderToLayer(
+          sketchPane.app.renderer.render(
             guiState.nodeTest.container,
-            sketchPane.layers[sketchPane.layer]
+            sketchPane.layers[sketchPane.getCurrentLayerIndex()].sprite.texture
           )
           sketchPane.disposeContainer(guiState.nodeTest.container)
           sketchPane.offscreenContainer.removeChildren()
