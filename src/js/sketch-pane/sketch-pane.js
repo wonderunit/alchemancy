@@ -377,21 +377,19 @@ module.exports = class SketchPane {
       ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
       : { x: 0, y: 0 }
 
-    if (e.target === this.app.view) {
-      this.addPointerEventAsPoint(e)
+    this.addPointerEventAsPoint(e)
 
-      if (this.isErasing) {
-        if (this.liveStrokeContainer.parent) {
-          this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
-        }
-      } else {
-        this.layerContainer.addChild(this.liveStrokeContainer)
+    if (this.isErasing) {
+      if (this.liveStrokeContainer.parent) {
+        this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
       }
-
-      this.renderLive()
-
-      this.app.view.style.cursor = 'crosshair'
+    } else {
+      this.layerContainer.addChild(this.liveStrokeContainer)
     }
+
+    this.renderLive()
+
+    this.app.view.style.cursor = 'crosshair'
   }
 
   move (e) {
@@ -406,17 +404,15 @@ module.exports = class SketchPane {
   }
 
   up (e) {
-    if (e.target === this.app.view) {
-      if (this.pointerDown) {
-        this.addPointerEventAsPoint(e)
+    if (this.pointerDown) {
+      this.addPointerEventAsPoint(e)
 
-        this.layerContainer.addChild(this.liveStrokeContainer)
+      this.layerContainer.addChild(this.liveStrokeContainer)
 
-        this.renderLive(true) // forceRender
+      this.renderLive(true) // forceRender
 
-        this.disposeContainer(this.liveStrokeContainer)
-        this.offscreenContainer.removeChildren()
-      }
+      this.disposeContainer(this.liveStrokeContainer)
+      this.offscreenContainer.removeChildren()
     }
 
     this.pointerDown = false
