@@ -413,18 +413,18 @@ module.exports = class SketchPane {
       this.layerContainer.addChild(this.liveStrokeContainer)
     }
 
-    this.renderLive()
+    this.drawStroke()
   }
 
   strokeContinue (e) {
     this.addPointerEventAsPoint(e)
-    this.renderLive()
+    this.drawStroke()
   }
 
   strokeEnd (e) {
     this.addPointerEventAsPoint(e)
 
-    this.renderLive(true) // forceRender
+    this.drawStroke(true) // forceRender
 
     this.disposeContainer(this.liveStrokeContainer)
     this.offscreenContainer.removeChildren()
@@ -525,7 +525,7 @@ module.exports = class SketchPane {
     return interpolatedStrokeInput
   }
 
-  renderStroke (strokeInput, path, strokeContainer) {
+  addStrokeNodes (strokeInput, path, strokeContainer) {
     // we have 2+ StrokeInput points (with x, y, pressure, etc),
     // and 2+ matching path segments (with location and handles)
     //  e.g.: strokeInput[0].x === path.segments[0].point.x
@@ -574,7 +574,7 @@ module.exports = class SketchPane {
 
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
-  renderLive (forceRender = false) {
+  drawStroke (forceRender = false) {
     let len = this.strokeState.points.length
 
     // forceRender is called on up
@@ -588,7 +588,7 @@ module.exports = class SketchPane {
         return
       }
 
-      this.renderStroke(
+      this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
         new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
         this.strokeContainer
@@ -617,7 +617,7 @@ module.exports = class SketchPane {
       let b = last - 1
 
       // render to the static container
-      this.renderStroke(
+      this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
         new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
         this.strokeContainer
@@ -654,7 +654,7 @@ module.exports = class SketchPane {
         // store the current spacing
         let tmpLastSpacing = this.strokeState.lastSpacing
         // draw a live stroke
-        this.renderStroke(
+        this.addStrokeNodes(
           this.strokeState.points.slice(a, b + 1),
           new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
           this.liveStrokeContainer
