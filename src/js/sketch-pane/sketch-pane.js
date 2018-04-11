@@ -5,9 +5,10 @@ const Util = require('./util')
 const brushes = require('./brush/brushes')
 const BrushNodeFilter = require('./brush/brush-node-filter')
 
+const LayersCollection = require('./layers-collection')
+
 module.exports = class SketchPane {
   constructor (options = { backgroundColor: '0xffffff' }) {
-    this.layers = []
     this.layerMask = undefined
     this.layerBackground = undefined
 
@@ -16,14 +17,13 @@ module.exports = class SketchPane {
       grain: {}
     }
 
-    this.isErasing = false
-    this.erasableLayers = []
-
     this.brushes = brushes
-
     this.viewportRect = undefined
 
+    this.isErasing = false
+
     this.setup(options)
+    this.setImageSize(options.imageWidth, options.imageHeight)
   }
 
   setup (options) {
@@ -114,30 +114,36 @@ module.exports = class SketchPane {
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
 
     this.centerContainer()
+
+    this.layers = new LayersCollection({ renderer: this.app.renderer, width: this.width, height: this.height })
+    this.layers.onAdd = index => {
+      let layer = this.layers[index]
+      // layer.sprite.texture.baseTexture.premultipliedAlpha = false
+      this.layerContainer.position.set(0, 0)
+      this.layerContainer.addChild(layer.sprite)
+      this.centerContainer()
+    }
+    this.layers.onSelect = index => {
+      let selectedLayer = this.layers[index]
+
+      this.layerContainer.setChildIndex(this.layerBackground, 0)
+
+      let childIndex = 1
+      for (let layer of this.layers) {
+        this.layerContainer.setChildIndex(layer.sprite, childIndex)
+
+        if (layer.sprite === selectedLayer.sprite) {
+          this.layer = childIndex - 1
+          this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
+          this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
+        }
+        childIndex++
+      }
+    }
   }
 
   newLayer () {
-    let index = this.layers.length
-
-    // create a layer object
-    let layer = {
-      index,
-      name: `Layer ${index + 1}`,
-      sprite: new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height)),
-      opacity: undefined
-    }
-    layer.sprite.name = layer.name
-
-    this.layerContainer.position.set(0, 0)
-    // layer.sprite.texture.baseTexture.premultipliedAlpha = false
-    this.layerContainer.addChild(layer.sprite)
-    this.centerContainer()
-
-    this.layers[index] = layer
-
-    this.setLayerOpacity(index, 1.0)
-
-    return this.layers[index]
+    return this.layers.create()
   }
 
   centerContainer () {
@@ -212,17 +218,9 @@ module.exports = class SketchPane {
     this.setDefaultBrush()
   }
 
-  renderToLayer (source, layer, clear = undefined) {
-    this.app.renderer.render(
-      source,
-      layer.sprite.texture,
-      clear
-    )
-  }
-
-  // for clarity. never clears texture when rendering.
+  // stamp = don't clear texture
   stampStroke (source, layer) {
-    this.renderToLayer(source, layer, false)
+    this.layers.getCurrentLayer().draw(source, false)
   }
 
   disposeContainer (container) {
@@ -579,7 +577,7 @@ module.exports = class SketchPane {
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
-          this.layers[this.layer]
+          this.layers.getCurrentLayer()
         )
       }
       this.disposeContainer(this.strokeContainer)
@@ -607,7 +605,7 @@ module.exports = class SketchPane {
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
-          this.layers[this.layer]
+          this.layers.getCurrentLayer()
         )
       }
       this.disposeContainer(this.strokeContainer)
@@ -644,16 +642,9 @@ module.exports = class SketchPane {
   }
 
   updateMask (source, finalize = false) {
-    // note which layers will be erased when finalized
-    // if empty, default to current layer
-    if (!this.erasableLayers.length) {
-      this.erasableLayers = [
-        this.layers[this.layer]
-      ]
-    }
-
-    // find the top-most layer
-    let layer = this.erasableLayers.sort((a, b) => b.index - a.index)[0]
+    // find the top-most active layer
+    let index = this.layers.getActiveIndices().sort((a, b) => b - a)[0]
+    let layer = this.layers[index]
 
     // we're starting a new round
     if (!layer.sprite.mask) {
@@ -671,7 +662,8 @@ module.exports = class SketchPane {
       )
 
       // start using the mask
-      for (let layer of this.erasableLayers) {
+      for (let i of this.layers.getActiveIndices()) {
+        let layer = this.layers[i]
         layer.sprite.mask = this.eraseMask
       }
     }
@@ -685,7 +677,8 @@ module.exports = class SketchPane {
 
     // if finalizing,
     if (finalize) {
-      for (let layer of this.erasableLayers) {
+      for (let i of this.layers.getActiveIndices()) {
+        let layer = this.layers[i]
         layer.sprite.mask = this.eraseMask
         this.stampMask(layer.sprite)
         layer.sprite.mask = null
@@ -724,11 +717,10 @@ module.exports = class SketchPane {
 
   // TODO handle crop / center
   replaceLayer (index, source, clear = true) {
-    index = (index == null) ? this.layer : index
+    index = (index == null) ? this.layers.getCurrentIndex() : index
 
-    this.renderToLayer(
+    this.layers[index].draw(
       new PIXI.Sprite.from(source), // eslint-disable-line new-cap
-      this.layers[index],
       clear
     )
   }
@@ -736,7 +728,7 @@ module.exports = class SketchPane {
   // DEPRECATED
   getLayerCanvas (index) {
     console.warn('SketchPane#getLayerCanvas is deprecated. Please fix the caller to use a different method.')
-    index = (index == null) ? this.layer : index
+    index = (index == null) ? this.layers.getCurrentIndex() : index
 
     // #canvas reads the raw pixels and converts to an HTMLCanvasElement
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
@@ -744,52 +736,30 @@ module.exports = class SketchPane {
   }
 
   exportLayer (index, format = 'base64') {
-    index = (index == null) ? this.layer : index
+    index = (index == null) ? this.layers.getCurrentIndex() : index
 
-    // get pixels as Uint8Array
-    // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    let pixels = this.app.renderer.plugins.extract.pixels(this.layers[index].sprite.texture)
-
-    // un-premultiply
-    Util.arrayPostDivide(pixels)
-
-    // convert to base64 PNG by writing to a canvas
-    const canvasBuffer = new PIXI.CanvasRenderTarget(this.width, this.height)
-    let canvasData = canvasBuffer.context.getImageData(0, 0, this.width, this.height)
-    canvasData.data.set(pixels)
-    canvasBuffer.context.putImageData(canvasData, 0, 0)
-
-    // return the bas64 data
-    return canvasBuffer.canvas.toDataURL().replace(/^data:image\/\w+;base64,/, '')
+    this.layers[index].export(format)
   }
 
   clearLayer (index) {
-    index = (index == null) ? this.layer : index
+    index = (index == null) ? this.layers.getCurrentIndex() : index
 
-    this.app.renderer.clearRenderTexture(
-      this.layers[index].sprite.texture
-    )
+    this.layers[index].clear()
+  }
+
+  getNumLayers () {
+    return this.layers.length - 1
+  }
+
+  // get current layer
+  getCurrentLayerIndex (index) {
+    return this.layers.getCurrentIndex()
   }
 
   // set layer by index (0-indexed)
-  selectLayer (index) {
+  setCurrentLayerIndex (index) {
     if (this.pointerDown) return // prevent layer change during draw
-
-    let layerSprite = this.layers[index].sprite
-
-    this.layerContainer.setChildIndex(this.layerBackground, 0)
-
-    let childIndex = 1
-    for (let layer of this.layers) {
-      this.layerContainer.setChildIndex(layer.sprite, childIndex)
-
-      if (layer.sprite === layerSprite) {
-        this.layer = childIndex - 1
-        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
-        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
-      }
-      childIndex++
-    }
+    this.layers.setCurrentIndex(index)
   }
 
   // set default brush
@@ -799,6 +769,10 @@ module.exports = class SketchPane {
     this.brushSize = 4
     this.brushOpacity = 0.9
   }
+
+  // isDrawing () {
+  //   return this.pointerDown
+  // }
 
   getIsErasing () {
     return this.isErasing
@@ -811,29 +785,15 @@ module.exports = class SketchPane {
   }
 
   setErasableLayers (indices) {
-    this.erasableLayers = []
-    for (let layer of this.layers) {
-      if (indices.includes(layer.index)) {
-        this.erasableLayers.push(layer)
-      }
-    }
-  }
-
-  getActiveLayerIndices () {
-    if (this.isErasing) {
-      return this.erasableLayers.map(layer => layer.index)
-    } else {
-      return [this.layer]
-    }
+    this.layers.setActiveIndices(indices)
   }
 
   getLayerOpacity (index) {
-    return this.layers[index].opacity
+    return this.layers[index].getOpacity()
   }
 
   setLayerOpacity (index, opacity) {
-    this.layers[index].sprite.alpha = opacity
-    this.layers[index].opacity = opacity
+    this.layers[index].setOpacity(opacity)
   }
 
   getDOMElement () {

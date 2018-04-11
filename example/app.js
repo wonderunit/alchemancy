@@ -29,8 +29,10 @@ const intToHexColorString = number => {
   return color
 }
 
-const sketchPane = new SketchPane()
-sketchPane.setImageSize(1200, 900)
+const sketchPane = new SketchPane({
+  imageWidth: 1200,
+  imageHeight: 900
+})
 sketchPane.resize(window.innerWidth, window.innerHeight)
 
 // TODO can we just use sketchPane.clearLayer for this?
@@ -54,7 +56,7 @@ sketchPane
   // .then(() => sketchPane.newLayer())
   // .then(() => sketchPane.newLayer())
 
-  .then(() => sketchPane.selectLayer(sketchPane.layers.length - 1))
+  .then(() => sketchPane.setCurrentLayerIndex(sketchPane.getNumLayers()))
 
   .then(() => {
     console.log('ready')
@@ -76,7 +78,7 @@ sketchPane
         if (e.shiftKey) {
           sketchPane.setErasableLayers([1, 2, 3])
         } else {
-          sketchPane.setErasableLayers([sketchPane.layer.index])
+          sketchPane.setErasableLayers([sketchPane.getCurrentLayerIndex()])
         }
         sketchPane.setIsErasing(true)
       } else {
@@ -141,19 +143,19 @@ sketchPane
     })
 
     document.getElementById('l-0').addEventListener('click', function (e) {
-      sketchPane.selectLayer(0)
+      sketchPane.setCurrentLayerIndex(0)
     })
 
     document.getElementById('l-1').addEventListener('click', function (e) {
-      sketchPane.selectLayer(1)
+      sketchPane.setCurrentLayerIndex(1)
     })
 
     document.getElementById('l-2').addEventListener('click', function (e) {
-      sketchPane.selectLayer(2)
+      sketchPane.setCurrentLayerIndex(2)
     })
 
     document.getElementById('l-3').addEventListener('click', function (e) {
-      sketchPane.selectLayer(3)
+      sketchPane.setCurrentLayerIndex(3)
     })
 
     document.getElementById('b-1').addEventListener('click', function (e) {
