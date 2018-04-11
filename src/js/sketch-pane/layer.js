@@ -8,6 +8,7 @@ module.exports = class Layer {
     this.width = width
     this.height = height
     this.sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
+    this.dirty = false
   }
   getOpacity () {
     return this.sprite.alpha

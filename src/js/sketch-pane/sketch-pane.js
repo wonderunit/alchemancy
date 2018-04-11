@@ -420,6 +420,7 @@ module.exports = class SketchPane {
     this.disposeContainer(this.liveStrokeContainer)
     this.offscreenContainer.removeChildren()
 
+    this.layers.markDirtyIfActive()
 
     this.app.view.style.cursor = 'auto'
     this.pointerDown = false

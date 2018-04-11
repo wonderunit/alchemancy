@@ -30,6 +30,11 @@ module.exports = class LayersCollection extends Array {
     this.onAdd && this.onAdd(layer.index)
     return layer
   }
+  markDirtyIfActive () {
+    for (let index of this.activeIndices) {
+      this[index].dirty = true
+    }
+  }
   getActiveIndices () {
     return [...this.activeIndices]
   }
