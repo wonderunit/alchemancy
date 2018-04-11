@@ -583,10 +583,18 @@ module.exports = class SketchPane {
       let a = this.strokeState.lastStaticIndex
       let b = final
 
-      if ((b + 1) - a <= 1) {
-        console.warn('1 or fewer points remaining')
-        return
-      }
+      // if ((b + 1) - a <= 1) {
+      //   console.warn('1 or fewer points remaining')
+      //   return
+      // }
+      console.log(
+        '\n',
+        'rendering to texture.\n',
+        len, 'points in the array.\n',
+        this.strokeState.points, '\n',
+        'drawing stroke from point idx', a,
+        'to point idx', b, '\n'
+      )
 
       this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
