@@ -572,9 +572,12 @@ module.exports = class SketchPane {
       tilt: tiltAngle.tilt
     })
 
+    // we added a new point, so decrement lastStaticIndex
+    this.strokeState.lastStaticIndex -= 1
+
     // only keep track of input that hasn't been rendered static yet
     this.strokeState.points = this.strokeState.points.slice(
-      Math.max(0, this.strokeState.lastStaticIndex - 2),
+      Math.max(0, this.strokeState.lastStaticIndex - 1),
       this.strokeState.points.length
     )
     this.strokeState.path = new paper.Path(
