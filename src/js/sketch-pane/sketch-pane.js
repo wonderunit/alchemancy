@@ -738,36 +738,30 @@ module.exports = class SketchPane {
     // if finalizing,
     if (finalize) {
       for (let i of this.strokeState.layerIndices) {
+        // apply the erase texture to the actual layer texture
         let layer = this.layers[i]
+        // add child so transform is correct
+        layer.sprite.addChild(this.eraseMask)
         layer.sprite.mask = this.eraseMask
-        this.stampMask(layer.sprite)
+        // stamp mask to layer texture
+        this.replaceTextureWithSelfRender(layer.sprite)
+        // cleanup
         layer.sprite.mask = null
+        layer.sprite.removeChild(this.eraseMask)
       }
 
       // TODO GC the eraseMask texture?
-      this.layerContainer.removeChild(this.eraseMask)
     }
   }
 
-  // apply the erase texture to the actual layer texture
-  stampMask (sprite) {
-    // render masked sprite to temporary render texture
+  replaceTextureWithSelfRender (sprite) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
     this.app.renderer.render(
       sprite,
       rt,
-      true,
-      // reverse the transform so we're rendering at correct scale and position
-      // via  http://www.html5gamedevs.com/topic/28274-rendering-using-transform-offset/
-      //      https://github.com/pixijs/pixi.js/issues/1967
-      sprite.transform.worldTransform.clone().invert(),
-      true // skipUpdateTransform
+      true
     )
-
-    // swap the sprite's texture
     sprite.texture = rt
-
-    // TODO GC the old texture?
   }
 
   // TODO handle crop / center
