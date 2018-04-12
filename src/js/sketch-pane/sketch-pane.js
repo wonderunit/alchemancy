@@ -592,7 +592,7 @@ module.exports = class SketchPane {
     })
 
     // we added a new point, so decrement lastStaticIndex
-    this.strokeState.lastStaticIndex -= 1
+    this.strokeState.lastStaticIndex = Math.max(0, this.strokeState.lastStaticIndex - 1)
 
     // only keep track of input that hasn't been rendered static yet
     this.strokeState.points = this.strokeState.points.slice(
