@@ -349,10 +349,12 @@
       // NOTE example images are 1000 × 800
       .then(() => loadLayers(sketchPane, layerFilePaths))
 
-      .then(() => sketchPane.selectLayer(sketchPane.layers.length - 1))
+      .then(() => sketchPane.setCurrentLayerIndex(sketchPane.layers.length - 1))
 
       .then(() => {
         console.log('ready')
+
+        sketchPane.brushSize = 32
 
         let element = sketchPane.getDOMElement()
 
@@ -365,7 +367,18 @@
         })
         ro.observe(element.parentNode)
 
-        window.addEventListener('pointerdown', e => sketchPane.down(e))
+        window.addEventListener('pointerdown', e => {
+          // stroke options
+          // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
+          let options = (e.buttons === 32 || e.altKey)
+            // + shift to erase multiple layers
+            ? e.shiftKey
+              ? { erase: [1, 2, 3] }
+              : { erase: [sketchPane.getCurrentLayerIndex()] }
+            : {}
+
+          sketchPane.down(e, options)
+        })
         window.addEventListener('pointerup', e => sketchPane.up(e))
         window.addEventListener('pointermove', e => sketchPane.move(e))
 

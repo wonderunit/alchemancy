@@ -371,7 +371,7 @@ module.exports = class SketchPane {
     strokeContainer.addChild(sprite)
   }
 
-  down (e, options) {
+  down (e, options = {}) {
     this.pointerDown = true
     this.strokeBegin(e, options)
     this.app.view.style.cursor = 'crosshair'
