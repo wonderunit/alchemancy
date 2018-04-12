@@ -768,6 +768,7 @@ module.exports = class SketchPane {
   }
 
   // TODO handle crop / center
+  // TODO mark dirty?
   replaceLayer (index, source, clear = true) {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
