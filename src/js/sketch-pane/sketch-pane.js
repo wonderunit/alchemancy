@@ -752,10 +752,10 @@ module.exports = class SketchPane {
   // apply the erase texture to the actual layer texture
   stampMask (sprite) {
     // render masked sprite to temporary render texture
-    let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
+    let rt = PIXI.RenderTexture.create(this.width, this.height)
     this.app.renderer.render(
       sprite,
-      renderTexture,
+      rt,
       true,
       // reverse the transform so we're rendering at correct scale and position
       // via  http://www.html5gamedevs.com/topic/28274-rendering-using-transform-offset/
@@ -763,16 +763,11 @@ module.exports = class SketchPane {
       sprite.transform.worldTransform.clone().invert(),
       true // skipUpdateTransform
     )
-    let finalizedSprite = new PIXI.Sprite.from(renderTexture) // eslint-disable-line new-cap
 
-    // replace the layer sprite's texture with the "baked" finalizedTexture
-    this.app.renderer.render(
-      finalizedSprite,
-      sprite.texture,
-      true
-    )
+    // swap the sprite's texture
+    sprite.texture = rt
 
-    finalizedSprite.destroy({ texture: true, baseTexture: false })
+    // TODO GC the old texture?
   }
 
   // TODO handle crop / center
