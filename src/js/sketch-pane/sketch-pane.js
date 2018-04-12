@@ -695,9 +695,15 @@ module.exports = class SketchPane {
 
   updateMask (source, finalize = false) {
     // find the top-most active layer
-    const descending = (a, b) => b.sprite.getChildIndex() - a.sprite.getChildIndex()
-    let index = [...this.strokeState.layerIndices].sort(descending)[0]
-    let layer = this.layers[index]
+    const descending = (a, b) => b - a
+    let layer = this.strokeState.layerIndices
+      .map(i => this.layers[i])
+      .sort(
+        (a, b) => descending(
+          a.sprite.parent.getChildIndex(a.sprite),
+          b.sprite.parent.getChildIndex(b.sprite)
+        )
+      )[0]
 
     // we're starting a new round
     if (!layer.sprite.mask) {
