@@ -20,7 +20,9 @@ module.exports = class SketchPane {
     this.brushes = brushes
     this.viewportRect = undefined
 
-    this.isErasing = false
+    // callbacks
+    this.onStrokeAfter = options.onStrokeAfter
+    this.onStrokeBefore = options.onStrokeBefore
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
@@ -369,9 +371,9 @@ module.exports = class SketchPane {
     strokeContainer.addChild(sprite)
   }
 
-  down (e) {
+  down (e, options) {
     this.pointerDown = true
-    this.strokeBegin(e)
+    this.strokeBegin(e, options)
     this.app.view.style.cursor = 'crosshair'
   }
 
@@ -390,9 +392,14 @@ module.exports = class SketchPane {
     }
   }
 
-  strokeBegin (e) {
+  strokeBegin (e, options) {
     // initialize stroke state
     this.strokeState = {
+      isErasing: !!options.erase,
+      // which layers will be stamped / dirtied by this stroke?
+      layerIndices: options.erase
+        ? options.erase // array of layers which will be erased
+        : [this.layers.currentIndex], // single layer dirtied
       points: [],
       path: new paper.Path(),
       lastStaticIndex: 0,
@@ -402,10 +409,12 @@ module.exports = class SketchPane {
         : { x: 0, y: 0 }
     }
 
+    this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
+
     this.addPointerEventAsPoint(e)
 
     // don't show the live container while we're erasing
-    if (this.isErasing) {
+    if (this.strokeState.isErasing) {
       if (this.liveStrokeContainer.parent) {
         this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
       }
@@ -429,12 +438,14 @@ module.exports = class SketchPane {
     this.disposeContainer(this.liveStrokeContainer)
     this.offscreenContainer.removeChildren()
 
-    this.layers.markDirtyIfActive()
+    this.layers.markDirty(this.strokeState.layerIndices)
 
     // add the liveStrokeContainer back
-    if (this.isErasing) {
+    if (this.strokeState.isErasing) {
       this.layerContainer.addChild(this.liveStrokeContainer)
     }
+
+    this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
@@ -504,9 +515,9 @@ module.exports = class SketchPane {
       )
 
       interpolatedStrokeInput.push([
-        this.isErasing ? 0 : ((this.brushColor >> 16) & 255) / 255,
-        this.isErasing ? 0 : ((this.brushColor >> 8) & 255) / 255,
-        this.isErasing ? 0 : (this.brushColor & 255) / 255,
+        this.strokeState.isErasing ? 0 : ((this.brushColor >> 16) & 255) / 255,
+        this.strokeState.isErasing ? 0 : ((this.brushColor >> 8) & 255) / 255,
+        this.strokeState.isErasing ? 0 : (this.brushColor & 255) / 255,
         this.brushSize,
         this.brushOpacity,
         point.x,
@@ -607,7 +618,7 @@ module.exports = class SketchPane {
       )
 
       // stamp
-      if (this.isErasing) {
+      if (this.strokeState.isErasing) {
         // stamp to erase texture
         this.updateMask(this.strokeContainer, true)
       } else {
@@ -638,7 +649,7 @@ module.exports = class SketchPane {
       )
 
       // stamp
-      if (this.isErasing) {
+      if (this.strokeState.isErasing) {
         // stamp to the erase texture
         this.updateMask(this.strokeContainer)
       } else {
@@ -664,7 +675,7 @@ module.exports = class SketchPane {
       let b = last
 
       // render the current stroke live
-      if (this.isErasing) {
+      if (this.strokeState.isErasing) {
         // TODO find a good way to add live strokes to erase mask
         // this.updateMask(this.liveStrokeContainer)
       } else {
@@ -684,7 +695,8 @@ module.exports = class SketchPane {
 
   updateMask (source, finalize = false) {
     // find the top-most active layer
-    let index = this.layers.getActiveIndices().sort((a, b) => b - a)[0]
+    const descending = (a, b) => b - a
+    let index = [...this.strokeState.layerIndices].sort(descending)[0]
     let layer = this.layers[index]
 
     // we're starting a new round
@@ -703,7 +715,7 @@ module.exports = class SketchPane {
       )
 
       // start using the mask
-      for (let i of this.layers.getActiveIndices()) {
+      for (let i of this.strokeState.layerIndices) {
         let layer = this.layers[i]
         layer.sprite.mask = this.eraseMask
       }
@@ -718,7 +730,7 @@ module.exports = class SketchPane {
 
     // if finalizing,
     if (finalize) {
-      for (let i of this.layers.getActiveIndices()) {
+      for (let i of this.strokeState.layerIndices) {
         let layer = this.layers[i]
         layer.sprite.mask = this.eraseMask
         this.stampMask(layer.sprite)
@@ -800,6 +812,7 @@ module.exports = class SketchPane {
   // set layer by index (0-indexed)
   setCurrentLayerIndex (index) {
     if (this.pointerDown) return // prevent layer change during draw
+
     this.layers.setCurrentIndex(index)
   }
 
@@ -815,19 +828,19 @@ module.exports = class SketchPane {
   //   return this.pointerDown
   // }
 
-  getIsErasing () {
-    return this.isErasing
-  }
-
-  setIsErasing (value) {
-    if (this.pointerDown) return // prevent erase mode change during draw
-
-    this.isErasing = value
-  }
-
-  setErasableLayers (indices) {
-    this.layers.setActiveIndices(indices)
-  }
+  // getIsErasing () {
+  //   return this.isErasing
+  // }
+  // 
+  // setIsErasing (value) {
+  //   if (this.pointerDown) return // prevent erase mode change during draw
+  // 
+  //   this.isErasing = value
+  // }
+  // 
+  // setErasableLayers (indices) {
+  //   this.layers.setActiveIndices(indices)
+  // }
 
   getLayerOpacity (index) {
     return this.layers[index].getOpacity()
@@ -837,9 +850,9 @@ module.exports = class SketchPane {
     this.layers[index].setOpacity(opacity)
   }
 
-  getActiveLayerIndices () {
-    return this.layers.getActiveIndices()
-  }
+  // getActiveLayerIndices () {
+  //   return this.layers.getActiveIndices()
+  // }
 
   getDOMElement () {
     return this.app.view

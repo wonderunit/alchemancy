@@ -59,6 +59,13 @@ sketchPane
   .then(() => {
     console.log('ready')
 
+    sketchPane.onStrokeBefore = strokeState => {
+      console.log('onStrokeBefore: addToUndoStack', strokeState)
+    }
+    sketchPane.onStrokeAfter = strokeState => {
+      console.log('onStrokeAfter: markDirty', strokeState)
+    }
+
     window.addEventListener('resize', function (e) {
       sketchPane.resize(window.innerWidth, window.innerHeight)
     })
@@ -66,20 +73,16 @@ sketchPane
     window.addEventListener('pointerdown', function (e) {
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
+      // stroke options
       // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
-      if (e.buttons === 32 || e.altKey) {
-        // + shift to multi-erase
-        if (e.shiftKey) {
-          sketchPane.setErasableLayers([1, 2, 3])
-        } else {
-          sketchPane.setErasableLayers([sketchPane.getCurrentLayerIndex()])
-        }
-        sketchPane.setIsErasing(true)
-      } else {
-        sketchPane.setIsErasing(false)
-      }
+      let options = (e.buttons === 32 || e.altKey)
+        // + shift to erase multiple layers
+        ? e.shiftKey
+          ? { erase: [1, 2, 3] }
+          : { erase: [sketchPane.getCurrentLayerIndex()] }
+        : {}
 
-      sketchPane.down(e)
+      sketchPane.down(e, options)
     })
 
     window.addEventListener('pointermove', function (e) {
@@ -93,7 +96,6 @@ sketchPane
       if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
       sketchPane.up(e)
-      sketchPane.setIsErasing(false)
     })
 
     let stats = new Stats()

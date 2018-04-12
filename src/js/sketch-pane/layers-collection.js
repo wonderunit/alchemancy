@@ -7,7 +7,6 @@ module.exports = class LayersCollection extends Array {
     this.renderer = renderer
     this.width = width
     this.height = height
-    this.activeIndices = [] // indices of layers to be stamped on next up
     this.currentIndex = undefined // index of the current layer
     this.onAdd = undefined
     this.onSelect = undefined
@@ -30,17 +29,17 @@ module.exports = class LayersCollection extends Array {
     this.onAdd && this.onAdd(layer.index)
     return layer
   }
-  markDirtyIfActive () {
-    for (let index of this.activeIndices) {
+  markDirty (indices) {
+    for (let index of indices) {
       this[index].dirty = true
     }
   }
-  getActiveIndices () {
-    return [...this.activeIndices]
-  }
-  setActiveIndices (indices) {
-    this.activeIndices = [...indices]
-  }
+  // getActiveIndices () {
+  //   return [...this.activeIndices]
+  // }
+  // setActiveIndices (indices) {
+  //   this.activeIndices = [...indices]
+  // }
   getCurrentIndex () {
     return this.currentIndex
   }
