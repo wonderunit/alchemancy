@@ -314,6 +314,16 @@ sketchPane
       target: sketchPane.app.view
     })
 
+    // const testTwoPointStroke = (opt = { distance: 0 }) => {
+    //   let {x, y} = sketchPane.strokeContainer.toGlobal({
+    //     x: sketchPane.app.view.width / 2,
+    //     y: sketchPane.app.view.height / 2
+    //   })
+    //   sketchPane.down(fakeEvent({ x: x - opt.distance, y }))
+    //   sketchPane.up(fakeEvent({ x: x + opt.distance, y }))
+    // }
+    // testTwoPointStroke({ distance: 0 })
+
     const drawStrokes = () => {
       // sketchPane.brush = sketchPane.brushes.pen
       // sketchPane.brushSize = 30
