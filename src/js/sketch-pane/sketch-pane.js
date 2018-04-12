@@ -489,7 +489,7 @@ module.exports = class SketchPane {
     let singlePoint = false
     if (len === 0) {
       // single point
-      i = 0
+      start = 0
       len = spacing
       singlePoint = true
     }
