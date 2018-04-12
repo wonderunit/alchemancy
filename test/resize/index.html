@@ -340,8 +340,11 @@
       })
     }
 
-    const sketchPane = new SketchPane()
-    sketchPane.setImageSize(1200, 900)
+    const sketchPane = new SketchPane({
+      imageWidth: 1200,
+      imageHeight: 900,
+      backgroundColor: 0x111111
+    })
 
     sketchPane
       .loadBrushes({ brushImagePath: '../src/img/brush' })
