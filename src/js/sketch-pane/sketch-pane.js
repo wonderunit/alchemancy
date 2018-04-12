@@ -695,15 +695,16 @@ module.exports = class SketchPane {
 
   updateMask (source, finalize = false) {
     // find the top-most active layer
-    const descending = (a, b) => b - a
+    const descending = (a, b) => b.sprite.getChildIndex() - a.sprite.getChildIndex()
     let index = [...this.strokeState.layerIndices].sort(descending)[0]
     let layer = this.layers[index]
 
     // we're starting a new round
     if (!layer.sprite.mask) {
+      // add the mask on top of all layers
       this.layerContainer.addChild(this.eraseMask)
 
-      // start the mask with a solid red background
+      // reset the mask with a solid red background
       let graphics = new PIXI.Graphics()
         .beginFill(0xff0000, 1.0)
         .drawRect(0, 0, this.width, this.height)
@@ -714,7 +715,7 @@ module.exports = class SketchPane {
         true
       )
 
-      // start using the mask
+      // use the mask
       for (let i of this.strokeState.layerIndices) {
         let layer = this.layers[i]
         layer.sprite.mask = this.eraseMask
