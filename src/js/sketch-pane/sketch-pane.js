@@ -481,10 +481,19 @@ module.exports = class SketchPane {
 
     if (this.strokeState.lastSpacing == null) this.strokeState.lastSpacing = spacing
     let start = (spacing - this.strokeState.lastSpacing)
+    let len = path.length
     let i = 0
     // default. pushes along in-between spacing when spacing - this.strokeState.lastSpacing is > path.length
-    let k = path.length + -(this.strokeState.lastSpacing + path.length)
-    for (i = start; i < path.length; i += spacing) {
+    let k = len + -(this.strokeState.lastSpacing + len)
+
+    let singlePoint = false
+    if (len === 0) {
+      // single point
+      i = 0
+      len = spacing
+      singlePoint = true
+    }
+    for (i = start; i < len; i += spacing) {
       let point = path.getPointAt(i)
 
       for (var z = currentSegment; z < segmentLookup.length; z++) {
@@ -494,25 +503,35 @@ module.exports = class SketchPane {
         }
       }
 
-      let segmentPercent =
-        (i - segmentLookup[currentSegment]) /
-        (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
+      let pressure
+      let tiltAngle
+      let tilt
 
-      let pressure = Util.lerp(
-        strokeInput[currentSegment].pressure,
-        strokeInput[currentSegment + 1].pressure,
-        segmentPercent
-      )
-      let tiltAngle = Util.lerp(
-        strokeInput[currentSegment].tiltAngle,
-        strokeInput[currentSegment + 1].tiltAngle,
-        segmentPercent
-      )
-      let tilt = Util.lerp(
-        strokeInput[currentSegment].tilt,
-        strokeInput[currentSegment + 1].tilt,
-        segmentPercent
-      )
+      if (singlePoint) {
+        pressure = strokeInput[currentSegment].pressure
+        tiltAngle = strokeInput[currentSegment].tiltAngle
+        tilt = strokeInput[currentSegment].tilt
+      } else {
+        let segmentPercent =
+          (i - segmentLookup[currentSegment]) /
+          (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
+
+        pressure = Util.lerp(
+          strokeInput[currentSegment].pressure,
+          strokeInput[currentSegment + 1].pressure,
+          segmentPercent
+        )
+        tiltAngle = Util.lerp(
+          strokeInput[currentSegment].tiltAngle,
+          strokeInput[currentSegment + 1].tiltAngle,
+          segmentPercent
+        )
+        tilt = Util.lerp(
+          strokeInput[currentSegment].tilt,
+          strokeInput[currentSegment + 1].tilt,
+          segmentPercent
+        )
+      }
 
       interpolatedStrokeInput.push([
         this.strokeState.isErasing ? 0 : ((this.brushColor >> 16) & 255) / 255,
@@ -531,7 +550,7 @@ module.exports = class SketchPane {
       ])
       k = i
     }
-    this.strokeState.lastSpacing = path.length - k
+    this.strokeState.lastSpacing = len - k
 
     return interpolatedStrokeInput
   }
@@ -594,6 +613,8 @@ module.exports = class SketchPane {
     // finalize
     // draws all remaining points we know of
     // called on up
+    // useful for drawing a dot for only two points
+    //   e.g.: on quick up/down press with no move
     if (finalize) {
       // TODO are we adding to the array causing the index to be off???
       // the index of the last static point we drew
