@@ -616,21 +616,16 @@ module.exports = class SketchPane {
     // useful for drawing a dot for only two points
     //   e.g.: on quick up/down press with no move
     if (finalize) {
-      // TODO are we adding to the array causing the index to be off???
       // the index of the last static point we drew
       let a = this.strokeState.lastStaticIndex
       // the last point we know of
       let b = this.strokeState.points.length - 1
 
-      // if ((b + 1) - a <= 1) {
-      //   console.warn('1 or fewer points remaining')
-      //   return
-      // }
       console.log(
         '\n',
         'rendering to texture.\n',
         len, 'points in the array.\n',
-        this.strokeState.points, '\n',
+        // this.strokeState.points, '\n',
         'drawing stroke from point idx', a,
         'to point idx', b, '\n'
       )
