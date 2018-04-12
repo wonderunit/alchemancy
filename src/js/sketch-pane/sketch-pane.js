@@ -750,17 +750,17 @@ module.exports = class SketchPane {
   }
 
   // apply the erase texture to the actual layer texture
-  //
-  // FIXME why are transforms so convoluted?
   stampMask (sprite) {
-    // render the masked sprite to a temporary render texture
+    // render masked sprite to temporary render texture
     let renderTexture = PIXI.RenderTexture.create(this.width, this.height)
     this.app.renderer.render(
       sprite,
       renderTexture,
       true,
-      // reverse the transform so we're rendering at 0,0
-      sprite.transform.worldTransform.invert(),
+      // reverse the transform so we're rendering at correct scale and position
+      // via  http://www.html5gamedevs.com/topic/28274-rendering-using-transform-offset/
+      //      https://github.com/pixijs/pixi.js/issues/1967
+      sprite.transform.worldTransform.clone().invert(),
       true // skipUpdateTransform
     )
     let finalizedSprite = new PIXI.Sprite.from(renderTexture) // eslint-disable-line new-cap
