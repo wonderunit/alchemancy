@@ -866,6 +866,13 @@ module.exports = class SketchPane {
     this.layers[index].setOpacity(opacity)
   }
 
+  getLayerDirty (index) {
+    return this.layers[index].dirty
+  }
+  clearLayerDirty (index) {
+    this.layers[index].dirty = false
+  }
+
   // getActiveLayerIndices () {
   //   return this.layers.getActiveIndices()
   // }
