@@ -857,10 +857,12 @@ module.exports = class SketchPane {
   }
 
   getLayerDirty (index) {
-    return this.layers[index].dirty
+    return this.layers[index].getDirty()
   }
   clearLayerDirty (index) {
-    this.layers[index].dirty = false
+    this.layers[index].setDirty(false)
+  }
+
   isLayerEmpty (index) {
     return this.layers[index].isEmpty()
   }

@@ -61,4 +61,10 @@ module.exports = class Layer {
     }
     return true
   }
+  getDirty () {
+    return this.dirty
+  }
+  setDirty (value) {
+    this.dirty = value
+  }
 }
