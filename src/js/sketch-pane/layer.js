@@ -53,6 +53,7 @@ module.exports = class Layer {
     )
     this.sprite.texture = rt
   }
+  // NOTE this is slow
   isEmpty () {
     let pixels = this.renderer.plugins.extract.pixels(this.sprite.texture)
     for (let i of pixels) {

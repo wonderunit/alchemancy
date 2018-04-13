@@ -861,6 +861,8 @@ module.exports = class SketchPane {
   }
   clearLayerDirty (index) {
     this.layers[index].dirty = false
+  isLayerEmpty (index) {
+    return this.layers[index].isEmpty()
   }
 
   // getActiveLayerIndices () {
