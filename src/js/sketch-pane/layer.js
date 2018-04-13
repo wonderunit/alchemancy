@@ -53,4 +53,11 @@ module.exports = class Layer {
     )
     this.sprite.texture = rt
   }
+  isEmpty () {
+    let pixels = this.renderer.plugins.extract.pixels(this.sprite.texture)
+    for (let i of pixels) {
+      if (i !== 0) return false
+    }
+    return true
+  }
 }
