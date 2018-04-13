@@ -30,7 +30,7 @@ module.exports = class Layer {
     canvasData.data.set(pixels)
     canvasBuffer.context.putImageData(canvasData, 0, 0)
 
-    // return the bas64 data
+    // return the base64 data
     return canvasBuffer.canvas.toDataURL().replace(/^data:image\/\w+;base64,/, '')
   }
   draw (source, clear = false) {
@@ -42,6 +42,12 @@ module.exports = class Layer {
   }
   clear () {
     this.renderer.clearRenderTexture(this.sprite.texture)
+  }
+  replace (source, clear = true) {
+    this.draw(
+      new PIXI.Sprite.from(source), // eslint-disable-line new-cap
+      clear
+    )
   }
   // see also: PIXI's `generateTexture`
   replaceTextureWithSelfRender () {

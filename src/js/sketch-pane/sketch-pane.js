@@ -778,10 +778,7 @@ module.exports = class SketchPane {
   replaceLayer (index, source, clear = true) {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
-    this.layers[index].draw(
-      new PIXI.Sprite.from(source), // eslint-disable-line new-cap
-      clear
-    )
+    this.layers[index].replace(source, clear)
   }
 
   // DEPRECATED
