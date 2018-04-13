@@ -21,8 +21,8 @@ module.exports = class SketchPane {
     this.viewportRect = undefined
 
     // callbacks
-    this.onStrokeAfter = options.onStrokeAfter
     this.onStrokeBefore = options.onStrokeBefore
+    this.onStrokeAfter = options.onStrokeAfter
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
@@ -409,7 +409,7 @@ module.exports = class SketchPane {
         : { x: 0, y: 0 }
     }
 
-    this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
+    this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
 
     this.addPointerEventAsPoint(e)
 
@@ -445,7 +445,7 @@ module.exports = class SketchPane {
       this.layerContainer.addChild(this.liveStrokeContainer)
     }
 
-    this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
+    this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
   }
 
   getInterpolatedStrokeInput (strokeInput, path) {
