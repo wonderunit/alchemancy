@@ -763,7 +763,7 @@ module.exports = class SketchPane {
         layer.sprite.addChild(this.eraseMask)
         layer.sprite.mask = this.eraseMask
         // stamp mask to layer texture
-        this.replaceTextureWithSelfRender(layer.sprite)
+        this.layers[i].replaceTextureWithSelfRender()
         // cleanup
         layer.sprite.mask = null
         layer.sprite.removeChild(this.eraseMask)
@@ -771,16 +771,6 @@ module.exports = class SketchPane {
 
       // TODO GC the eraseMask texture?
     }
-  }
-
-  replaceTextureWithSelfRender (sprite) {
-    let rt = PIXI.RenderTexture.create(this.width, this.height)
-    this.app.renderer.render(
-      sprite,
-      rt,
-      true
-    )
-    sprite.texture = rt
   }
 
   // TODO handle crop / center

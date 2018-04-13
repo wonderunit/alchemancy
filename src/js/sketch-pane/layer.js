@@ -43,4 +43,14 @@ module.exports = class Layer {
   clear () {
     this.renderer.clearRenderTexture(this.sprite.texture)
   }
+  // see also: PIXI's `generateTexture`
+  replaceTextureWithSelfRender () {
+    let rt = PIXI.RenderTexture.create(this.width, this.height)
+    this.renderer.render(
+      this.sprite,
+      rt,
+      true
+    )
+    this.sprite.texture = rt
+  }
 }
