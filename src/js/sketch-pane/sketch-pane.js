@@ -19,11 +19,8 @@ class Cursor extends PIXI.Sprite {
 
     this.updateSize()
   }
-  normalizePoint (point) {
-    return this.container.sketchPaneContainer.toLocal(point, this.container.app.stage)
-  }
   render (e) {
-    let point = this.normalizePoint(e)
+    let point = this.container.localizePoint(e)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
     this.container.app.view.style.cursor = 'none'
@@ -614,14 +611,16 @@ module.exports = class SketchPane {
     }
   }
 
+  localizePoint (point) {
+    return this.sketchPaneContainer.toLocal({
+      x: point.x - this.viewportRect.x,
+      y: point.y - this.viewportRect.y
+    },
+    this.app.stage)
+  }
+
   addPointerEventAsPoint (e) {
-    let corrected = this.sketchPaneContainer.toLocal(
-      {
-        x: e.x - this.viewportRect.x,
-        y: e.y - this.viewportRect.y
-      },
-      this.app.stage
-    )
+    let corrected = this.localizePoint(e)
 
     let pressure = e.pointerType === 'mouse'
       ? e.pressure > 0 ? 0.5 : 0
