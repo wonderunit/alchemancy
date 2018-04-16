@@ -7,6 +7,34 @@ const BrushNodeFilter = require('./brush/brush-node-filter')
 
 const LayersCollection = require('./layers-collection')
 
+class Cursor {
+  constructor (container) {
+    this.container = container
+
+    this.sprite = new PIXI.Sprite()
+    this.sprite.name = 'cursorSprite'
+
+    this.gfx = new PIXI.Graphics()
+    this.updateSize()
+  }
+  render (e) {
+    let point = this.container.sketchPaneContainer.toLocal(e, this.container.app.stage)
+    this.sprite.position.set(Math.floor(point.x), Math.floor(point.y))
+    this.container.app.view.style.cursor = 'none'
+  }
+  updateSize () {
+    this.gfx.clear()
+      .lineStyle(1, 0xffffff)
+      .drawCircle(0, 0, Math.ceil(this.container.brushSize) - 1)
+      .closePath()
+      .lineStyle(1, 0x000000)
+      .drawCircle(0, 0, Math.ceil(this.container.brushSize))
+      .closePath()
+
+    this.sprite.addChild(this.gfx)
+  }
+}
+
 module.exports = class SketchPane {
   constructor (options = { backgroundColor: '0xffffff' }) {
     this.layerMask = undefined
@@ -23,6 +51,8 @@ module.exports = class SketchPane {
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
     this.onStrokeAfter = options.onStrokeAfter
+
+    this.cursor = new Cursor(this)
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
@@ -84,6 +114,8 @@ module.exports = class SketchPane {
     // erase mask
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
+
+    this.sketchPaneContainer.addChild(this.cursor.sprite)
 
     this.app.stage.addChild(this.sketchPaneContainer)
     this.sketchPaneContainer.scale.set(1)
@@ -223,6 +255,7 @@ module.exports = class SketchPane {
     await Promise.all(promises)
 
     this.setDefaultBrush()
+    this.cursor.updateSize()
   }
 
   // stamp = don't clear texture
@@ -374,14 +407,14 @@ module.exports = class SketchPane {
   down (e, options = {}) {
     this.pointerDown = true
     this.strokeBegin(e, options)
-    this.app.view.style.cursor = 'crosshair'
+    this.cursor.render(e)
   }
 
   move (e) {
     if (this.pointerDown) {
       this.strokeContinue(e)
-      this.app.view.style.cursor = 'crosshair'
     }
+    this.cursor.render(e)
   }
 
   up (e) {
@@ -390,6 +423,7 @@ module.exports = class SketchPane {
       this.pointerDown = false
       this.app.view.style.cursor = 'auto'
     }
+    this.cursor.render(e)
   }
 
   strokeBegin (e, options) {
@@ -784,6 +818,7 @@ module.exports = class SketchPane {
   // DEPRECATED
   getLayerCanvas (index) {
     console.warn('SketchPane#getLayerCanvas is deprecated. Please fix the caller to use a different method.')
+    console.trace()
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
     // #canvas reads the raw pixels and converts to an HTMLCanvasElement
@@ -825,6 +860,15 @@ module.exports = class SketchPane {
     this.brushColor = 0x000000
     this.brushSize = 4
     this.brushOpacity = 0.9
+  }
+
+  // TODO setState instead?
+  set brushSize (value) {
+    this._brushSize = value
+    this.cursor.updateSize()
+  }
+  get brushSize () {
+    return this._brushSize
   }
 
   // isDrawing () {
