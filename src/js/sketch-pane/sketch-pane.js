@@ -49,7 +49,7 @@ class Cursor extends PIXI.Sprite {
 }
 
 module.exports = class SketchPane {
-  constructor (options = { backgroundColor: '0xffffff' }) {
+  constructor (options = { backgroundColor: 0xffffff }) {
     this.layerMask = undefined
     this.layerBackground = undefined
 
