@@ -15,23 +15,35 @@ class Cursor {
     this.sprite.name = 'cursorSprite'
 
     this.gfx = new PIXI.Graphics()
+    this.sprite.addChild(this.gfx)
+
     this.updateSize()
   }
   render (e) {
     let point = this.container.sketchPaneContainer.toLocal(e, this.container.app.stage)
-    this.sprite.position.set(Math.floor(point.x), Math.floor(point.y))
+    this.sprite.position.set(point.x, point.y)
+    this.sprite.anchor.set(0.5)
     this.container.app.view.style.cursor = 'none'
   }
   updateSize () {
-    this.gfx.clear()
-      .lineStyle(1, 0xffffff)
-      .drawCircle(0, 0, Math.ceil(this.container.brushSize) - 1)
+    let resolution = 1
+
+    this.gfx
+      .clear()
+      // increase bounds (hack to to avoid clipping)
+      .lineStyle(resolution, 0xffffff, 0)
+      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution) + 2)
       .closePath()
-      .lineStyle(1, 0x000000)
-      .drawCircle(0, 0, Math.ceil(this.container.brushSize))
+      // increase bounds (smaller white circle)
+      .lineStyle(resolution, 0xffffff)
+      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution) - 1)
+      .closePath()
+      // increase bounds (actual size black circle)
+      .lineStyle(resolution, 0x000000)
+      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution))
       .closePath()
 
-    this.sprite.addChild(this.gfx)
+    this.sprite.texture = this.gfx.generateCanvasTexture()
   }
 }
 
