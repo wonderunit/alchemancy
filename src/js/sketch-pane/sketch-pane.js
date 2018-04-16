@@ -27,20 +27,21 @@ class Cursor extends PIXI.Sprite {
   }
   updateSize () {
     let resolution = 1
+    let size = this.container.brushSize * 0.7 // optical, approx.
 
     this.gfx
       .clear()
       // increase bounds (hack to to avoid clipping)
       .lineStyle(resolution, 0xffffff, 0)
-      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution) + (resolution * 2))
+      .drawCircle(0, 0, Math.ceil(size * resolution) + (resolution * 2))
       .closePath()
       // increase bounds (smaller white circle)
       .lineStyle(resolution, 0xffffff)
-      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution) - resolution)
+      .drawCircle(0, 0, Math.ceil(size * resolution) - resolution)
       .closePath()
       // increase bounds (actual size black circle)
       .lineStyle(resolution, 0x000000)
-      .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution))
+      .drawCircle(0, 0, Math.ceil(size * resolution))
       .closePath()
 
     this.texture = this.gfx.generateCanvasTexture()
