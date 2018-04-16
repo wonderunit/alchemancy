@@ -7,22 +7,25 @@ const BrushNodeFilter = require('./brush/brush-node-filter')
 
 const LayersCollection = require('./layers-collection')
 
-class Cursor {
+class Cursor extends PIXI.Sprite {
   constructor (container) {
+    super()
     this.container = container
 
-    this.sprite = new PIXI.Sprite()
-    this.sprite.name = 'cursorSprite'
+    this.name = 'cursorSprite'
 
     this.gfx = new PIXI.Graphics()
-    this.sprite.addChild(this.gfx)
+    this.addChild(this.gfx)
 
     this.updateSize()
   }
+  normalizePoint (point) {
+    return this.container.sketchPaneContainer.toLocal(point, this.container.app.stage)
+  }
   render (e) {
-    let point = this.container.sketchPaneContainer.toLocal(e, this.container.app.stage)
-    this.sprite.position.set(point.x, point.y)
-    this.sprite.anchor.set(0.5)
+    let point = this.normalizePoint(e)
+    this.position.set(point.x, point.y)
+    this.anchor.set(0.5)
     this.container.app.view.style.cursor = 'none'
   }
   updateSize () {
@@ -43,7 +46,7 @@ class Cursor {
       .drawCircle(0, 0, Math.ceil(this.container.brushSize * resolution))
       .closePath()
 
-    this.sprite.texture = this.gfx.generateCanvasTexture()
+    this.texture = this.gfx.generateCanvasTexture()
   }
 }
 
@@ -63,8 +66,6 @@ module.exports = class SketchPane {
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
     this.onStrokeAfter = options.onStrokeAfter
-
-    this.cursor = new Cursor(this)
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
@@ -127,7 +128,8 @@ module.exports = class SketchPane {
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
 
-    this.sketchPaneContainer.addChild(this.cursor.sprite)
+    this.cursor = new Cursor(this)
+    this.sketchPaneContainer.addChild(this.cursor)
 
     this.app.stage.addChild(this.sketchPaneContainer)
     this.sketchPaneContainer.scale.set(1)
