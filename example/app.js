@@ -74,7 +74,7 @@ sketchPane
       let thumbHeight = Math.ceil(sketchPane.height / 8)
 
       let img = new window.Image()
-      img.src = sketchPane.utils.pixelsToCanvas(
+      img.src = SketchPane.utils.pixelsToCanvas(
         sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight),
         thumbWidth,
         thumbHeight

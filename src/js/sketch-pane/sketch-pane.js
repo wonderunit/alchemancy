@@ -8,10 +8,8 @@ const Cursor = require('./cursor')
 
 const LayersCollection = require('./layers-collection')
 
-module.exports = class SketchPane {
+class SketchPane {
   constructor (options = { backgroundColor: 0xffffff }) {
-    this.utils = Util
-
     this.layerMask = undefined
     this.layerBackground = undefined
 
@@ -524,17 +522,17 @@ module.exports = class SketchPane {
           (i - segmentLookup[currentSegment]) /
           (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
 
-        pressure = this.utils.lerp(
+        pressure = this.constructor.utils.lerp(
           strokeInput[currentSegment].pressure,
           strokeInput[currentSegment + 1].pressure,
           segmentPercent
         )
-        tiltAngle = this.utils.lerp(
+        tiltAngle = this.constructor.utils.lerp(
           strokeInput[currentSegment].tiltAngle,
           strokeInput[currentSegment + 1].tiltAngle,
           segmentPercent
         )
-        tilt = this.utils.lerp(
+        tilt = this.constructor.utils.lerp(
           strokeInput[currentSegment].tilt,
           strokeInput[currentSegment + 1].tilt,
           segmentPercent
@@ -591,7 +589,7 @@ module.exports = class SketchPane {
 
     let tiltAngle = e.pointerType === 'mouse'
       ? { angle: -90, tilt: 37 }
-      : this.utils.calcTiltAngle(e.tiltX, e.tiltY)
+      : this.constructor.utils.calcTiltAngle(e.tiltX, e.tiltY)
 
     this.strokeState.points.push({
       x: corrected.x,
@@ -915,3 +913,7 @@ module.exports = class SketchPane {
     return this.app.view
   }
 }
+
+SketchPane.utils = Util
+
+module.exports = SketchPane
