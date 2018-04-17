@@ -10,6 +10,8 @@ const LayersCollection = require('./layers-collection')
 
 module.exports = class SketchPane {
   constructor (options = { backgroundColor: 0xffffff }) {
+    this.utils = Util
+
     this.layerMask = undefined
     this.layerBackground = undefined
 
@@ -522,17 +524,17 @@ module.exports = class SketchPane {
           (i - segmentLookup[currentSegment]) /
           (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
 
-        pressure = Util.lerp(
+        pressure = this.utils.lerp(
           strokeInput[currentSegment].pressure,
           strokeInput[currentSegment + 1].pressure,
           segmentPercent
         )
-        tiltAngle = Util.lerp(
+        tiltAngle = this.utils.lerp(
           strokeInput[currentSegment].tiltAngle,
           strokeInput[currentSegment + 1].tiltAngle,
           segmentPercent
         )
-        tilt = Util.lerp(
+        tilt = this.utils.lerp(
           strokeInput[currentSegment].tilt,
           strokeInput[currentSegment + 1].tilt,
           segmentPercent
@@ -589,7 +591,7 @@ module.exports = class SketchPane {
 
     let tiltAngle = e.pointerType === 'mouse'
       ? { angle: -90, tilt: 37 }
-      : Util.calcTiltAngle(e.tiltX, e.tiltY)
+      : this.utils.calcTiltAngle(e.tiltX, e.tiltY)
 
     this.strokeState.points.push({
       x: corrected.x,
@@ -804,6 +806,29 @@ module.exports = class SketchPane {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
     return this.layers[index].export(format)
+  }
+
+  // for given layers,
+  // with specified opacity
+  // render a composite texture
+  // and return as *pixels*
+  //
+  // TODO sort back to front
+  // TODO handle opacity / alpha
+  // TODO better antialiasing
+  // TODO specify layers
+  extractThumbnailPixels (width, height) {
+    let rt = PIXI.RenderTexture.create(width, height)
+    for (let layer of this.layers) {
+      let sprite = new PIXI.Sprite(layer.sprite.texture)
+      sprite.scale.set(width / this.width, height / this.height)
+      this.app.renderer.render(
+        sprite,
+        rt,
+        false
+      )
+    }
+    return this.app.renderer.plugins.extract.pixels(rt)
   }
 
   clearLayer (index) {

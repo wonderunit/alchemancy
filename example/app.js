@@ -64,6 +64,22 @@ sketchPane
     }
     sketchPane.onStrokeAfter = strokeState => {
       console.log('onStrokeAfter: markDirty', strokeState)
+
+      let img = generateThumbnailImage()
+      document.querySelector('#thumbnail').innerHTML = ''
+      document.querySelector('#thumbnail').appendChild(img)
+    }
+    const generateThumbnailImage = () => {
+      let thumbWidth = Math.ceil(sketchPane.width / 8)
+      let thumbHeight = Math.ceil(sketchPane.height / 8)
+
+      let img = new window.Image()
+      img.src = sketchPane.utils.pixelsToCanvas(
+        sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight),
+        thumbWidth,
+        thumbHeight
+      ).toDataURL()
+      return img
     }
 
     window.addEventListener('resize', function (e) {
