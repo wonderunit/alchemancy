@@ -412,7 +412,12 @@ class SketchPane {
       lastSpacing: undefined,
       grainOffset: this.brush.settings.randomOffset
         ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
-        : { x: 0, y: 0 }
+        : { x: 0, y: 0 },
+
+      // snapshot brush configuration
+      size: this.brushSize,
+      color: this.brushColor,
+      opacity: this.brushOpacity
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
@@ -481,7 +486,7 @@ class SketchPane {
 
     // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
 
-    let spacing = Math.max(1, this.brushSize * this.brush.settings.spacing)
+    let spacing = Math.max(1, this.strokeState.size * this.brush.settings.spacing)
 
     // console.log(spacing)
 
@@ -540,11 +545,11 @@ class SketchPane {
       }
 
       interpolatedStrokeInput.push([
-        this.strokeState.isErasing ? 0 : ((this.brushColor >> 16) & 255) / 255,
-        this.strokeState.isErasing ? 0 : ((this.brushColor >> 8) & 255) / 255,
-        this.strokeState.isErasing ? 0 : (this.brushColor & 255) / 255,
-        this.brushSize,
-        this.brushOpacity,
+        this.strokeState.isErasing ? 0 : ((this.strokeState.color >> 16) & 255) / 255,
+        this.strokeState.isErasing ? 0 : ((this.strokeState.color >> 8) & 255) / 255,
+        this.strokeState.isErasing ? 0 : (this.strokeState.color & 255) / 255,
+        this.strokeState.size,
+        this.strokeState.opacity,
         point.x,
         point.y,
         pressure,
