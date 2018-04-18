@@ -873,9 +873,9 @@ class SketchPane {
     return this._brushSize
   }
 
-  // isDrawing () {
-  //   return this.pointerDown
-  // }
+  isDrawing () {
+    return this.pointerDown
+  }
 
   // getIsErasing () {
   //   return this.isErasing
