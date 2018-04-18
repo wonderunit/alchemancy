@@ -634,14 +634,14 @@ class SketchPane {
       // the last point we know of
       let b = this.strokeState.points.length - 1
 
-      console.log(
-        '\n',
-        'rendering to texture.\n',
-        len, 'points in the array.\n',
-        // this.strokeState.points, '\n',
-        'drawing stroke from point idx', a,
-        'to point idx', b, '\n'
-      )
+      // console.log(
+      //   '\n',
+      //   'rendering to texture.\n',
+      //   len, 'points in the array.\n',
+      //   // this.strokeState.points, '\n',
+      //   'drawing stroke from point idx', a,
+      //   'to point idx', b, '\n'
+      // )
 
       this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
