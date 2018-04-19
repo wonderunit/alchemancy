@@ -56,6 +56,7 @@ module.exports = class Layer {
       clear
     )
   }
+  // NOTE this will apply any Sprite alpha (if present)
   // see also: PIXI's `generateTexture`
   replaceTextureWithSelfRender () {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
