@@ -816,10 +816,13 @@ class SketchPane {
   // render a composite texture
   // and return as *pixels*
   //
+  // NOTE intentionally transparent. we use it to generate large images as well.
+  //
   // TODO sort back to front
   // TODO handle opacity / alpha
   // TODO better antialiasing
   // TODO specify layers
+  // TODO rename extractCompositePixels ?
   extractThumbnailPixels (width, height) {
     let rt = PIXI.RenderTexture.create(width, height)
     for (let layer of this.layers) {
