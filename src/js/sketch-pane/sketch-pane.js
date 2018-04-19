@@ -819,14 +819,18 @@ class SketchPane {
   // NOTE intentionally transparent. we use it to generate large images as well.
   //
   // TODO sort back to front
-  // TODO handle opacity / alpha
   // TODO better antialiasing
   // TODO specify layers
   // TODO rename extractCompositePixels ?
+  // TODO move to LayersCollection ?
   extractThumbnailPixels (width, height) {
     let rt = PIXI.RenderTexture.create(width, height)
     for (let layer of this.layers) {
+      // make a new Sprite from the layer texture
       let sprite = new PIXI.Sprite(layer.sprite.texture)
+      // copy the layer's alpha
+      sprite.alpha = layer.sprite.alpha
+      // resize
       sprite.scale.set(width / this.width, height / this.height)
       this.app.renderer.render(
         sprite,
