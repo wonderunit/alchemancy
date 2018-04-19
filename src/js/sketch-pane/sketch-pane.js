@@ -232,7 +232,7 @@ class SketchPane {
 
   // stamp = don't clear texture
   stampStroke (source, layer) {
-    this.layers.getCurrentLayer().draw(source, false)
+    layer.draw(source, false)
   }
 
   disposeContainer (container) {
