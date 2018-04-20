@@ -48,7 +48,16 @@ module.exports = class Layer {
     )
   }
   clear () {
-    this.renderer.clearRenderTexture(this.sprite.texture)
+
+    // FIXME why doesn't this work consistently?
+    // clear the render texture
+    // this.renderer.clearRenderTexture(this.sprite.texture)
+
+    // HACK force clear :/
+    this.draw(
+      PIXI.Sprite.from(PIXI.Texture.EMPTY),
+      true
+    )
   }
   replace (source, clear = true) {
     this.draw(
