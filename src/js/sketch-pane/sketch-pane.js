@@ -31,6 +31,8 @@ class SketchPane {
 
   setup (options) {
     paper.setup()
+    paper.view.setAutoUpdate(false)
+
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
     PIXI.settings.MIPMAP_TEXTURES = true
