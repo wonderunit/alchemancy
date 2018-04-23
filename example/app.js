@@ -155,6 +155,12 @@ sketchPane
         case 'c':
           sketchPane.clearLayer()
           break
+        case 'f':
+          sketchPane.flipLayers(false)
+          break
+        case 'F':
+          if (e.shiftKey) sketchPane.flipLayers(true)
+          break
       }
     })
 
