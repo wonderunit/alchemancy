@@ -50,4 +50,14 @@ module.exports = class LayersCollection extends Array {
   getCurrentLayer () {
     return this[this.currentIndex]
   }
+
+  //
+  //
+  // operations
+  //
+  flip (vertical = false) {
+    for (let layer of this) {
+      layer.flip(vertical)
+    }
+  }
 }

@@ -924,6 +924,14 @@ class SketchPane {
   getDOMElement () {
     return this.app.view
   }
+
+  //
+  // operations
+  //
+  //
+  flipLayers (vertical = false) {
+    this.layers.flip(vertical)
+  }
 }
 
 SketchPane.utils = Util

@@ -89,4 +89,21 @@ module.exports = class Layer {
   setDirty (value) {
     this.dirty = value
   }
+
+  //
+  //
+  // operations
+  //
+  flip (vertical = false) {
+    let sprite = new PIXI.Sprite(this.sprite.texture)
+    sprite.anchor.set(0.5, 0.5)
+    if (vertical) {
+      sprite.pivot.set(-sprite.width / 2, sprite.height / 2)
+      sprite.scale.y *= -1
+    } else {
+      sprite.pivot.set(sprite.width / 2, -sprite.height / 2)
+      sprite.scale.x *= -1
+    }
+    this.replaceTexture(sprite)
+  }
 }
