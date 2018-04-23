@@ -776,7 +776,7 @@ class SketchPane {
         layer.sprite.addChild(this.eraseMask)
         layer.sprite.mask = this.eraseMask
         // stamp mask to layer texture
-        this.layers[i].replaceTextureWithSelfRender()
+        this.layers[i].replaceTexture(this.layers[i].sprite)
         // cleanup
         layer.sprite.mask = null
         layer.sprite.removeChild(this.eraseMask)

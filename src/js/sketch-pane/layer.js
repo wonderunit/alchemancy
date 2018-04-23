@@ -48,7 +48,6 @@ module.exports = class Layer {
     )
   }
   clear () {
-
     // FIXME why doesn't this work consistently?
     // clear the render texture
     // this.renderer.clearRenderTexture(this.sprite.texture)
@@ -65,12 +64,12 @@ module.exports = class Layer {
       clear
     )
   }
-  // NOTE this will apply any Sprite alpha (if present)
+  // NOTE this will apply any source Sprite alpha (if present)
   // see also: PIXI's `generateTexture`
-  replaceTextureWithSelfRender () {
+  replaceTexture (source) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
     this.renderer.render(
-      this.sprite,
+      source,
       rt,
       true
     )
