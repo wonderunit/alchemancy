@@ -2,7 +2,7 @@ const PIXI = require('pixi.js')
 const paper = require('paper')
 
 const Util = require('./util')
-const brushes = require('./brush/brushes')
+const Brush = require('./brush/brush')
 const BrushNodeFilter = require('./brush/brush-node-filter')
 const Cursor = require('./cursor')
 
@@ -18,7 +18,6 @@ class SketchPane {
       grain: {}
     }
 
-    this.brushes = brushes
     this.viewportRect = undefined
 
     // callbacks
@@ -203,7 +202,12 @@ class SketchPane {
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
-  async loadBrushes ({ brushImagePath }) {
+  async loadBrushes ({ brushes, brushImagePath }) {
+    this.brushes = brushes.reduce((brushes, brush) => {
+      brushes[brush.name] = new Brush(brush)
+      return brushes
+    }, {})
+
     // get unique file names
     let brushImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.brushImage))]
     let grainImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.grainImage))]
@@ -233,7 +237,6 @@ class SketchPane {
     }
     await Promise.all(promises)
 
-    this.setDefaultBrush()
     this.cursor.updateSize()
   }
 
@@ -868,14 +871,6 @@ class SketchPane {
     if (this.pointerDown) return // prevent layer change during draw
 
     this.layers.setCurrentIndex(index)
-  }
-
-  // set default brush
-  setDefaultBrush () {
-    this.brush = this.brushes.pencil
-    this.brushColor = 0x000000
-    this.brushSize = 4
-    this.brushOpacity = 0.9
   }
 
   // TODO setState instead?

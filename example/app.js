@@ -49,7 +49,7 @@ window.fetch('./example/brushes/brushes.json')
     sketchPane
       .loadBrushes({
         brushes,
-        brushImagePath: './src/img/brush'
+        brushImagePath: './example/brushes'
       })
 
       // NOTE example images are 1000 × 800
