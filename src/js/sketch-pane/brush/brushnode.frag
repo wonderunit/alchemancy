@@ -90,10 +90,9 @@ void main(void) {
 	//
 	// grain
 	//
-	float grain_scale = 1024.00 * uGrainScale;
-
 	vec2 fcoord = vFilterCoord;
-	fcoord -= (vec2(u_x_offset, u_y_offset) / grain_scale);
+	fcoord -= vec2(u_x_offset, u_y_offset);
+	fcoord /= uGrainScale;
 	vec4 grainSample = texture2D(u_grainTex, fract(fcoord));
 
 	//
