@@ -48,7 +48,7 @@
   {
     "name": "copic",
     "descriptiveName": "Copic",
-    "brushImage": "brushmediumovalhallow",
+    "brushImage": "brushmediumovalhollow",
     "grainImage": "grainpaper2",
     "pressureOpacity": 0.2,
     "pressureSize": 0.9,
