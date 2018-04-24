@@ -346,47 +346,57 @@
       backgroundColor: 0x111111
     })
 
-    sketchPane
-      .loadBrushes({ brushImagePath: '../src/img/brush' })
+    ;(async () => {
+      const response = await window.fetch('/example/brushes/brushes.json')
+      const brushes = await response.json()
 
+      await sketchPane
+        .loadBrushes({
+          brushes,
+          brushImagePath: '/example/brushes'
+        })
+      
       // NOTE example images are 1000 × 800
-      .then(() => loadLayers(sketchPane, layerFilePaths))
+      await loadLayers(sketchPane, layerFilePaths)
 
-      .then(() => sketchPane.setCurrentLayerIndex(sketchPane.layers.length - 1))
+      sketchPane.setCurrentLayerIndex(sketchPane.layers.length - 1)
 
-      .then(() => {
-        console.log('ready')
+      console.log('ready')
 
-        sketchPane.brushSize = 32
+      // set default brush
+      sketchPane.brush = sketchPane.brushes.pencil
+      sketchPane.brushColor = 0x000000
+      sketchPane.brushSize = 8
+      sketchPane.brushOpacity = 0.9
 
-        let element = sketchPane.getDOMElement()
+      let element = sketchPane.getDOMElement()
 
-        let container = document.querySelector('#storyboarder-sketch-pane .container')
-        container.appendChild(element)
+      let container = document.querySelector('#storyboarder-sketch-pane .container')
+      container.appendChild(element)
 
-        let ro = new ResizeObserver(entries => {
-          const { width, height } = entries[0].contentRect
-          sketchPane.resize(width, height)
-        })
-        ro.observe(element.parentNode)
-
-        window.addEventListener('pointerdown', e => {
-          // stroke options
-          // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
-          let options = (e.buttons === 32 || e.altKey)
-            // + shift to erase multiple layers
-            ? e.shiftKey
-              ? { erase: [1, 2, 3] }
-              : { erase: [sketchPane.getCurrentLayerIndex()] }
-            : {}
-
-          sketchPane.down(e, options)
-        })
-        window.addEventListener('pointerup', e => sketchPane.up(e))
-        window.addEventListener('pointermove', e => sketchPane.move(e))
-
-        window.sketchPane = sketchPane
+      let ro = new ResizeObserver(entries => {
+        const { width, height } = entries[0].contentRect
+        sketchPane.resize(width, height)
       })
+      ro.observe(element.parentNode)
+
+      window.addEventListener('pointerdown', e => {
+        // stroke options
+        // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
+        let options = (e.buttons === 32 || e.altKey)
+          // + shift to erase multiple layers
+          ? e.shiftKey
+            ? { erase: [1, 2, 3] }
+            : { erase: [sketchPane.getCurrentLayerIndex()] }
+          : {}
+
+        sketchPane.down(e, options)
+      })
+      window.addEventListener('pointerup', e => sketchPane.up(e))
+      window.addEventListener('pointermove', e => sketchPane.move(e))
+
+      window.sketchPane = sketchPane
+    })()
   </script>
   </body>
 </html>
