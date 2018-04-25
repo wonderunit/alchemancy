@@ -21,8 +21,7 @@ module.exports = class Layer {
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
     return this.renderer.plugins.extract.pixels(this.sprite.texture)
   }
-  // get data url in PNG format
-  toDataURL () {
+  toCanvas () {
     let pixels = this.pixels()
 
     // un-premultiply
@@ -32,7 +31,11 @@ module.exports = class Layer {
       pixels,
       this.width,
       this.height
-    ).toDataURL()
+    )
+  }
+  // get data url in PNG format
+  toDataURL () {
+    return this.toCanvas().toDataURL()
   }
   // get PNG data for writing to a file
   export (index) {
