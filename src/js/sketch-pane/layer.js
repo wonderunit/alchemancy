@@ -64,7 +64,23 @@ module.exports = class Layer {
       clear
     )
   }
+  // write to texture (ignoring alpha)
+  // TODO beter name for this?
+  rewrite () {
+    // temporarily reset the sprite alpha
+    let alpha = this.sprite.alpha
+
+    // write to the texture
+    this.sprite.alpha = 1.0
+    this.replaceTexture(this.sprite)
+
+    // set the sprite alpha back
+    this.sprite.alpha = alpha
+  }
   // NOTE this will apply any source Sprite alpha (if present)
+  // TODO might be a better way to do this.
+  //      would be more efficient to .render over sprite instead (with clear:true)
+  //      but attempting that resulted in a blank texture.
   // see also: PIXI's `generateTexture`
   replaceTexture (source) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)

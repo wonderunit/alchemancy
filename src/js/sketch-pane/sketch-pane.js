@@ -785,8 +785,8 @@ class SketchPane {
         // add child so transform is correct
         layer.sprite.addChild(this.eraseMask)
         layer.sprite.mask = this.eraseMask
-        // stamp mask to layer texture
-        this.layers[i].replaceTexture(this.layers[i].sprite)
+        // stamp mask'd version of layer sprite to its own texture
+        this.layers[i].rewrite()
         // cleanup
         layer.sprite.mask = null
         layer.sprite.removeChild(this.eraseMask)
