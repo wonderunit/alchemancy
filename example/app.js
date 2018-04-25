@@ -196,7 +196,7 @@ window.fetch('./example/brushes/brushes.json')
           sketchPane.brush = sketchPane.brushes.pencil
           sketchPane.brushSize = 4
           sketchPane.brushOpacity = 0.8
-          sketchPane.brushColor = 0xdddddd
+          sketchPane.brushColor = 0x000000
         })
 
         document.getElementById('b-2').addEventListener('click', function (e) {
