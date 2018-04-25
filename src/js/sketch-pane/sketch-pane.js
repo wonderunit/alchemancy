@@ -142,6 +142,12 @@ class SketchPane {
   }
 
   onLayersCollectionSelect (index) {
+    this.updateLayerDepths()
+  }
+
+  updateLayerDepths () {
+    let index = this.layers.getCurrentIndex()
+
     let selectedLayer = this.layers[index]
 
     this.layerContainer.setChildIndex(this.layerBackground, 0)
@@ -441,6 +447,8 @@ class SketchPane {
       }
     } else {
       this.layerContainer.addChild(this.liveStrokeContainer)
+      // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
+      this.updateLayerDepths()
     }
 
     this.drawStroke()
@@ -464,6 +472,8 @@ class SketchPane {
     // add the liveStrokeContainer back
     if (this.strokeState.isErasing) {
       this.layerContainer.addChild(this.liveStrokeContainer)
+      // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
+      this.updateLayerDepths()
     }
 
     this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
