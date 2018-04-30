@@ -85,10 +85,10 @@ module.exports = class Layer {
   //      would be more efficient to .render over sprite instead (with clear:true)
   //      but attempting that resulted in a blank texture.
   // see also: PIXI's `generateTexture`
-  replaceTexture (source) {
+  replaceTexture (displayObject) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
     this.renderer.render(
-      source,
+      displayObject,
       rt,
       true
     )
