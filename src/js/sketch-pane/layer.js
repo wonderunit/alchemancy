@@ -67,6 +67,14 @@ module.exports = class Layer {
       clear
     )
   }
+
+  // used to draw grids on top of layers
+  // source should be an HTMLCanvasElement
+  replaceTextureFromCanvas (canvasElement) {
+    this.sprite.texture.destroy(true) // prevent canvas caching
+    this.sprite.texture = PIXI.Texture.from(canvasElement)
+  }
+
   // write to texture (ignoring alpha)
   // TODO beter name for this?
   rewrite () {
