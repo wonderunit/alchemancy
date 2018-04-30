@@ -835,23 +835,25 @@ class SketchPane {
   //
   // TODO sort back to front
   // TODO better antialiasing
-  // TODO specify layers
   // TODO rename extractCompositePixels ?
   // TODO move to LayersCollection ?
-  extractThumbnailPixels (width, height) {
+  extractThumbnailPixels (width, height, indices = []) {
     let rt = PIXI.RenderTexture.create(width, height)
     for (let layer of this.layers) {
-      // make a new Sprite from the layer texture
-      let sprite = new PIXI.Sprite(layer.sprite.texture)
-      // copy the layer's alpha
-      sprite.alpha = layer.sprite.alpha
-      // resize
-      sprite.scale.set(width / this.width, height / this.height)
-      this.app.renderer.render(
-        sprite,
-        rt,
-        false
-      )
+      // if indices are specified, include only selected layers
+      if (indices.length && indices.includes(layer.index)) {
+        // make a new Sprite from the layer texture
+        let sprite = new PIXI.Sprite(layer.sprite.texture)
+        // copy the layer's alpha
+        sprite.alpha = layer.sprite.alpha
+        // resize
+        sprite.scale.set(width / this.width, height / this.height)
+        this.app.renderer.render(
+          sprite,
+          rt,
+          false
+        )
+      }
     }
     return this.app.renderer.plugins.extract.pixels(rt)
   }
