@@ -83,10 +83,6 @@ class SketchPane {
     this.offscreenContainer.renderable = false
     this.layerContainer.addChild(this.offscreenContainer)
 
-    this.overlaysSprite = new PIXI.Sprite()
-    this.overlaysSprite.name = 'overlays'
-    this.sketchPaneContainer.addChild(this.overlaysSprite)
-
     // erase mask
     this.eraseMask = new PIXI.Sprite()
     this.eraseMask.name = 'eraseMask'
@@ -118,7 +114,6 @@ class SketchPane {
     this.layerContainer.addChild(this.layerBackground)
 
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
-    this.overlaysSprite.texture = PIXI.RenderTexture.create(this.width, this.height)
 
     this.centerContainer()
 
@@ -935,21 +930,6 @@ class SketchPane {
 
   getDOMElement () {
     return this.app.view
-  }
-
-  // used to draw grids on top of layers
-  // source should be an HTMLCanvasElement
-  drawOverlay (source) {
-    if (source == null) {
-      this.app.renderer(
-        PIXI.Sprite.from(PIXI.Texture.EMPTY),
-        this.overlaysSprite.texture,
-        true
-      )
-    } else {
-      this.overlaysSprite.texture.destroy(true) // prevent canvas caching
-      this.overlaysSprite.texture = PIXI.Texture.from(source)
-    }
   }
 
   //
