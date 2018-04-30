@@ -117,6 +117,13 @@ module.exports = class Layer {
     this.dirty = value
   }
 
+  setVisible (value) {
+    this.sprite.visible = value
+  }
+  getVisible () {
+    return this.sprite.visible
+  }
+
   //
   //
   // operations
