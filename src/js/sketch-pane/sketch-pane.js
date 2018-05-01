@@ -441,6 +441,9 @@ class SketchPane {
         this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
       }
     } else {
+      // NOTE only sets liveStrokeContainer.alpha at beginning of stroke
+      //      if layer opacity can change during the stroke, we should move this to `drawStroke`
+      this.liveStrokeContainer.alpha = this.getLayerOpacity(this.layers.currentIndex)
       this.layerContainer.addChild(this.liveStrokeContainer)
       // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
       this.updateLayerDepths()
