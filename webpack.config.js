@@ -59,6 +59,9 @@ const nodeConfig = createConfig({ output: { filename: '[name].common.js', librar
   externals: {
     'pixi.js': 'pixi.js',
     'paper': 'paper'
+  },
+  optimization: {
+    minimize: false
   }
 })
 
