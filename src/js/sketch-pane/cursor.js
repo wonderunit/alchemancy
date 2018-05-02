@@ -16,7 +16,6 @@ module.exports = class Cursor extends PIXI.Sprite {
     let point = this.container.localizePoint(e)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
-    this.container.app.view.style.cursor = 'none'
   }
   updateSize () {
     let resolution = 1

@@ -390,6 +390,8 @@ class SketchPane {
   down (e, options = {}) {
     this.pointerDown = true
     this.strokeBegin(e, options)
+
+    this.app.view.style.cursor = 'none'
     this.cursor.render(e)
   }
 
@@ -397,6 +399,8 @@ class SketchPane {
     if (this.pointerDown) {
       this.strokeContinue(e)
     }
+
+    this.app.view.style.cursor = 'none'
     this.cursor.render(e)
   }
 
@@ -404,8 +408,9 @@ class SketchPane {
     if (this.pointerDown) {
       this.strokeEnd(e)
       this.pointerDown = false
-      this.app.view.style.cursor = 'auto'
     }
+
+    this.app.view.style.cursor = 'auto'
     this.cursor.render(e)
   }
 
