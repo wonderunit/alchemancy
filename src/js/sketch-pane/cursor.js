@@ -37,5 +37,6 @@ module.exports = class Cursor extends PIXI.Sprite {
       .closePath()
 
     this.texture = this.gfx.generateCanvasTexture()
+    this.getLocalBounds() // hacky fix to avoid texture clipping
   }
 }
