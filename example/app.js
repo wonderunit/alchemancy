@@ -87,7 +87,7 @@ window.fetch('./example/brushes/brushes.json')
 
           let img = new window.Image()
           img.src = SketchPane.utils.pixelsToCanvas(
-            sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight),
+            sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight, [1, 2, 3]),
             thumbWidth,
             thumbHeight
           ).toDataURL()
