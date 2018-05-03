@@ -407,7 +407,6 @@ class SketchPane {
   up (e) {
     if (this.pointerDown) {
       this.strokeEnd(e)
-      this.pointerDown = false
     }
 
     this.app.view.style.cursor = 'auto'
@@ -464,7 +463,10 @@ class SketchPane {
 
   strokeEnd (e) {
     this.addPointerEventAsPoint(e)
+    this.stopDrawing()
+  }
 
+  stopDrawing () {
     this.drawStroke(true) // finalize
 
     this.disposeContainer(this.liveStrokeContainer)
@@ -478,6 +480,8 @@ class SketchPane {
       // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
       this.updateLayerDepths()
     }
+
+    this.pointerDown = false
 
     this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
   }
