@@ -466,6 +466,7 @@ class SketchPane {
     this.stopDrawing()
   }
 
+  // public
   stopDrawing () {
     this.drawStroke(true) // finalize
 
@@ -604,6 +605,7 @@ class SketchPane {
     }
   }
 
+  // public
   localizePoint (point) {
     return this.sketchPaneContainer.toLocal({
       x: point.x - this.viewportRect.x,
