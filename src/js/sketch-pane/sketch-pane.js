@@ -929,11 +929,14 @@ class SketchPane {
     this.layers[index].setOpacity(opacity)
   }
 
-  getLayerDirty (index) {
-    return this.layers[index].getDirty()
+  markLayersDirty (indices) {
+    return this.layers.markDirty(indices)
   }
   clearLayerDirty (index) {
     this.layers[index].setDirty(false)
+  }
+  getLayerDirty (index) {
+    return this.layers[index].getDirty()
   }
 
   isLayerEmpty (index) {

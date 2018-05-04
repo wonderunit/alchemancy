@@ -31,7 +31,7 @@ module.exports = class LayersCollection extends Array {
   }
   markDirty (indices) {
     for (let index of indices) {
-      this[index].dirty = true
+      this[index].setDirty(true)
     }
   }
   // getActiveIndices () {
