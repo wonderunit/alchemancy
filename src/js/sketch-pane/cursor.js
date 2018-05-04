@@ -10,12 +10,22 @@ module.exports = class Cursor extends PIXI.Sprite {
     this.gfx = new PIXI.Graphics()
     this.addChild(this.gfx)
 
+    // enabled
+    this._enabled = true
+    // don't show until at least one update
+    this.visible = false
+
     this.updateSize()
   }
   render (e) {
     let point = this.container.localizePoint(e)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
+
+    // show (only when moved)
+    if (this._enabled) {
+      this.visible = true
+    }
   }
   updateSize () {
     let resolution = 1
@@ -38,5 +48,13 @@ module.exports = class Cursor extends PIXI.Sprite {
 
     this.texture = this.gfx.generateCanvasTexture()
     this.getLocalBounds() // hacky fix to avoid texture clipping
+  }
+  setEnabled (value) {
+    this._enabled = value
+    // immediately hide when disabled, but wait for mouse move when re-enabled
+    if (!this._enabled) this.visible = false
+  }
+  getEnabled () {
+    return this._enabled
   }
 }
