@@ -88,9 +88,9 @@ class SketchPane {
     this.eraseMask.name = 'eraseMask'
 
     this.cursor = new Cursor(this)
-    this.sketchPaneContainer.addChild(this.cursor)
 
     this.app.stage.addChild(this.sketchPaneContainer)
+    this.app.stage.addChild(this.cursor)
     this.sketchPaneContainer.scale.set(1)
   }
 
@@ -199,6 +199,9 @@ class SketchPane {
     )
 
     this.viewportRect = this.app.view.getBoundingClientRect()
+
+    this.cursor._parentScale = scale
+    this.cursor.updateSize()
   }
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
@@ -466,7 +469,6 @@ class SketchPane {
     this.stopDrawing()
   }
 
-  // public
   stopDrawing () {
     this.drawStroke(true) // finalize
 
@@ -852,7 +854,14 @@ class SketchPane {
   // TODO rename extractCompositePixels ?
   // TODO move to LayersCollection ?
   extractThumbnailPixels (width, height, indices = []) {
-    let rt = PIXI.RenderTexture.create(width, height)
+    const rt = this.generateCompositeTexture(width, height, indices)
+    return this.app.renderer.plugins.extract.pixels(rt)
+  }
+
+  // public
+  // TODO move to LayersCollection ?
+  generateCompositeTexture (width, height, indices = []) {
+    const rt = PIXI.RenderTexture.create(width, height)
     for (let layer of this.layers) {
       // if indices are specified, include only selected layers
       if (indices.length && indices.includes(layer.index)) {
@@ -869,7 +878,7 @@ class SketchPane {
         )
       }
     }
-    return this.app.renderer.plugins.extract.pixels(rt)
+    return rt
   }
 
   clearLayer (index) {
