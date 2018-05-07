@@ -8,6 +8,7 @@ module.exports = class Cursor extends PIXI.Sprite {
     this.name = 'cursorSprite'
 
     this.gfx = new PIXI.Graphics()
+    // must be added as a child or the coordinates are incorrect
     this.addChild(this.gfx)
 
     // enabled
@@ -31,23 +32,32 @@ module.exports = class Cursor extends PIXI.Sprite {
     let resolution = 1
     let size = this.container.brushSize * 0.7 // optical, approx.
 
+    let x = Math.ceil((size * resolution) / 2)
+    let y = Math.ceil((size * resolution) / 2)
+
     this.gfx
       .clear()
-      // increase bounds (hack to to avoid clipping)
-      .lineStyle(resolution, 0xffffff, 0)
-      .drawCircle(0, 0, Math.ceil(size * resolution) + (resolution * 2))
+      // pad to avoid texture clipping (hack)
+      .lineStyle(resolution * 2, 0xffffff, 0.001)
+      .drawCircle(x, y, Math.ceil(size * resolution) + (resolution * 2))
       .closePath()
-      // increase bounds (smaller white circle)
+      // smaller white circle
       .lineStyle(resolution, 0xffffff)
-      .drawCircle(0, 0, Math.ceil(size * resolution) - resolution)
+      .drawCircle(x, y, Math.ceil(size * resolution) - resolution)
       .closePath()
-      // increase bounds (actual size black circle)
+      // actual size black circle
       .lineStyle(resolution, 0x000000)
-      .drawCircle(0, 0, Math.ceil(size * resolution))
+      .drawCircle(x, y, Math.ceil(size * resolution))
       .closePath()
 
+    // destroy any old texture
+    this.texture.destroy(true)
+    // render to a canvas
     this.texture = this.gfx.generateCanvasTexture()
-    this.getLocalBounds() // hacky fix to avoid texture clipping
+    // hacky fix to avoid texture clipping and resize sprite appropriately to texture
+    this.getLocalBounds()
+    // clear the temporary graphics
+    this.gfx.clear()
   }
   setEnabled (value) {
     this._enabled = value
