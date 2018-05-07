@@ -321,7 +321,7 @@ module.exports = class LayersCollection extends Array {
   }
   markDirty (indices) {
     for (let index of indices) {
-      this[index].dirty = true
+      this[index].setDirty(true)
     }
   }
   // getActiveIndices () {
@@ -369,13 +369,22 @@ module.exports = class Cursor extends PIXI.Sprite {
     this.gfx = new PIXI.Graphics()
     this.addChild(this.gfx)
 
+    // enabled
+    this._enabled = true
+    // don't show until at least one update
+    this.visible = false
+
     this.updateSize()
   }
   render (e) {
     let point = this.container.localizePoint(e)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
-    this.container.app.view.style.cursor = 'none'
+
+    // show (only when moved)
+    if (this._enabled) {
+      this.visible = true
+    }
   }
   updateSize () {
     let resolution = 1
@@ -397,6 +406,15 @@ module.exports = class Cursor extends PIXI.Sprite {
       .closePath()
 
     this.texture = this.gfx.generateCanvasTexture()
+    this.getLocalBounds() // hacky fix to avoid texture clipping
+  }
+  setEnabled (value) {
+    this._enabled = value
+    // immediately hide when disabled, but wait for mouse move when re-enabled
+    if (!this._enabled) this.visible = false
+  }
+  getEnabled () {
+    return this._enabled
   }
 }
 
@@ -513,7 +531,6 @@ const defaultBrushSettings = {
   grainImageInvert: false,
 
   // GRAIN
-  // TODO rename grain* ?
   movement: 1, // % the grain is offset as the brush moves. 0 static. 100 rolling. 100 is like paper
   scale: 1, // Scale of the grain texture. 0 super tiny, 100 super large
   zoom: 0, // % Scale of the grain texture by the brush size.
@@ -942,6 +959,8 @@ class SketchPane {
   down (e, options = {}) {
     this.pointerDown = true
     this.strokeBegin(e, options)
+
+    this.app.view.style.cursor = 'none'
     this.cursor.render(e)
   }
 
@@ -949,15 +968,17 @@ class SketchPane {
     if (this.pointerDown) {
       this.strokeContinue(e)
     }
+
+    this.app.view.style.cursor = 'none'
     this.cursor.render(e)
   }
 
   up (e) {
     if (this.pointerDown) {
       this.strokeEnd(e)
-      this.pointerDown = false
-      this.app.view.style.cursor = 'auto'
     }
+
+    this.app.view.style.cursor = 'auto'
     this.cursor.render(e)
   }
 
@@ -1011,7 +1032,11 @@ class SketchPane {
 
   strokeEnd (e) {
     this.addPointerEventAsPoint(e)
+    this.stopDrawing()
+  }
 
+  // public
+  stopDrawing () {
     this.drawStroke(true) // finalize
 
     this.disposeContainer(this.liveStrokeContainer)
@@ -1025,6 +1050,8 @@ class SketchPane {
       // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
       this.updateLayerDepths()
     }
+
+    this.pointerDown = false
 
     this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
   }
@@ -1147,6 +1174,7 @@ class SketchPane {
     }
   }
 
+  // public
   localizePoint (point) {
     return this.sketchPaneContainer.toLocal({
       x: point.x - this.viewportRect.x,
@@ -1470,11 +1498,14 @@ class SketchPane {
     this.layers[index].setOpacity(opacity)
   }
 
-  getLayerDirty (index) {
-    return this.layers[index].getDirty()
+  markLayersDirty (indices) {
+    return this.layers.markDirty(indices)
   }
   clearLayerDirty (index) {
     this.layers[index].setDirty(false)
+  }
+  getLayerDirty (index) {
+    return this.layers[index].getDirty()
   }
 
   isLayerEmpty (index) {
