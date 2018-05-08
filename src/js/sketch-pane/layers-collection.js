@@ -1,4 +1,7 @@
+const PIXI = require('pixi.js')
+
 const Layer = require('./layer')
+const Util = require('./util')
 
 // see: https://github.com/wesbos/es6-articles/blob/master/54%20-%20Extending%20Arrays%20with%20Classes%20for%20Custom%20Collections.md
 module.exports = class LayersCollection extends Array {
@@ -98,4 +101,33 @@ module.exports = class LayersCollection extends Array {
     return rt
   }
 
+  // merge
+  //
+  // sources is an array of layer indices, ordered back to front
+  // destination is the index of the destination layer
+  merge (sources, destination) {
+    let rt = PIXI.RenderTexture.create(this.width, this.height)
+
+    rt = this.generateCompositeTexture(
+      this.width,
+      this.height,
+      sources,
+      rt
+    )
+
+    // clear destination
+    this[destination].clear()
+
+    // stamp composite onto destination
+    // TODO would it be better to write raw pixel data?
+    // TODO would it be better to destroy layer texture and assign rt as layer texture?
+    this[destination].replace(rt)
+
+    // clear the source layers
+    for (let index of sources) {
+      if (index !== destination) {
+        this[index].clear()
+      }
+    }
+  }
 }
