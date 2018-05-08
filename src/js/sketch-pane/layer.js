@@ -64,6 +64,7 @@ module.exports = class Layer {
       true
     )
   }
+  // draws a (non-DisplayObject) source to a texture (usually an Image)
   replace (source, clear = true) {
     this.draw(
       new PIXI.Sprite.from(source), // eslint-disable-line new-cap
