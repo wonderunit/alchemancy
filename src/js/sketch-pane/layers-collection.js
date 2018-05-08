@@ -60,4 +60,42 @@ module.exports = class LayersCollection extends Array {
       layer.flip(vertical)
     }
   }
+
+  // for given layers,
+  // with specified opacity
+  // render a composite texture
+  // and return as *pixels*
+  //
+  // NOTE intentionally transparent. we use it to generate large images as well.
+  //
+  // TODO sort back to front
+  // TODO better antialiasing
+  // TODO rename extractCompositePixels ?
+  extractThumbnailPixels (width, height, indices = []) {
+    let rt = PIXI.RenderTexture.create(width, height)
+    return this.renderer.plugins.extract.pixels(
+      this.generateCompositeTexture(width, height, indices, rt)
+    )
+  }
+
+  generateCompositeTexture (width, height, indices = [], rt) {
+    for (let layer of this) {
+      // if indices are specified, include only selected layers
+      if (indices.length && indices.includes(layer.index)) {
+        // make a new Sprite from the layer texture
+        let sprite = new PIXI.Sprite(layer.sprite.texture)
+        // copy the layer's alpha
+        sprite.alpha = layer.sprite.alpha
+        // resize
+        sprite.scale.set(width / this.width, height / this.height)
+        this.renderer.render(
+          sprite,
+          rt,
+          false
+        )
+      }
+    }
+    return rt
+  }
+
 }
