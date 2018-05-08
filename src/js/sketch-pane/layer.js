@@ -16,16 +16,18 @@ module.exports = class Layer {
   setOpacity (opacity) {
     this.sprite.alpha = opacity
   }
-  pixels () {
+  pixels (postDivide = false) {
     // get pixels as Uint8Array
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
-    return this.renderer.plugins.extract.pixels(this.sprite.texture)
+    const pixels = this.renderer.plugins.extract.pixels(this.sprite.texture)
+    if (postDivide) {
+      // un-premultiply
+      Util.arrayPostDivide(pixels)
+    }
+    return pixels
   }
   toCanvas () {
-    let pixels = this.pixels()
-
-    // un-premultiply
-    Util.arrayPostDivide(pixels)
+    let pixels = this.pixels(true)
 
     return Util.pixelsToCanvas(
       pixels,
