@@ -45,9 +45,10 @@ module.exports = class Layer {
       this.toDataURL()
     )
   }
-  draw (source, clear = false) {
+  // renders a DisplayObject to this layer’s texture
+  draw (displayObject, clear = false) {
     this.renderer.render(
-      source,
+      displayObject,
       this.sprite.texture,
       clear
     )
