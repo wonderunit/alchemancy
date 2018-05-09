@@ -1,5 +1,3 @@
-const PIXI = require('pixi.js')
-
 module.exports = class Util {
   static rotatePoint (pointX, pointY, originX, originY, angle) {
     return {
@@ -40,11 +38,14 @@ module.exports = class Util {
   }
 
   static pixelsToCanvas (pixels, width, height) {
-    let canvasBuffer = new PIXI.CanvasRenderTarget(width, height)
-    let canvasData = canvasBuffer.context.createImageData(width, height)
+    let canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    let context = canvas.getContext('2d')
+    let canvasData = context.createImageData(width, height)
     canvasData.data.set(pixels)
-    canvasBuffer.context.putImageData(canvasData, 0, 0)
-    return canvasBuffer.canvas
+    context.putImageData(canvasData, 0, 0)
+    return canvas
   }
 
   static dataURLToFileContents (dataURL) {
