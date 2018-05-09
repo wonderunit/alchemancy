@@ -26,8 +26,8 @@ module.exports = class Layer {
     }
     return pixels
   }
-  toCanvas () {
-    let pixels = this.pixels(true)
+  toCanvas (postDivide = true) {
+    let pixels = this.pixels(postDivide)
 
     return Util.pixelsToCanvas(
       pixels,
@@ -36,8 +36,8 @@ module.exports = class Layer {
     )
   }
   // get data url in PNG format
-  toDataURL () {
-    return this.toCanvas().toDataURL()
+  toDataURL (postDivide = true) {
+    return this.toCanvas(postDivide).toDataURL()
   }
   // get PNG data for writing to a file
   export (index) {
