@@ -20,6 +20,9 @@ export default class LayersCollection extends Array {
     this.currentIndex = undefined; // index of the current layer
     this.onAdd = undefined;
     this.onSelect = undefined;
+
+    // via https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
+    Object.setPrototypeOf(this, LayersCollection.prototype)
   }
 
   create() {
