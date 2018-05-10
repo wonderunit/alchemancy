@@ -36,8 +36,6 @@ interface IStrokeState {
 }
 
 export default class SketchPane {
-  static utils = Util;
-
   layerMask: PIXI.Graphics;
   layerBackground: PIXI.Graphics;
   layers: LayersCollection;

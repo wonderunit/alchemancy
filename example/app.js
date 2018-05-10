@@ -29,7 +29,7 @@ const intToHexColorString = number => {
   return color
 }
 
-const sketchPane = new SketchPane({
+const sketchPane = new SketchLib.SketchPane({
   imageWidth: 1200,
   imageHeight: 900
 })
@@ -86,7 +86,7 @@ window.fetch('./example/brushes/brushes.json')
           let thumbHeight = Math.ceil(sketchPane.height / 8)
 
           let img = new window.Image()
-          img.src = SketchPane.utils.pixelsToCanvas(
+          img.src = SketchLib.utils.pixelsToCanvas(
             sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight, [1, 2, 3]),
             thumbWidth,
             thumbHeight

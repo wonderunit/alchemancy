@@ -10,7 +10,7 @@ const createConfig = opt => {
     output: {
       filename: opt.output.filename,
       path: path.resolve(__dirname, 'dist'),
-      library: 'SketchPane',
+      library: 'SketchLib',
       libraryTarget: opt.output.libraryTarget,
       publicPath: '/dist'
     },
