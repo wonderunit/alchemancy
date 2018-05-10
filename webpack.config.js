@@ -14,6 +14,9 @@ const createConfig = opt => {
       libraryTarget: opt.output.libraryTarget,
       publicPath: '/dist'
     },
+    resolve: {
+      extensions: ['.ts', '.js', '.json']
+    },
     module: {
       rules: [
         {
