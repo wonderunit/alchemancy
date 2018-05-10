@@ -9,10 +9,10 @@
   ],
   "scripts": {
     "clean": "trash dist/*",
-    "watch": "webpack --mode development --watch",
-    "start": "webpack-serve --mode development --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
-    "build": "webpack --mode development",
-    "build:dev": "webpack --mode development"
+    "watch": "cross-env MODE=development webpack --watch",
+    "start": "cross-env MODE=development webpack-serve --config webpack.config.js --port 8000 --host 0.0.0.0 --no-hot --no-clipboard",
+    "build": "cross-env MODE=production webpack",
+    "build:dev": "cross-env MODE=development webpack"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/wonderunit/alchemancy#readme",
   "devDependencies": {
+    "cross-env": "5.1.5",
     "shader-loader": "1.3.1",
     "trash-cli": "1.4.0",
     "ts-loader": "^4.3.0",
