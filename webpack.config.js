@@ -4,7 +4,7 @@ const createConfig = opt => {
   return {
     mode: process.env.MODE,
     entry: {
-      'sketch-pane': './src/js/index.js'
+      'sketch-pane': './src/ts/index.ts'
     },
     ...opt.optimization ? { optimization: opt.optimization } : {},
     output: {
@@ -19,8 +19,12 @@ const createConfig = opt => {
         {
           test: /\.(glsl|frag|vert)$/,
           loader: 'shader-loader'
+        },
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader'
         }
-      ]
+	    ]
     },
     ...opt.externals ? { externals: opt.externals } : {},
     ...opt.serve ? { serve: opt.serve } : {}

@@ -1,39 +1,49 @@
-const PIXI = require('pixi.js')
+export interface ICursorContainer {
+  brushSize: number;
 
-module.exports = class Cursor extends PIXI.Sprite {
-  constructor (container) {
-    super()
-    this.container = container
+  localizePoint(p: {x: number, y: number}): PIXI.Point;
+}
 
-    this.name = 'cursorSprite'
+export class Cursor extends PIXI.Sprite {
+  container: ICursorContainer;
+  _enabled: boolean;
+  gfx: PIXI.Graphics;
 
-    this.gfx = new PIXI.Graphics()
+  constructor(container: ICursorContainer) {
+    super();
+    this.container = container;
+
+    this.name = 'cursorSprite';
+
+    this.gfx = new PIXI.Graphics();
     // must be added as a child or the coordinates are incorrect
-    this.addChild(this.gfx)
+    this.addChild(this.gfx);
 
     // enabled
-    this._enabled = true
+    this._enabled = true;
     // don't show until at least one update
-    this.visible = false
+    this.visible = false;
 
     this.updateSize()
   }
-  render (e) {
-    let point = this.container.localizePoint(e)
-    this.position.set(point.x, point.y)
-    this.anchor.set(0.5)
+
+  renderCursor(e: {x: number, y: number}) {
+    let point = this.container.localizePoint(e);
+    this.position.set(point.x, point.y);
+    this.anchor.set(0.5);
 
     // show (only when moved)
     if (this._enabled) {
       this.visible = true
     }
   }
-  updateSize () {
-    let resolution = 1
-    let size = this.container.brushSize * 0.7 // optical, approx.
 
-    let x = Math.ceil((size * resolution) / 2)
-    let y = Math.ceil((size * resolution) / 2)
+  updateSize() {
+    let resolution = 1;
+    let size = this.container.brushSize * 0.7; // optical, approx.
+
+    let x = Math.ceil((size * resolution) / 2);
+    let y = Math.ceil((size * resolution) / 2);
 
     this.gfx
       .clear()
@@ -48,23 +58,25 @@ module.exports = class Cursor extends PIXI.Sprite {
       // actual size black circle
       .lineStyle(resolution, 0x000000)
       .drawCircle(x, y, Math.ceil(size * resolution))
-      .closePath()
+      .closePath();
 
     // destroy any old texture
-    this.texture.destroy(true)
+    this.texture.destroy(true);
     // render to a canvas
-    this.texture = this.gfx.generateCanvasTexture()
+    this.texture = this.gfx.generateCanvasTexture();
     // hacky fix to avoid texture clipping and resize sprite appropriately to texture
-    this.getLocalBounds()
+    this.getLocalBounds();
     // clear the temporary graphics
     this.gfx.clear()
   }
-  setEnabled (value) {
-    this._enabled = value
+
+  setEnabled(value: boolean) {
+    this._enabled = value;
     // immediately hide when disabled, but wait for mouse move when re-enabled
     if (!this._enabled) this.visible = false
   }
-  getEnabled () {
+
+  getEnabled() {
     return this._enabled
   }
 }
