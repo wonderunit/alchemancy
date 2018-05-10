@@ -433,7 +433,8 @@ export default class SketchPane {
     sprite.filters = [filter];
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
-    sprite.filterArea = this.app.screen;
+    // @popelyshev at the same time, the fix only makes it worse :(
+    //sprite.filterArea = this.app.screen;
 
     strokeContainer.addChild(sprite)
   }
