@@ -38,7 +38,6 @@
     "@types/paper": "^0.9.15",
     "@types/pixi.js": "^4.7.3",
     "paper": "0.11.5",
-    "pixi.js": "4.7.1",
-    "ts-shader-loader": "^1.0.5"
+    "pixi.js": "4.7.1"
   }
 }
