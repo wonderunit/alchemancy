@@ -27,7 +27,7 @@ const createConfig = opt => {
           test: /\.tsx?$/,
           loader: 'ts-loader'
         }
-	    ]
+      ]
     },
     ...opt.externals ? { externals: opt.externals } : {},
     ...opt.serve ? { serve: opt.serve } : {}
