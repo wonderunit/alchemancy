@@ -1,4 +1,4 @@
-import 'pixi.js'
+import * as PIXI from 'pixi.js'
 import Util from './util'
 
 export default class Layer {

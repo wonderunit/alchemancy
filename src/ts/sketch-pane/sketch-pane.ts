@@ -1,5 +1,5 @@
 import * as paper from 'paper'
-import 'pixi.js'
+import * as PIXI from 'pixi.js'
 
 import Util from './util'
 import {Brush} from './brush/brush'
