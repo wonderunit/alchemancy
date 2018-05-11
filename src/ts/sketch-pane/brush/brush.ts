@@ -1,7 +1,7 @@
 export type IBrushSettings = Partial<BrushSettings>
 
 export class BrushSettings {
-  constructor(obj?: IBrushSettings) {
+  constructor (obj?: IBrushSettings) {
     if (obj) {
       Object.assign(this, obj)
     }
@@ -47,8 +47,8 @@ export class BrushSettings {
 }
 
 export class Brush {
-  constructor(settings?: IBrushSettings) {
-    this.settings = new BrushSettings(settings);
+  constructor (settings?: IBrushSettings) {
+    this.settings = new BrushSettings(settings)
   }
 
   settings: BrushSettings;

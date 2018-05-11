@@ -1,10 +1,11 @@
-const fragment: string = require('./brushnode.frag');
+import * as PIXI from 'pixi.js'
+const fragment: string = require('./brushnode.frag')
 
 export default class BrushNodeFilter extends PIXI.Filter<any> {
-  grainSprite: PIXI.Sprite;
-  grainMatrix: PIXI.Matrix;
+  grainSprite: PIXI.Sprite
+  grainMatrix: PIXI.Matrix
 
-  constructor(grainSprite: PIXI.Sprite) {
+  constructor (grainSprite: PIXI.Sprite) {
     super(
       null,
       fragment,
@@ -36,31 +37,31 @@ export default class BrushNodeFilter extends PIXI.Filter<any> {
         dimensions: {type: 'vec2', value: [0.0, 0.0]},
         filterMatrix: {type: 'mat3'}
       } as any
-    );
+    )
 
-    this.padding = 0;
-    this.blendMode = PIXI.BLEND_MODES.NORMAL;
+    this.padding = 0
+    this.blendMode = PIXI.BLEND_MODES.NORMAL
 
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#fitting-problem
-    this.autoFit = false;
+    this.autoFit = false
 
-    let grainMatrix = new PIXI.Matrix();
+    let grainMatrix = new PIXI.Matrix()
 
-    grainSprite.renderable = false;
-    this.grainSprite = grainSprite;
-    this.grainMatrix = grainMatrix;
-    this.uniforms.u_grainTex = grainSprite.texture;
-    this.uniforms.filterMatrix = grainMatrix;
+    grainSprite.renderable = false
+    this.grainSprite = grainSprite
+    this.grainMatrix = grainMatrix
+    this.uniforms.u_grainTex = grainSprite.texture
+    this.uniforms.filterMatrix = grainMatrix
   }
 
   // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#filter-area
-  apply(filterManager: PIXI.FilterManager, input: PIXI.RenderTarget, output: PIXI.RenderTarget, clear: boolean) {
-    this.uniforms.dimensions[0] = input.sourceFrame.width;
-    this.uniforms.dimensions[1] = input.sourceFrame.height;
+  apply (filterManager: PIXI.FilterManager, input: PIXI.RenderTarget, output: PIXI.RenderTarget, clear: boolean) {
+    this.uniforms.dimensions[0] = input.sourceFrame.width
+    this.uniforms.dimensions[1] = input.sourceFrame.height
 
-    this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.grainMatrix, this.grainSprite);
+    this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.grainMatrix, this.grainSprite)
 
-    filterManager.applyFilter(this, input, output, clear);
+    filterManager.applyFilter(this, input, output, clear)
 
     // console.log('filterMatrix', this.uniforms.filterMatrix)
 

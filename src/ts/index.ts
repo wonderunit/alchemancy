@@ -1,4 +1,4 @@
-import SketchPane from './sketch-pane/sketch-pane';
-import utils from './sketch-pane/util';
+import SketchPane from './sketch-pane/sketch-pane'
+import utils from './sketch-pane/util'
 
-export { SketchPane, utils };
+export { SketchPane, utils }
