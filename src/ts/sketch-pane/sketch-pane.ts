@@ -199,8 +199,6 @@ export default class SketchPane {
       this.layerContainer.setChildIndex(layer.sprite, childIndex)
 
       if (layer.sprite === selectedLayer.sprite) {
-        // @popelyshev: i dont know wtf is that
-        // this.layer = childIndex - 1;
         this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
