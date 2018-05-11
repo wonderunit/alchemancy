@@ -2,9 +2,9 @@ import * as paper from 'paper'
 import * as PIXI from 'pixi.js'
 
 import Util from './util'
-import {Brush} from './brush/brush'
+import { Brush } from './brush/brush'
 import BrushNodeFilter from './brush/brush-node-filter'
-import {Cursor} from './cursor'
+import { Cursor } from './cursor'
 
 import LayersCollection from './layers-collection'
 import Layer from './layer'
@@ -138,8 +138,8 @@ export default class SketchPane {
     this.sketchPaneContainer.scale.set(1)
   }
 
-  width: number;
-  height: number;
+  width: number
+  height: number
 
   setImageSize (width: number, height: number) {
     this.width = width
@@ -249,7 +249,7 @@ export default class SketchPane {
     this.viewportRect = this.app.view.getBoundingClientRect() as any
   }
 
-  brushes: Array<Brush>;
+  brushes: Array<Brush>
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
@@ -434,12 +434,12 @@ export default class SketchPane {
     // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
     // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
     // @popelyshev at the same time, the fix only makes it worse :(
-    // sprite.filterArea = this.app.screen;
+    // sprite.filterArea = this.app.screen
 
     strokeContainer.addChild(sprite)
   }
 
-  pointerDown = false;
+  pointerDown = false
 
   down (e: PointerEvent, options = {}) {
     this.pointerDown = true
@@ -467,10 +467,10 @@ export default class SketchPane {
     this.cursor.renderCursor(e)
   }
 
-  strokeState: IStrokeState;
-  brushColor: number;
-  brushOpacity: number;
-  brush: Brush;
+  strokeState: IStrokeState
+  brushColor: number
+  brushOpacity: number
+  brush: Brush
 
   strokeBegin (e: PointerEvent, options: IStrokeSettings) {
     // initialize stroke state
@@ -703,7 +703,7 @@ export default class SketchPane {
     )
     this.strokeState.path = new paper.Path(
       this.strokeState.points
-    );
+    )
     // @popelyshev: paper typings are wrong
     (this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
   }
@@ -927,7 +927,7 @@ export default class SketchPane {
     this.layers.setCurrentIndex(index)
   }
 
-  _brushSize: number;
+  _brushSize: number
 
   // TODO setState instead?
   set brushSize (value) {

@@ -2,14 +2,14 @@ import * as PIXI from 'pixi.js'
 import Util from './util'
 
 export default class Layer {
-  renderer: PIXI.WebGLRenderer;
-  width: number;
-  height: number;
-  sprite: PIXI.Sprite;
-  dirty: boolean;
+  renderer: PIXI.WebGLRenderer
+  width: number
+  height: number
+  sprite: PIXI.Sprite
+  dirty: boolean
 
-  name: string;
-  index: number;
+  name: string
+  index: number
 
   constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
     this.renderer = params.renderer

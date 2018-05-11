@@ -3,14 +3,14 @@ import Util from './util'
 
 // see: https://github.com/wesbos/es6-articles/blob/master/54%20-%20Extending%20Arrays%20with%20Classes%20for%20Custom%20Collections.md
 export default class LayersCollection extends Array {
-  currentIndex: number;
-  renderer: PIXI.WebGLRenderer;
-  width: number;
-  height: number;
-  onAdd: (x: number) => {};
-  onSelect: (x: number) => {};
+  currentIndex: number
+  renderer: PIXI.WebGLRenderer
+  width: number
+  height: number
+  onAdd: (x: number) => {}
+  onSelect: (x: number) => {}
 
-  [index: number]: any;
+  [index: number]: any
 
   constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
     super()

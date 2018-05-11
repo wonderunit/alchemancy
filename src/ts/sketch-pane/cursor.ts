@@ -1,13 +1,15 @@
-export interface ICursorContainer {
-  brushSize: number;
+import * as PIXI from 'pixi.js'
 
-  localizePoint(p: {x: number, y: number}): PIXI.Point;
+export interface ICursorContainer {
+  brushSize: number
+
+  localizePoint(p: {x: number, y: number}): PIXI.Point
 }
 
 export class Cursor extends PIXI.Sprite {
-  container: ICursorContainer;
-  _enabled: boolean;
-  gfx: PIXI.Graphics;
+  container: ICursorContainer
+  _enabled: boolean
+  gfx: PIXI.Graphics
 
   constructor (container: ICursorContainer) {
     super()
