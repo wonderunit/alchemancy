@@ -659,7 +659,7 @@ export default class SketchPane {
     let interpolatedStrokeInput = this.getInterpolatedStrokeInput(strokeInput, path)
 
     for (let args of interpolatedStrokeInput) {
-      (this.addStrokeNode as any)(...args, strokeContainer)
+      ;(this.addStrokeNode as any)(...args, strokeContainer)
     }
   }
 
@@ -703,7 +703,7 @@ export default class SketchPane {
       this.strokeState.points
     )
     // @popelyshev: paper typings are wrong
-    (this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
+    ;(this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
   }
 
   // render the live strokes
