@@ -683,7 +683,7 @@ export default class SketchPane {
 
     let tiltAngle = e.pointerType === 'mouse'
       ? {angle: -90, tilt: 37}
-      : Util.calcTiltAngle(e.tiltX, e.tiltY)
+      : Util.calcTiltAngle(e.tiltY, e.tiltX) // NOTE we intentionally reverse these args
 
     this.strokeState.points.push({
       x: corrected.x,

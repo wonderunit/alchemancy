@@ -13,10 +13,9 @@ export default class Util {
   }
 
   static calcTiltAngle (tiltX: number, tiltY: number) {
-    // @popelyshev: wrong order of parameters here
-    let angle = Math.atan2(tiltX, tiltY) * (180 / Math.PI)
+    let angle = Math.atan2(tiltY, tiltX) * (180 / Math.PI)
     let tilt = Math.max(Math.abs(tiltX), Math.abs(tiltY))
-    return {angle: angle, tilt: tilt}
+    return { angle: angle, tilt: tilt }
   }
 
   static lerp (value1: number, value2: number, amount: number) {
