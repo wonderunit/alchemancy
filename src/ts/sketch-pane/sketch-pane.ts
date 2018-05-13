@@ -461,7 +461,7 @@ export default class SketchPane {
       this.strokeEnd(e)
     }
 
-    this.app.view.style.cursor = 'auto'
+    this.app.view.style.cursor = 'none'
     this.cursor.renderCursor(e)
   }
 
