@@ -45,15 +45,17 @@ export default class SketchPane {
   }
   app: PIXI.Application
 
-  viewportRect: { x: number, y: number, width: number, height: number}
+  viewClientRect: ClientRect
+  containerPadding: number
 
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
-  constructor (options: any = {backgroundColor: 0xffffff}) {
+  constructor (options: any = { backgroundColor: 0xffffff}) {
     this.layerMask = undefined
     this.layerBackground = undefined
-    this.viewportRect = undefined
+    this.viewClientRect = undefined
+    this.containerPadding = 50
 
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
@@ -138,6 +140,8 @@ export default class SketchPane {
 
     this.app.stage.addChild(this.sketchPaneContainer)
     this.sketchPaneContainer.scale.set(1)
+
+    this.viewClientRect = this.app.view.getBoundingClientRect()
   }
 
   width: number
@@ -230,23 +234,40 @@ export default class SketchPane {
   // }
 
   resize (width: number, height: number) {
+    // resize the canvas to fit the parent bounds
     this.app.renderer.resize(width, height)
 
-    // fit aspect ratio, set scale
-    const frameAspectRatio = width / height
-    const imageAspectRatio = this.width / this.height
-    let dim = (frameAspectRatio > imageAspectRatio)
-      ? [this.width * height / this.height, height]
-      : [width, this.height * width / this.width]
-    let scale = dim[0] / this.width
-    this.sketchPaneContainer.scale.set(scale)
+    // copy the canvas dimensions rectangle value
+    // min size of 0×0 to prevent flip
+    let dst = {
+      width: Math.max(0, width - (this.containerPadding * 2)),
+      height: Math.max(0, height - (this.containerPadding * 2))
+    }
 
-    this.sketchPaneContainer.position.set(
-      Math.floor(this.app.renderer.width / 2),
-      Math.floor(this.app.renderer.height / 2)
+    // src is image width / height
+    const src = {
+      width: this.width,
+      height: this.height
+    }
+
+    // fit to aspect ratio
+    const frameAr = dst.width / dst.height
+    const imageAr = src.width / src.height
+
+    let targetWidth = (frameAr > imageAr)
+      ? src.width * dst.height / src.height
+      : dst.width
+
+    // set scale
+    this.sketchPaneContainer.scale.set(
+      Math.floor(targetWidth) / Math.floor(src.width)
     )
 
-    this.viewportRect = this.app.view.getBoundingClientRect() as any
+    // center
+    this.centerContainer()
+
+    // update viewClientRect
+    this.viewClientRect = this.app.view.getBoundingClientRect()
   }
 
   brushes: Array<Brush>
@@ -668,8 +689,8 @@ export default class SketchPane {
   // public
   localizePoint (point: {x: number, y: number}) {
     return this.sketchPaneContainer.toLocal(new PIXI.Point(
-      point.x - this.viewportRect.x,
-      point.y - this.viewportRect.y
+      point.x - this.viewClientRect.left,
+      point.y - this.viewClientRect.top
     ),
     this.app.stage)
   }

@@ -33,7 +33,7 @@ const sketchPane = new SketchLib.SketchPane({
   imageWidth: 1200,
   imageHeight: 900
 })
-sketchPane.resize(window.innerWidth, window.innerHeight)
+sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
 
 const forceClear = () => {
   sketchPane.app.renderer.render(
@@ -95,7 +95,7 @@ window.fetch('./example/brushes/brushes.json')
         }
 
         window.addEventListener('resize', function (e) {
-          sketchPane.resize(window.innerWidth, window.innerHeight)
+          sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
         })
 
         window.addEventListener('pointerdown', function (e) {

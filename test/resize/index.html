@@ -325,6 +325,8 @@
   <script src="../dist/vendor.browser.js"></script>
   <script src="../dist/sketch-pane.browser.js"></script>
   <script>
+  </script>
+  <script>
     const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03']
       .map(basename => '../example/img/layers/' + basename + '.png')
 
@@ -340,11 +342,21 @@
       })
     }
 
-    const sketchPane = new SketchPane({
+    const sketchPane = new SketchLib.SketchPane({
       imageWidth: 1200,
       imageHeight: 900,
       backgroundColor: 0x111111
     })
+
+    let element = sketchPane.getDOMElement()
+    let container = document.querySelector('#storyboarder-sketch-pane .container')
+    container.appendChild(element)
+
+    let ro = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect
+      sketchPane.resize(width, height)
+    })
+    ro.observe(element.parentNode)
 
     ;(async () => {
       const response = await window.fetch('/example/brushes/brushes.json')
@@ -369,18 +381,8 @@
       sketchPane.brushSize = 8
       sketchPane.brushOpacity = 0.9
 
-      let element = sketchPane.getDOMElement()
-
-      let container = document.querySelector('#storyboarder-sketch-pane .container')
-      container.appendChild(element)
-
-      let ro = new ResizeObserver(entries => {
-        const { width, height } = entries[0].contentRect
-        sketchPane.resize(width, height)
-      })
-      ro.observe(element.parentNode)
-
-      window.addEventListener('pointerdown', e => {
+      const canvas = document.querySelector('#storyboarder-sketch-pane .container canvas')
+      canvas.addEventListener('pointerdown', e => {
         // stroke options
         // via https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events#Determining_button_states
         let options = (e.buttons === 32 || e.altKey)
@@ -392,8 +394,8 @@
 
         sketchPane.down(e, options)
       })
-      window.addEventListener('pointerup', e => sketchPane.up(e))
-      window.addEventListener('pointermove', e => sketchPane.move(e))
+      canvas.addEventListener('pointerup', e => sketchPane.up(e))
+      canvas.addEventListener('pointermove', e => sketchPane.move(e))
 
       window.sketchPane = sketchPane
     })()
