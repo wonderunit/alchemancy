@@ -1,7 +1,17 @@
-const PIXI = require('pixi.js')
+import * as PIXI from 'pixi.js'
 
-module.exports = class Cursor extends PIXI.Sprite {
-  constructor (container) {
+export interface ICursorContainer {
+  brushSize: number
+
+  localizePoint(p: {x: number, y: number}): PIXI.Point
+}
+
+export class Cursor extends PIXI.Sprite {
+  container: ICursorContainer
+  _enabled: boolean
+  gfx: PIXI.Graphics
+
+  constructor (container: ICursorContainer) {
     super()
     this.container = container
 
@@ -18,7 +28,8 @@ module.exports = class Cursor extends PIXI.Sprite {
 
     this.updateSize()
   }
-  render (e) {
+
+  renderCursor (e: {x: number, y: number}) {
     let point = this.container.localizePoint(e)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
@@ -28,6 +39,7 @@ module.exports = class Cursor extends PIXI.Sprite {
       this.visible = true
     }
   }
+
   updateSize () {
     let resolution = 1
     let size = this.container.brushSize * 0.7 // optical, approx.
@@ -59,11 +71,13 @@ module.exports = class Cursor extends PIXI.Sprite {
     // clear the temporary graphics
     this.gfx.clear()
   }
-  setEnabled (value) {
+
+  setEnabled (value: boolean) {
     this._enabled = value
     // immediately hide when disabled, but wait for mouse move when re-enabled
     if (!this._enabled) this.visible = false
   }
+
   getEnabled () {
     return this._enabled
   }

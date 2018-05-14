@@ -4,21 +4,28 @@ const createConfig = opt => {
   return {
     mode: process.env.MODE,
     entry: {
-      'sketch-pane': './src/js/index.js'
+      'sketch-pane': './src/ts/index.ts'
     },
     ...opt.optimization ? { optimization: opt.optimization } : {},
     output: {
       filename: opt.output.filename,
       path: path.resolve(__dirname, 'dist'),
-      library: 'SketchPane',
+      library: 'SketchLib',
       libraryTarget: opt.output.libraryTarget,
       publicPath: '/dist'
+    },
+    resolve: {
+      extensions: ['.ts', '.js', '.json']
     },
     module: {
       rules: [
         {
           test: /\.(glsl|frag|vert)$/,
           loader: 'shader-loader'
+        },
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader'
         }
       ]
     },

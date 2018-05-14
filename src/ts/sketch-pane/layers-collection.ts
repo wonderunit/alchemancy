@@ -1,19 +1,30 @@
-const PIXI = require('pixi.js')
-
-const Layer = require('./layer')
-const Util = require('./util')
+import Layer from './layer'
+import Util from './util'
 
 // see: https://github.com/wesbos/es6-articles/blob/master/54%20-%20Extending%20Arrays%20with%20Classes%20for%20Custom%20Collections.md
-module.exports = class LayersCollection extends Array {
-  constructor ({ renderer, width, height }) {
+export default class LayersCollection extends Array {
+  currentIndex: number
+  renderer: PIXI.WebGLRenderer
+  width: number
+  height: number
+  onAdd: (x: number) => {}
+  onSelect: (x: number) => {}
+
+  [index: number]: any
+
+  constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
     super()
-    this.renderer = renderer
-    this.width = width
-    this.height = height
+    this.renderer = params.renderer
+    this.width = params.width
+    this.height = params.height
     this.currentIndex = undefined // index of the current layer
     this.onAdd = undefined
     this.onSelect = undefined
+
+    // via https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
+    Object.setPrototypeOf(this, LayersCollection.prototype)
   }
+
   create () {
     let layer = new Layer({
       renderer: this.renderer,
@@ -23,7 +34,8 @@ module.exports = class LayersCollection extends Array {
     this.add(layer)
     return layer
   }
-  add (layer) {
+
+  add (layer: Layer) {
     let index = this.length
     this.push(layer)
     layer.index = index
@@ -32,11 +44,13 @@ module.exports = class LayersCollection extends Array {
     this.onAdd && this.onAdd(layer.index)
     return layer
   }
-  markDirty (indices) {
+
+  markDirty (indices: any) {
     for (let index of indices) {
       this[index].setDirty(true)
     }
   }
+
   // getActiveIndices () {
   //   return [...this.activeIndices]
   // }
@@ -46,10 +60,12 @@ module.exports = class LayersCollection extends Array {
   getCurrentIndex () {
     return this.currentIndex
   }
-  setCurrentIndex (index) {
+
+  setCurrentIndex (index: number) {
     this.currentIndex = index
     this.onSelect && this.onSelect(index)
   }
+
   getCurrentLayer () {
     return this[this.currentIndex]
   }
@@ -74,14 +90,14 @@ module.exports = class LayersCollection extends Array {
   // TODO sort back to front
   // TODO better antialiasing
   // TODO rename extractCompositePixels ?
-  extractThumbnailPixels (width, height, indices = []) {
+  extractThumbnailPixels (width: number, height: number, indices: Array<number> = []) {
     let rt = PIXI.RenderTexture.create(width, height)
     return this.renderer.plugins.extract.pixels(
       this.generateCompositeTexture(width, height, indices, rt)
     )
   }
 
-  generateCompositeTexture (width, height, indices = [], rt) {
+  generateCompositeTexture (width: number, height: number, indices: Array<number> = [], rt: PIXI.RenderTexture) {
     for (let layer of this) {
       // if indices are specified, include only selected layers
       if (indices.length && indices.includes(layer.index)) {
@@ -105,7 +121,7 @@ module.exports = class LayersCollection extends Array {
   //
   // sources is an array of layer indices, ordered back to front
   // destination is the index of the destination layer
-  merge (sources, destination) {
+  merge (sources: Array<any>, destination: number) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
 
     rt = this.generateCompositeTexture(

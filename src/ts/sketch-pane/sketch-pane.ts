@@ -1,23 +1,58 @@
-const PIXI = require('pixi.js')
-const paper = require('paper')
+import * as paper from 'paper'
+import * as PIXI from 'pixi.js'
 
-const Util = require('./util')
-const Brush = require('./brush/brush')
-const BrushNodeFilter = require('./brush/brush-node-filter')
-const Cursor = require('./cursor')
+import Util from './util'
+import { Brush } from './brush/brush'
+import BrushNodeFilter from './brush/brush-node-filter'
+import { Cursor } from './cursor'
 
-const LayersCollection = require('./layers-collection')
+import LayersCollection from './layers-collection'
+import Layer from './layer'
 
-class SketchPane {
-  constructor (options = { backgroundColor: 0xffffff }) {
+interface IStrokePoint {
+  x: number
+  y: number
+  pressure: number
+  tiltAngle: number
+  tilt: number
+}
+
+interface IStrokeSettings {
+  erase?: Array<number>
+}
+
+interface IStrokeState {
+  isErasing?: boolean
+  layerIndices?: Array<number>
+  points?: Array<IStrokePoint>
+  path?: paper.Path
+  lastStaticIndex?: number
+  lastSpacing?: number | undefined
+  grainOffset?: { x: number, y: number }
+// snapshot brush configuration
+  size?: number
+  color?: number
+  opacity?: number
+}
+
+export default class SketchPane {
+  layerMask: PIXI.Graphics
+  layerBackground: PIXI.Graphics
+  layers: LayersCollection
+  images = {
+    brush: {} as any,
+    grain: {} as any
+  }
+  app: PIXI.Application
+
+  viewportRect: { x: number, y: number, width: number, height: number}
+
+  onStrokeBefore: (state?: IStrokeState) => {}
+  onStrokeAfter: (state?: IStrokeState) => {}
+
+  constructor (options: any = {backgroundColor: 0xffffff}) {
     this.layerMask = undefined
     this.layerBackground = undefined
-
-    this.images = {
-      brush: {},
-      grain: {}
-    }
-
     this.viewportRect = undefined
 
     // callbacks
@@ -26,11 +61,22 @@ class SketchPane {
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
+
+    this.app.view.style.cursor = 'none'
   }
 
-  setup (options) {
-    paper.setup()
-    paper.view.setAutoUpdate(false)
+  sketchPaneContainer: PIXI.Container
+  layerContainer: PIXI.Container
+  strokeContainer: PIXI.Container
+  liveStrokeContainer: PIXI.Container
+  offscreenContainer: PIXI.Container
+  eraseMask: PIXI.Sprite
+  cursor: Cursor
+
+  setup (options: any) {
+    // @popelyshev: paper typings are wrong
+    paper.setup(undefined)
+    ;(paper.view as any).setAutoUpdate(false)
 
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
@@ -94,7 +140,10 @@ class SketchPane {
     this.sketchPaneContainer.scale.set(1)
   }
 
-  setImageSize (width, height) {
+  width: number
+  height: number
+
+  setImageSize (width: number, height: number) {
     this.width = width
     this.height = height
 
@@ -118,7 +167,7 @@ class SketchPane {
     this.centerContainer()
 
     this.layers = new LayersCollection({
-      renderer: this.app.renderer,
+      renderer: this.app.renderer as PIXI.WebGLRenderer,
       width: this.width,
       height: this.height
     })
@@ -126,7 +175,7 @@ class SketchPane {
     this.layers.onSelect = this.onLayersCollectionSelect.bind(this)
   }
 
-  onLayersCollectionAdd (index) {
+  onLayersCollectionAdd (index: number) {
     let layer = this.layers[index]
 
     // layer.sprite.texture.baseTexture.premultipliedAlpha = false
@@ -136,7 +185,7 @@ class SketchPane {
     this.centerContainer()
   }
 
-  onLayersCollectionSelect (index) {
+  onLayersCollectionSelect (index: number) {
     this.updateLayerDepths()
   }
 
@@ -152,7 +201,6 @@ class SketchPane {
       this.layerContainer.setChildIndex(layer.sprite, childIndex)
 
       if (layer.sprite === selectedLayer.sprite) {
-        this.layer = childIndex - 1
         this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
         this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
       }
@@ -181,7 +229,7 @@ class SketchPane {
   //   this.resize(width, height)
   // }
 
-  resize (width, height) {
+  resize (width: number, height: number) {
     this.app.renderer.resize(width, height)
 
     // fit aspect ratio, set scale
@@ -198,30 +246,33 @@ class SketchPane {
       Math.floor(this.app.renderer.height / 2)
     )
 
-    this.viewportRect = this.app.view.getBoundingClientRect()
+    this.viewportRect = this.app.view.getBoundingClientRect() as any
   }
+
+  brushes: Array<Brush>
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
-  async loadBrushes ({ brushes, brushImagePath }) {
-    this.brushes = brushes.reduce((brushes, brush) => {
+  async loadBrushes (params: { brushes: Array<any>, brushImagePath: string }) {
+    let {brushes, brushImagePath} = params
+    this.brushes = brushes.reduce((brushes: Array<any>, brush: any) => {
       brushes[brush.name] = new Brush(brush)
       return brushes
     }, {})
 
     // get unique file names
-    let brushImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.brushImage))]
-    let grainImageNames = [...new Set(Object.values(this.brushes).map(b => b.settings.grainImage))]
+    let brushImageNames = Array.from(new Set(Object.values(this.brushes).map(b => b.settings.brushImage)))
+    let grainImageNames = Array.from(new Set(Object.values(this.brushes).map(b => b.settings.grainImage)))
 
-    let promises = []
-    for (let [names, dict] of [[ brushImageNames, this.images.brush ], [ grainImageNames, this.images.grain ]]) {
+    let promises: Array<Promise<any>> = []
+    for (let [names, dict] of [[brushImageNames, this.images.brush], [grainImageNames, this.images.grain]]) {
       for (let name of names) {
         let sprite = PIXI.Sprite.fromImage(`${brushImagePath}/${name}.png`)
         sprite.renderable = false
 
         dict[name] = sprite
 
-        let texture = sprite._texture.baseTexture
+        let texture = sprite.texture.baseTexture
         if (texture.hasLoaded) {
           promises.push(Promise.resolve(sprite))
         } else if (texture.isLoading) {
@@ -242,13 +293,13 @@ class SketchPane {
   }
 
   // stamp = don't clear texture
-  stampStroke (source, layer) {
+  stampStroke (source: any, layer: Layer) {
     layer.draw(source, false)
   }
 
-  disposeContainer (container) {
+  disposeContainer (container: PIXI.Container) {
     for (let child of container.children) {
-      child.destroy({
+      (child as PIXI.Container).destroy({
         children: true,
 
         // because we re-use the brush texture
@@ -260,20 +311,20 @@ class SketchPane {
   }
 
   addStrokeNode (
-    r,
-    g,
-    b,
-    size,
-    opacity,
-    x,
-    y,
-    pressure,
-    angle,
-    tilt,
-    brush,
-    grainOffsetX,
-    grainOffsetY,
-    strokeContainer
+    r: number,
+    g: number,
+    b: number,
+    size: number,
+    opacity: number,
+    x: number,
+    y: number,
+    pressure: number,
+    angle: number,
+    tilt: number,
+    brush: Brush,
+    grainOffsetX: number,
+    grainOffsetY: number,
+    strokeContainer: PIXI.Container
   ) {
     // the brush node
     // is larger than the texture size
@@ -289,7 +340,7 @@ class SketchPane {
     //   we increase the size to accommodate for up to 45 degrees of rotation
 
     // eslint-disable-next-line new-cap
-    let sprite = new PIXI.Sprite.from(
+    let sprite = new PIXI.Sprite(
       this.images.brush[brush.settings.brushImage].texture
     )
 
@@ -306,7 +357,7 @@ class SketchPane {
     let tiltOpacity = 1 - tilt / 90.0 * brush.settings.tiltOpacity
     nodeOpacity *= tiltOpacity * opacity
 
-    let nodeRotation
+    let nodeRotation: number
     if (brush.settings.azimuth) {
       nodeRotation = angle * Math.PI / 180.0 - this.sketchPaneContainer.rotation
     } else {
@@ -348,9 +399,6 @@ class SketchPane {
     this.offscreenContainer.getLocalBounds()
     let filter = new BrushNodeFilter(grainSprite)
 
-    // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
-    filter.filterArea = this.app.screen
-
     filter.uniforms.uRed = r
     filter.uniforms.uGreen = g
     filter.uniforms.uBlue = b
@@ -383,37 +431,48 @@ class SketchPane {
     filter.padding = 1 // for filterClamp
 
     sprite.filters = [filter]
+    // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
+    // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
+    // @popelyshev at the same time, the fix only makes it worse :(
+    // sprite.filterArea = this.app.screen
 
     strokeContainer.addChild(sprite)
   }
 
-  down (e, options = {}) {
+  pointerDown = false
+
+  down (e: PointerEvent, options = {}) {
     this.pointerDown = true
     this.strokeBegin(e, options)
 
     this.app.view.style.cursor = 'none'
-    this.cursor.render(e)
+    this.cursor.renderCursor(e)
   }
 
-  move (e) {
+  move (e: PointerEvent) {
     if (this.pointerDown) {
       this.strokeContinue(e)
     }
 
     this.app.view.style.cursor = 'none'
-    this.cursor.render(e)
+    this.cursor.renderCursor(e)
   }
 
-  up (e) {
+  up (e: PointerEvent) {
     if (this.pointerDown) {
       this.strokeEnd(e)
     }
 
     this.app.view.style.cursor = 'none'
-    this.cursor.render(e)
+    this.cursor.renderCursor(e)
   }
 
-  strokeBegin (e, options) {
+  strokeState: IStrokeState
+  brushColor: number
+  brushOpacity: number
+  brush: Brush
+
+  strokeBegin (e: PointerEvent, options: IStrokeSettings) {
     // initialize stroke state
     this.strokeState = {
       isErasing: !!options.erase,
@@ -421,13 +480,13 @@ class SketchPane {
       layerIndices: options.erase
         ? options.erase // array of layers which will be erased
         : [this.layers.currentIndex], // single layer dirtied
-      points: [],
+      points: [] as any,
       path: new paper.Path(),
       lastStaticIndex: 0,
       lastSpacing: undefined,
       grainOffset: this.brush.settings.randomOffset
-        ? { x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100) }
-        : { x: 0, y: 0 },
+        ? {x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100)}
+        : {x: 0, y: 0},
 
       // snapshot brush configuration
       size: this.brushSize,
@@ -456,12 +515,12 @@ class SketchPane {
     this.drawStroke()
   }
 
-  strokeContinue (e) {
+  strokeContinue (e: PointerEvent) {
     this.addPointerEventAsPoint(e)
     this.drawStroke()
   }
 
-  strokeEnd (e) {
+  strokeEnd (e: PointerEvent) {
     this.addPointerEventAsPoint(e)
     this.stopDrawing()
   }
@@ -487,8 +546,8 @@ class SketchPane {
     this.onStrokeAfter && this.onStrokeAfter(this.strokeState)
   }
 
-  getInterpolatedStrokeInput (strokeInput, path) {
-    let interpolatedStrokeInput = []
+  getInterpolatedStrokeInput (strokeInput: Array<IStrokePoint>, path: paper.Path) {
+    let interpolatedStrokeInput: Array<Array<any>> = []
 
     // get lookups for each segment so we know how to interpolate
 
@@ -498,7 +557,7 @@ class SketchPane {
     //    where 'offset' means the length from
     //    the beginning of the path
     //    up to the segment's location
-    let segmentLookup = []
+    let segmentLookup: Array<number> = []
 
     // console.log(path.length)
 
@@ -535,16 +594,17 @@ class SketchPane {
     for (i = start; i < len; i += spacing) {
       let point = path.getPointAt(i)
 
-      for (var z = currentSegment; z < segmentLookup.length; z++) {
+      for (let z = currentSegment; z < segmentLookup.length; z++) {
         if (segmentLookup[z] < i) {
           currentSegment = z
+          // @popelyshev : Why continue?
           continue
         }
       }
 
-      let pressure
-      let tiltAngle
-      let tilt
+      let pressure: number
+      let tiltAngle: number
+      let tilt: number
 
       if (singlePoint) {
         pressure = strokeInput[currentSegment].pressure
@@ -555,17 +615,17 @@ class SketchPane {
           (i - segmentLookup[currentSegment]) /
           (segmentLookup[currentSegment + 1] - segmentLookup[currentSegment])
 
-        pressure = this.constructor.utils.lerp(
+        pressure = Util.lerp(
           strokeInput[currentSegment].pressure,
           strokeInput[currentSegment + 1].pressure,
           segmentPercent
         )
-        tiltAngle = this.constructor.utils.lerp(
+        tiltAngle = Util.lerp(
           strokeInput[currentSegment].tiltAngle,
           strokeInput[currentSegment + 1].tiltAngle,
           segmentPercent
         )
-        tilt = this.constructor.utils.lerp(
+        tilt = Util.lerp(
           strokeInput[currentSegment].tilt,
           strokeInput[currentSegment + 1].tilt,
           segmentPercent
@@ -594,27 +654,27 @@ class SketchPane {
     return interpolatedStrokeInput
   }
 
-  addStrokeNodes (strokeInput, path, strokeContainer) {
+  addStrokeNodes (strokeInput: Array<IStrokePoint>, path: paper.Path, strokeContainer: PIXI.Container) {
     // we have 2+ StrokeInput points (with x, y, pressure, etc),
     // and 2+ matching path segments (with location and handles)
     //  e.g.: strokeInput[0].x === path.segments[0].point.x
     let interpolatedStrokeInput = this.getInterpolatedStrokeInput(strokeInput, path)
 
     for (let args of interpolatedStrokeInput) {
-      this.addStrokeNode(...args, strokeContainer)
+      ;(this.addStrokeNode as any)(...args, strokeContainer)
     }
   }
 
   // public
-  localizePoint (point) {
-    return this.sketchPaneContainer.toLocal({
-      x: point.x - this.viewportRect.x,
-      y: point.y - this.viewportRect.y
-    },
+  localizePoint (point: {x: number, y: number}) {
+    return this.sketchPaneContainer.toLocal(new PIXI.Point(
+      point.x - this.viewportRect.x,
+      point.y - this.viewportRect.y
+    ),
     this.app.stage)
   }
 
-  addPointerEventAsPoint (e) {
+  addPointerEventAsPoint (e: PointerEvent) {
     let corrected = this.localizePoint(e)
 
     let pressure = e.pointerType === 'mouse'
@@ -622,8 +682,8 @@ class SketchPane {
       : e.pressure
 
     let tiltAngle = e.pointerType === 'mouse'
-      ? { angle: -90, tilt: 37 }
-      : this.constructor.utils.calcTiltAngle(e.tiltX, e.tiltY)
+      ? {angle: -90, tilt: 37}
+      : Util.calcTiltAngle(e.tiltY, e.tiltX) // NOTE we intentionally reverse these args
 
     this.strokeState.points.push({
       x: corrected.x,
@@ -644,7 +704,8 @@ class SketchPane {
     this.strokeState.path = new paper.Path(
       this.strokeState.points
     )
-    this.strokeState.path.smooth({ type: 'catmull-rom', factor: 0.5 }) // centripetal
+    // @popelyshev: paper typings are wrong
+    ;(this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
   }
 
   // render the live strokes
@@ -754,9 +815,9 @@ class SketchPane {
     }
   }
 
-  updateMask (source, finalize = false) {
+  updateMask (source: any, finalize = false) {
     // find the top-most active layer
-    const descending = (a, b) => b - a
+    const descending = (a: number, b: number) => b - a
     let layer = this.strokeState.layerIndices
       .map(i => this.layers[i])
       .sort(
@@ -778,7 +839,7 @@ class SketchPane {
         .endFill()
       this.app.renderer.render(
         graphics,
-        this.eraseMask.texture,
+        this.eraseMask.texture as PIXI.RenderTexture,
         true
       )
 
@@ -792,7 +853,7 @@ class SketchPane {
     // render the white strokes onto the red filled erase mask texture
     this.app.renderer.render(
       source,
-      this.eraseMask.texture,
+      this.eraseMask.texture as PIXI.RenderTexture,
       false
     )
 
@@ -817,14 +878,14 @@ class SketchPane {
 
   // TODO handle crop / center
   // TODO mark dirty?
-  replaceLayer (index, source, clear = true) {
+  replaceLayer (index: number, source: any, clear = true) {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
     this.layers[index].replace(source, clear)
   }
 
   // DEPRECATED
-  getLayerCanvas (index) {
+  getLayerCanvas (index: number) {
     console.warn('SketchPane#getLayerCanvas is deprecated. Please fix the caller to use a different method.')
     console.trace()
     index = (index == null) ? this.layers.getCurrentIndex() : index
@@ -834,17 +895,17 @@ class SketchPane {
     return this.app.renderer.plugins.extract.canvas(this.layers[index].sprite.texture)
   }
 
-  exportLayer (index, format = 'base64') {
+  exportLayer (index: number, format = 'base64') {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
     return this.layers[index].export(format)
   }
 
-  extractThumbnailPixels (width, height, indices = []) {
+  extractThumbnailPixels (width: number, height: number, indices : Array<number> = []) {
     return this.layers.extractThumbnailPixels(width, height, indices)
   }
 
-  clearLayer (index) {
+  clearLayer (index: number) {
     index = (index == null) ? this.layers.getCurrentIndex() : index
 
     this.layers[index].clear()
@@ -855,22 +916,25 @@ class SketchPane {
   }
 
   // get current layer
-  getCurrentLayerIndex (index) {
+  getCurrentLayerIndex (index: number) {
     return this.layers.getCurrentIndex()
   }
 
   // set layer by index (0-indexed)
-  setCurrentLayerIndex (index) {
+  setCurrentLayerIndex (index: number) {
     if (this.pointerDown) return // prevent layer change during draw
 
     this.layers.setCurrentIndex(index)
   }
+
+  _brushSize: number
 
   // TODO setState instead?
   set brushSize (value) {
     this._brushSize = value
     this.cursor.updateSize()
   }
+
   get brushSize () {
     return this._brushSize
   }
@@ -882,36 +946,38 @@ class SketchPane {
   // getIsErasing () {
   //   return this.isErasing
   // }
-  // 
+  //
   // setIsErasing (value) {
   //   if (this.pointerDown) return // prevent erase mode change during draw
-  // 
+  //
   //   this.isErasing = value
   // }
-  // 
+  //
   // setErasableLayers (indices) {
   //   this.layers.setActiveIndices(indices)
   // }
 
-  getLayerOpacity (index) {
+  getLayerOpacity (index: number) {
     return this.layers[index].getOpacity()
   }
 
-  setLayerOpacity (index, opacity) {
+  setLayerOpacity (index: number, opacity: number) {
     this.layers[index].setOpacity(opacity)
   }
 
-  markLayersDirty (indices) {
+  markLayersDirty (indices: Array<number>) {
     return this.layers.markDirty(indices)
   }
-  clearLayerDirty (index) {
+
+  clearLayerDirty (index: number) {
     this.layers[index].setDirty(false)
   }
-  getLayerDirty (index) {
+
+  getLayerDirty (index: number) {
     return this.layers[index].getDirty()
   }
 
-  isLayerEmpty (index) {
+  isLayerEmpty (index: number) {
     return this.layers[index].isEmpty()
   }
 
@@ -931,7 +997,3 @@ class SketchPane {
     this.layers.flip(vertical)
   }
 }
-
-SketchPane.utils = Util
-
-module.exports = SketchPane

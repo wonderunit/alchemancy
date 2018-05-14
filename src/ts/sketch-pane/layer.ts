@@ -1,21 +1,32 @@
-const PIXI = require('pixi.js')
+import * as PIXI from 'pixi.js'
+import Util from './util'
 
-const Util = require('./util')
+export default class Layer {
+  renderer: PIXI.WebGLRenderer
+  width: number
+  height: number
+  sprite: PIXI.Sprite
+  dirty: boolean
 
-module.exports = class Layer {
-  constructor ({ renderer, width, height }) {
-    this.renderer = renderer
-    this.width = width
-    this.height = height
+  name: string
+  index: number
+
+  constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
+    this.renderer = params.renderer
+    this.width = params.width
+    this.height = params.height
     this.sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
     this.dirty = false
   }
+
   getOpacity () {
     return this.sprite.alpha
   }
-  setOpacity (opacity) {
+
+  setOpacity (opacity: number) {
     this.sprite.alpha = opacity
   }
+
   pixels (postDivide = false) {
     // get pixels as Uint8Array
     // see: http://pixijs.download/release/docs/PIXI.extract.WebGLExtract.html
@@ -26,6 +37,7 @@ module.exports = class Layer {
     }
     return pixels
   }
+
   toCanvas (postDivide = true) {
     let pixels = this.pixels(postDivide)
 
@@ -35,24 +47,28 @@ module.exports = class Layer {
       this.height
     )
   }
+
   // get data url in PNG format
   toDataURL (postDivide = true) {
     return this.toCanvas(postDivide).toDataURL()
   }
+
   // get PNG data for writing to a file
-  export (index) {
+  export (index: number) {
     return Util.dataURLToFileContents(
       this.toDataURL()
     )
   }
+
   // renders a DisplayObject to this layer’s texture
-  draw (displayObject, clear = false) {
+  draw (displayObject: PIXI.DisplayObject, clear = false) {
     this.renderer.render(
       displayObject,
-      this.sprite.texture,
+      this.sprite.texture as PIXI.RenderTexture,
       clear
     )
   }
+
   clear () {
     // FIXME why doesn't this work consistently?
     // clear the render texture
@@ -60,20 +76,21 @@ module.exports = class Layer {
 
     // HACK force clear :/
     this.draw(
-      PIXI.Sprite.from(PIXI.Texture.EMPTY),
+      new PIXI.Sprite(PIXI.Texture.EMPTY),
       true
     )
   }
+
   // draws a (non-DisplayObject) source to a texture (usually an Image)
-  replace (source, clear = true) {
+  replace (source: any, clear = true) {
     this.draw(
-      new PIXI.Sprite.from(source), // eslint-disable-line new-cap
+      PIXI.Sprite.from(source), // eslint-disable-line new-cap
       clear
     )
   }
 
   // source should be an HTMLCanvasElement
-  replaceTextureFromCanvas (canvasElement) {
+  replaceTextureFromCanvas (canvasElement: HTMLCanvasElement) {
     // delete ALL cached canvas textures to ensure canvas is re-rendered
     PIXI.utils.clearTextureCache()
     // draw canvas to our sprite's RenderTexture
@@ -95,12 +112,13 @@ module.exports = class Layer {
     // set the sprite alpha back
     this.sprite.alpha = alpha
   }
+
   // NOTE this will apply any source Sprite alpha (if present)
   // TODO might be a better way to do this.
   //      would be more efficient to .render over sprite instead (with clear:true)
   //      but attempting that resulted in a blank texture.
   // see also: PIXI's `generateTexture`
-  replaceTexture (displayObject) {
+  replaceTexture (displayObject: PIXI.DisplayObject) {
     let rt = PIXI.RenderTexture.create(this.width, this.height)
     this.renderer.render(
       displayObject,
@@ -109,6 +127,7 @@ module.exports = class Layer {
     )
     this.sprite.texture = rt
   }
+
   // NOTE this is slow
   isEmpty () {
     let pixels = this.renderer.plugins.extract.pixels(this.sprite.texture)
@@ -117,16 +136,19 @@ module.exports = class Layer {
     }
     return true
   }
+
   getDirty () {
     return this.dirty
   }
-  setDirty (value) {
+
+  setDirty (value: boolean) {
     this.dirty = value
   }
 
-  setVisible (value) {
+  setVisible (value: boolean) {
     this.sprite.visible = value
   }
+
   getVisible () {
     return this.sprite.visible
   }

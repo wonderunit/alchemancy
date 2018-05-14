@@ -5,6 +5,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# jetBrains IDE ignores
+.idea
+
+# VSCode ignores
+.vscode
+
 # Runtime data
 pids
 *.pid
