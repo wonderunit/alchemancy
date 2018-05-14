@@ -86,7 +86,7 @@ window.fetch('./example/brushes/brushes.json')
           let thumbHeight = Math.ceil(sketchPane.height / 8)
 
           let img = new window.Image()
-          img.src = SketchLib.utils.pixelsToCanvas(
+          img.src = SketchLib.util.pixelsToCanvas(
             sketchPane.extractThumbnailPixels(thumbWidth, thumbHeight, [1, 2, 3]),
             thumbWidth,
             thumbHeight
