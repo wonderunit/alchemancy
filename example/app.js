@@ -312,6 +312,10 @@ window.fetch('./example/brushes/brushes.json')
 
         document.getElementById('spin').addEventListener('click', function (e) {
           guiState.spin = !guiState.spin
+          if (!guiState.spin) {
+            sketchPane.sketchPaneContainer.rotation = 0
+            sketchPane.sketchPaneContainer.scale.set(1)
+          }
         })
 
         document.getElementById('save').addEventListener('click', function (e) {
@@ -771,9 +775,6 @@ window.fetch('./example/brushes/brushes.json')
               sketchPane.sketchPaneContainer.scale.set(
                 Math.sin(counter / 30) * 1 + 1.8
               )
-            } else {
-              sketchPane.sketchPaneContainer.rotation = 0
-              sketchPane.sketchPaneContainer.scale.set(1)
             }
             counter++
           })
