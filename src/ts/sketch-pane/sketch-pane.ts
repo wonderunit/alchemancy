@@ -61,6 +61,8 @@ export default class SketchPane {
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
+
+    this.app.view.style.cursor = 'none'
   }
 
   sketchPaneContainer: PIXI.Container
