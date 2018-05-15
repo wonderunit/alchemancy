@@ -123,6 +123,10 @@ export default class LayersCollection extends Array {
     return rt
   }
 
+  findByName (name:string) : Layer {
+    return this.find(layer => layer.name === name)
+  }
+
   // merge
   //
   // sources is an array of layer indices, ordered back to front
