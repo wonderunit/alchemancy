@@ -667,7 +667,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.pointerDown = false;
         this.layerMask = undefined;
         this.layerBackground = undefined;
-        this.viewportRect = undefined;
+        this.viewClientRect = undefined;
+        this.containerPadding = 50;
         // callbacks
         this.onStrokeBefore = options.onStrokeBefore;
         this.onStrokeAfter = options.onStrokeAfter;
@@ -725,6 +726,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.sketchPaneContainer.addChild(this.cursor);
         this.app.stage.addChild(this.sketchPaneContainer);
         this.sketchPaneContainer.scale.set(1);
+        this.viewClientRect = this.app.view.getBoundingClientRect();
     };
     SketchPane.prototype.setImageSize = function (width, height) {
         this.width = width;
@@ -793,17 +795,31 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     //   this.resize(width, height)
     // }
     SketchPane.prototype.resize = function (width, height) {
+        // resize the canvas to fit the parent bounds
         this.app.renderer.resize(width, height);
-        // fit aspect ratio, set scale
-        var frameAspectRatio = width / height;
-        var imageAspectRatio = this.width / this.height;
-        var dim = (frameAspectRatio > imageAspectRatio)
-            ? [this.width * height / this.height, height]
-            : [width, this.height * width / this.width];
-        var scale = dim[0] / this.width;
-        this.sketchPaneContainer.scale.set(scale);
-        this.sketchPaneContainer.position.set(Math.floor(this.app.renderer.width / 2), Math.floor(this.app.renderer.height / 2));
-        this.viewportRect = this.app.view.getBoundingClientRect();
+        // copy the canvas dimensions rectangle value
+        // min size of 0×0 to prevent flip
+        var dst = {
+            width: Math.max(0, width - (this.containerPadding * 2)),
+            height: Math.max(0, height - (this.containerPadding * 2))
+        };
+        // src is image width / height
+        var src = {
+            width: this.width,
+            height: this.height
+        };
+        // fit to aspect ratio
+        var frameAr = dst.width / dst.height;
+        var imageAr = src.width / src.height;
+        var targetWidth = (frameAr > imageAr)
+            ? src.width * dst.height / src.height
+            : dst.width;
+        // set scale
+        this.sketchPaneContainer.scale.set(Math.floor(targetWidth) / Math.floor(src.width));
+        // center
+        this.centerContainer();
+        // update viewClientRect
+        this.viewClientRect = this.app.view.getBoundingClientRect();
     };
     // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
@@ -1139,7 +1155,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     };
     // public
     SketchPane.prototype.localizePoint = function (point) {
-        return this.sketchPaneContainer.toLocal(new external_pixi_js_["Point"](point.x - this.viewportRect.x, point.y - this.viewportRect.y), this.app.stage);
+        return this.sketchPaneContainer.toLocal(new external_pixi_js_["Point"](point.x - this.viewClientRect.left, point.y - this.viewClientRect.top), this.app.stage);
     };
     SketchPane.prototype.addPointerEventAsPoint = function (e) {
         var corrected = this.localizePoint(e);
