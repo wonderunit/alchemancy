@@ -170,13 +170,13 @@ export default class SketchPane {
 
     this.centerContainer()
 
-    this.layers = new LayersCollection({
+    this.layers = LayersCollection.create({
       renderer: this.app.renderer as PIXI.WebGLRenderer,
       width: this.width,
-      height: this.height
+      height: this.height,
+      onAdd: this.onLayersCollectionAdd.bind(this),
+      onSelect: this.onLayersCollectionSelect.bind(this)
     })
-    this.layers.onAdd = this.onLayersCollectionAdd.bind(this)
-    this.layers.onSelect = this.onLayersCollectionSelect.bind(this)
   }
 
   onLayersCollectionAdd (index: number) {
@@ -212,8 +212,8 @@ export default class SketchPane {
     }
   }
 
-  newLayer () {
-    return this.layers.create()
+  newLayer (options: any) {
+    return this.layers.create(options)
   }
 
   centerContainer () {

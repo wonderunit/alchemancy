@@ -2,16 +2,19 @@
 
 const gui = new dat.GUI()
 
-const layerFilePaths = ['grid', 'layer01', 'layer02', 'layer03']
-  .map(basename => './example/img/layers/' + basename + '.png')
+const layersData = ['grid', 'layer01', 'layer02', 'layer03']
+  .map(basename => ({
+    name: basename,
+    filepath: './example/img/layers/' + basename + '.png'
+  }))
 
-const loadLayers = (sketchPane, filepaths) => {
+const loadLayers = (sketchPane, layersData) => {
   return new Promise(resolve => {
-    filepaths.forEach(filepath => PIXI.loader.add(filepath, filepath))
+    layersData.forEach(data => PIXI.loader.add(data.filepath, data.filepath))
     PIXI.loader.load((loader, resources) => {
-      for (let filepath of filepaths) {
-        let layer = sketchPane.newLayer()
-        sketchPane.replaceLayer(layer.index, resources[filepath].texture)
+      for (let data of layersData) {
+        let layer = sketchPane.newLayer({ name: data.name })
+        sketchPane.replaceLayer(layer.index, resources[data.filepath].texture)
       }
       resolve()
     })
@@ -53,7 +56,7 @@ window.fetch('./example/brushes/brushes.json')
       })
 
       // NOTE example images are 1000 × 800
-      .then(() => loadLayers(sketchPane, layerFilePaths))
+      .then(() => loadLayers(sketchPane, layersData))
 
       // .then(() => sketchPane.newLayer())
       // .then(() => sketchPane.newLayer())

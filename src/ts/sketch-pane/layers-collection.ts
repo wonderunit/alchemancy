@@ -12,35 +12,41 @@ export default class LayersCollection extends Array {
 
   [index: number]: any
 
-  constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
+  // via https://blog.simontest.net/extend-array-with-typescript-965cc1134b3
+  private constructor () {
     super()
-    this.renderer = params.renderer
-    this.width = params.width
-    this.height = params.height
-    this.currentIndex = undefined // index of the current layer
-    this.onAdd = undefined
-    this.onSelect = undefined
-
-    // via https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
-    Object.setPrototypeOf(this, LayersCollection.prototype)
+  }
+  static create(params: {
+    renderer: PIXI.WebGLRenderer,
+    width: number,
+    height: number,
+    onAdd: (x: number) => any,
+    onSelect: (x: number) => any
+  }): LayersCollection {
+    let layersCollection = Object.create(LayersCollection.prototype)
+    layersCollection.renderer = params.renderer
+    layersCollection.width = params.width
+    layersCollection.height = params.height
+    layersCollection.onAdd = params.onAdd
+    layersCollection.onSelect = params.onSelect
+    return layersCollection
   }
 
-  create () {
+  create (options: any) : Layer {
     let layer = new Layer({
       renderer: this.renderer,
       width: this.width,
-      height: this.height
+      height: this.height,
+      ...options
     })
     this.add(layer)
     return layer
   }
 
-  add (layer: Layer) {
+  add (layer: Layer) : Layer {
     let index = this.length
     this.push(layer)
     layer.index = index
-    layer.name = `Layer ${index + 1}`
-    layer.sprite.name = layer.name
     this.onAdd && this.onAdd(layer.index)
     return layer
   }

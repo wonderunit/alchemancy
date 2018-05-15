@@ -11,10 +11,12 @@ export default class Layer {
   name: string
   index: number
 
-  constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number }) {
+  constructor (params: { renderer: PIXI.WebGLRenderer, width: number, height: number, name: string }) {
     this.renderer = params.renderer
     this.width = params.width
     this.height = params.height
+    this.name = params.name
+
     this.sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
     this.dirty = false
   }
