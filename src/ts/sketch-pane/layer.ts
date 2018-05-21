@@ -18,6 +18,8 @@ export default class Layer {
     this.name = params.name
 
     this.sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
+    this.sprite.name = params.name
+
     this.dirty = false
   }
 
