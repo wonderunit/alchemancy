@@ -355,7 +355,9 @@ var layer_Layer = /** @class */ (function () {
         this.renderer = params.renderer;
         this.width = params.width;
         this.height = params.height;
+        this.name = params.name;
         this.sprite = new external_pixi_js_["Sprite"](external_pixi_js_["RenderTexture"].create(this.width, this.height));
+        this.sprite.name = params.name;
         this.dirty = false;
     }
     Layer.prototype.getOpacity = function () {
@@ -405,6 +407,7 @@ var layer_Layer = /** @class */ (function () {
     Layer.prototype.replace = function (source, clear) {
         if (clear === void 0) { clear = true; }
         this.draw(external_pixi_js_["Sprite"].from(source), // eslint-disable-line new-cap
+        // TODO does sprite from an image make an interim canvas? probably not right?
         clear);
     };
     // source should be an HTMLCanvasElement
@@ -490,28 +493,33 @@ var layers_collection_extends = (undefined && undefined.__extends) || (function 
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (undefined && undefined.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 
 // see: https://github.com/wesbos/es6-articles/blob/master/54%20-%20Extending%20Arrays%20with%20Classes%20for%20Custom%20Collections.md
 var layers_collection_LayersCollection = /** @class */ (function (_super) {
     layers_collection_extends(LayersCollection, _super);
-    function LayersCollection(params) {
-        var _this = _super.call(this) || this;
-        _this.renderer = params.renderer;
-        _this.width = params.width;
-        _this.height = params.height;
-        _this.currentIndex = undefined; // index of the current layer
-        _this.onAdd = undefined;
-        _this.onSelect = undefined;
-        // via https://github.com/Microsoft/TypeScript/wiki/FAQ#why-doesnt-extending-built-ins-like-error-array-and-map-work
-        Object.setPrototypeOf(_this, LayersCollection.prototype);
-        return _this;
+    // via https://blog.simontest.net/extend-array-with-typescript-965cc1134b3
+    function LayersCollection() {
+        return _super.call(this) || this;
     }
-    LayersCollection.prototype.create = function () {
-        var layer = new sketch_pane_layer({
-            renderer: this.renderer,
-            width: this.width,
-            height: this.height
-        });
+    LayersCollection.create = function (params) {
+        var layersCollection = Object.create(LayersCollection.prototype);
+        layersCollection.renderer = params.renderer;
+        layersCollection.width = params.width;
+        layersCollection.height = params.height;
+        layersCollection.onAdd = params.onAdd;
+        layersCollection.onSelect = params.onSelect;
+        return layersCollection;
+    };
+    LayersCollection.prototype.create = function (options) {
+        var layer = new sketch_pane_layer(__assign({ renderer: this.renderer, width: this.width, height: this.height }, options));
         this.add(layer);
         return layer;
     };
@@ -519,8 +527,6 @@ var layers_collection_LayersCollection = /** @class */ (function (_super) {
         var index = this.length;
         this.push(layer);
         layer.index = index;
-        layer.name = "Layer " + (index + 1);
-        layer.sprite.name = layer.name;
         this.onAdd && this.onAdd(layer.index);
         return layer;
     };
@@ -588,6 +594,9 @@ var layers_collection_LayersCollection = /** @class */ (function (_super) {
             }
         }
         return rt;
+    };
+    LayersCollection.prototype.findByName = function (name) {
+        return this.find(function (layer) { return layer.name === name; });
     };
     // merge
     //
@@ -746,13 +755,13 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.layerContainer.addChild(this.layerBackground);
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
-        this.layers = new layers_collection({
+        this.layers = layers_collection.create({
             renderer: this.app.renderer,
             width: this.width,
-            height: this.height
+            height: this.height,
+            onAdd: this.onLayersCollectionAdd.bind(this),
+            onSelect: this.onLayersCollectionSelect.bind(this)
         });
-        this.layers.onAdd = this.onLayersCollectionAdd.bind(this);
-        this.layers.onSelect = this.onLayersCollectionSelect.bind(this);
     };
     SketchPane.prototype.onLayersCollectionAdd = function (index) {
         var layer = this.layers[index];
@@ -779,8 +788,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             childIndex++;
         }
     };
-    SketchPane.prototype.newLayer = function () {
-        return this.layers.create();
+    SketchPane.prototype.newLayer = function (options) {
+        return this.layers.create(options);
     };
     SketchPane.prototype.centerContainer = function () {
         this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2);
