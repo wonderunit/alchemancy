@@ -725,7 +725,7 @@ export default class SketchPane {
     this.strokeState.path = new paper.Path(
       this.strokeState.points
     )
-    // only smooth if we have move than 1 point
+    // only smooth if we have more than 1 point
     // resulting in a slight performance improvement for initial `down` event
     if (this.strokeState.points.length > 1) {
       // @popelyshev: paper typings are wrong
