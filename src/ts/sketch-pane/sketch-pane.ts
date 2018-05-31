@@ -725,8 +725,12 @@ export default class SketchPane {
     this.strokeState.path = new paper.Path(
       this.strokeState.points
     )
-    // @popelyshev: paper typings are wrong
-    ;(this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
+    // only smooth if we have move than 1 point
+    // resulting in a slight performance improvement for initial `down` event
+    if (this.strokeState.points.length > 1) {
+      // @popelyshev: paper typings are wrong
+      ;(this.strokeState.path.smooth as any)({type: 'catmull-rom', factor: 0.5}) // centripetal
+    }
   }
 
   // render the live strokes
