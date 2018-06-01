@@ -407,7 +407,6 @@ var layer_Layer = /** @class */ (function () {
     Layer.prototype.replace = function (source, clear) {
         if (clear === void 0) { clear = true; }
         this.draw(external_pixi_js_["Sprite"].from(source), // eslint-disable-line new-cap
-        // TODO does sprite from an image make an interim canvas? probably not right?
         clear);
     };
     // source should be an HTMLCanvasElement
@@ -685,6 +684,9 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.setImageSize(options.imageWidth, options.imageHeight);
         this.app.view.style.cursor = 'none';
     }
+    SketchPane.canInitialize = function () {
+        return external_pixi_js_["utils"].isWebGLSupported();
+    };
     SketchPane.prototype.setup = function (options) {
         // @popelyshev: paper typings are wrong
         external_paper_["setup"](undefined);
@@ -1186,7 +1188,13 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // only keep track of input that hasn't been rendered static yet
         this.strokeState.points = this.strokeState.points.slice(Math.max(0, this.strokeState.lastStaticIndex - 1), this.strokeState.points.length);
         this.strokeState.path = new external_paper_["Path"](this.strokeState.points);
-        this.strokeState.path.smooth({ type: 'catmull-rom', factor: 0.5 }); // centripetal
+        // only smooth if we have more than 1 point
+        // resulting in a slight performance improvement for initial `down` event
+        if (this.strokeState.points.length > 1) {
+            // @popelyshev: paper typings are wrong
+            ;
+            this.strokeState.path.smooth({ type: 'catmull-rom', factor: 0.5 }); // centripetal
+        }
     };
     // render the live strokes
     // TODO instead of slices, could pass offset and length?
