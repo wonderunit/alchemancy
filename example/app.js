@@ -117,6 +117,7 @@ window.fetch('./example/brushes/brushes.json')
         })
 
         window.addEventListener('pointermove', function (e) {
+          console.log('pointermove', e.pointerType, e.timeStamp)
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
           // if (e.target.parentNode !== document.body) return

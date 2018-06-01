@@ -29,7 +29,10 @@ interface IStrokeState {
   lastStaticIndex?: number
   lastSpacing?: number | undefined
   grainOffset?: { x: number, y: number }
-// snapshot brush configuration
+
+  pointerType: string, // 'mouse' | 'pen' | 'touch'
+
+  // snapshot brush configuration
   size?: number
   color?: number
   opacity?: number
@@ -460,6 +463,16 @@ export default class SketchPane {
     strokeContainer.addChild(sprite)
   }
 
+  acceptsEvent (e: PointerEvent) {
+    // console.log('down?', this.pointerDown, 'type:', e.pointerType)
+    // reject if pointer is already down and event pointerType doesn't match initial pointerType
+    if (this.pointerDown && e.pointerType != this.strokeState.pointerType) {
+      return false
+    } else {
+      return true
+    }
+  }
+
   pointerDown = false
 
   down (e: PointerEvent, options = {}) {
@@ -471,6 +484,8 @@ export default class SketchPane {
   }
 
   move (e: PointerEvent) {
+    if (!this.acceptsEvent(e)) return
+
     if (this.pointerDown) {
       this.strokeContinue(e)
     }
@@ -480,6 +495,8 @@ export default class SketchPane {
   }
 
   up (e: PointerEvent) {
+    if (!this.acceptsEvent(e)) return
+
     if (this.pointerDown) {
       this.strokeEnd(e)
     }
@@ -508,6 +525,9 @@ export default class SketchPane {
       grainOffset: this.brush.settings.randomOffset
         ? {x: Math.floor(Math.random() * 100), y: Math.floor(Math.random() * 100)}
         : {x: 0, y: 0},
+
+      // initial pointer type
+      pointerType: e.pointerType,
 
       // snapshot brush configuration
       size: this.brushSize,
