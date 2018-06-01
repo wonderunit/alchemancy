@@ -51,6 +51,6 @@
   },
   "dependencies": {
     "paper": "0.11.5",
-    "pixi.js": "4.7.5"
+    "pixi.js": "4.7.3"
   }
 }
