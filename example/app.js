@@ -75,10 +75,10 @@ window.fetch('./example/brushes/brushes.json')
         sketchPane.brushOpacity = 0.9
 
         sketchPane.onStrokeBefore = strokeState => {
-          console.log('onStrokeBefore: addToUndoStack', strokeState)
+          // console.log('onStrokeBefore: addToUndoStack', strokeState)
         }
         sketchPane.onStrokeAfter = strokeState => {
-          console.log('onStrokeAfter: markDirty', strokeState)
+          // console.log('onStrokeAfter: markDirty', strokeState)
 
           let img = generateThumbnailImage()
           document.querySelector('#thumbnail').innerHTML = ''
