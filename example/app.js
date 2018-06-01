@@ -32,6 +32,10 @@ const intToHexColorString = number => {
   return color
 }
 
+if (!SketchLib.SketchPane.canInitialize()) {
+  alert('SketchPane is not supported on this device.')
+}
+
 const sketchPane = new SketchLib.SketchPane({
   imageWidth: 1200,
   imageHeight: 900

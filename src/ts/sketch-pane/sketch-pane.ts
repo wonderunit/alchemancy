@@ -67,6 +67,10 @@ export default class SketchPane {
     this.app.view.style.cursor = 'none'
   }
 
+  static canInitialize () : boolean {
+    return PIXI.utils.isWebGLSupported()
+  }
+
   sketchPaneContainer: PIXI.Container
   layerContainer: PIXI.Container
   strokeContainer: PIXI.Container
