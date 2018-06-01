@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@types/paper": "^0.9.15",
-    "@types/pixi.js": "^4.7.3",
+    "@types/pixi.js": "4.7.5",
     "paper": "0.11.5",
     "pixi.js": "4.7.1"
   }
