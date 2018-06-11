@@ -84,6 +84,13 @@ export default class SketchPane {
     paper.setup(undefined)
     ;(paper.view as any).setAutoUpdate(false)
 
+    // HACK
+    // attemping to fix the bug where the first stroke is slow
+    // first run of paper.Path appeared to be slow
+    // so, try initializing it here instead
+    // need to benchmark this on a few machines to see if it helps
+    new paper.Path()
+
     PIXI.settings.FILTER_RESOLUTION = 1
     PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH
     PIXI.settings.MIPMAP_TEXTURES = true
