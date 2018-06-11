@@ -691,6 +691,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // @popelyshev: paper typings are wrong
         external_paper_["setup"](undefined);
         external_paper_["view"].setAutoUpdate(false);
+        // HACK
+        // attemping to fix the bug where the first stroke is slow
+        // first run of paper.Path appeared to be slow
+        // so, try initializing it here instead
+        // need to benchmark this on a few machines to see if it helps
+        new external_paper_["Path"]();
         external_pixi_js_["settings"].FILTER_RESOLUTION = 1;
         external_pixi_js_["settings"].PRECISION_FRAGMENT = external_pixi_js_["PRECISION"].HIGH;
         external_pixi_js_["settings"].MIPMAP_TEXTURES = true;
