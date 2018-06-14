@@ -372,9 +372,12 @@ export default class SketchPane {
     //   we increase the size to accommodate for up to 45 degrees of rotation
 
     // eslint-disable-next-line new-cap
+    /*
     let sprite = new PIXI.Sprite(
       this.images.brush[brush.settings.brushImage].texture
     )
+    */
+    let sprite = new PIXI.Sprite()
 
     //
     //
@@ -425,11 +428,14 @@ export default class SketchPane {
     //
     // TODO can we avoid creating a new grain sprite for each render?
     //      used for rendering grain filter texture at correct position
+    /*
     let grainSprite = this.images.grain[brush.settings.grainImage]
     this.offscreenContainer.addChild(grainSprite)
     // hacky fix to calculate vFilterCoord properly
     this.offscreenContainer.getLocalBounds()
     let filter = new BrushNodeFilter(grainSprite)
+    */
+    let filter = new BrushNodeFilter()
 
     filter.uniforms.uRed = r
     filter.uniforms.uGreen = g

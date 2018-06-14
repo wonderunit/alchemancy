@@ -2,10 +2,10 @@ import * as PIXI from 'pixi.js'
 const fragment: string = require('./brushnode.frag')
 
 export default class BrushNodeFilter extends PIXI.Filter<any> {
-  grainSprite: PIXI.Sprite
-  grainMatrix: PIXI.Matrix
+  // grainSprite: PIXI.Sprite
+  // grainMatrix: PIXI.Matrix
 
-  constructor (grainSprite: PIXI.Sprite) {
+  constructor (/*grainSprite: PIXI.Sprite*/) {
     super(
       null,
       fragment,
@@ -31,11 +31,11 @@ export default class BrushNodeFilter extends PIXI.Filter<any> {
         u_node_scale: {type: 'vec2', value: [0.0, 0.0]},
 
         // grain texture
-        u_grainTex: {type: 'sampler2D', value: ''},
+        // u_grainTex: {type: 'sampler2D', value: ''},
 
         // environment (via PIXI and Filter)
         dimensions: {type: 'vec2', value: [0.0, 0.0]},
-        filterMatrix: {type: 'mat3'}
+        // filterMatrix: {type: 'mat3'}
       } as any
     )
 
@@ -47,11 +47,13 @@ export default class BrushNodeFilter extends PIXI.Filter<any> {
 
     let grainMatrix = new PIXI.Matrix()
 
+    /*
     grainSprite.renderable = false
     this.grainSprite = grainSprite
     this.grainMatrix = grainMatrix
     this.uniforms.u_grainTex = grainSprite.texture
     this.uniforms.filterMatrix = grainMatrix
+    */
   }
 
   // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#filter-area
@@ -59,7 +61,7 @@ export default class BrushNodeFilter extends PIXI.Filter<any> {
     this.uniforms.dimensions[0] = input.sourceFrame.width
     this.uniforms.dimensions[1] = input.sourceFrame.height
 
-    this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.grainMatrix, this.grainSprite)
+    /*this.uniforms.filterMatrix = filterManager.calculateSpriteMatrix(this.grainMatrix, this.grainSprite)*/
 
     filterManager.applyFilter(this, input, output, clear)
 

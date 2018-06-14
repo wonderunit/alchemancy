@@ -1,9 +1,9 @@
 precision highp float;
 
 // brush texture
-uniform sampler2D uSampler;
+/*uniform sampler2D uSampler;*/
 // grain texture
-uniform sampler2D u_grainTex;
+/*uniform sampler2D u_grainTex;*/
 
 // color
 uniform float uRed;
@@ -57,6 +57,49 @@ vec2 unmapCoord (vec2 coord) {
   return coord;
 }
 
+void main(void) {
+	// user's intended brush color
+  vec3 color = vec3(uRed, uGreen, uBlue);
+
+	//
+	//
+	// brush
+	//
+  vec2 coord = mapCoord(vTextureCoord) / dimensions;
+
+	// translate by the subpixel
+	coord -= u_offset_px / dimensions;
+
+  // move space from the center to the vec2(0.0)
+  coord -= vec2(0.5);
+
+  // rotate the space
+  coord = rotate(coord, uRotation);
+
+  // move it back to the original place
+  coord += vec2(0.5);
+
+	// scale
+	coord -= 0.5;
+  coord *= 1.0 / u_node_scale;
+	coord += 0.5;
+
+	coord = unmapCoord(coord * dimensions);
+
+	//
+	//
+	// set gl_FragColor
+	//
+	// clamp (via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem)
+	if (coord == clamp(coord, filterClamp.xy, filterClamp.zw)) {
+	  gl_FragColor = vec4(color, 1.);
+	} else {
+		// don't draw
+		gl_FragColor = vec4(0.);
+	}
+}
+
+/*
 void main(void) {
   // user's intended brush color
   vec3 color = vec3(uRed, uGreen, uBlue);
@@ -113,3 +156,5 @@ void main(void) {
 		gl_FragColor = vec4(0.);
 	}
 }
+
+*/
