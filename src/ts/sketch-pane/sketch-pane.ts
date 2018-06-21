@@ -48,6 +48,8 @@ export default class SketchPane {
   viewClientRect: ClientRect
   containerPadding: number
 
+  efficiencyMode: boolean
+
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
@@ -65,6 +67,8 @@ export default class SketchPane {
     this.setImageSize(options.imageWidth, options.imageHeight)
 
     this.app.view.style.cursor = 'none'
+
+    this.efficiencyMode = true
   }
 
   static canInitialize () : boolean {
@@ -384,9 +388,54 @@ export default class SketchPane {
     //
     // brush node drawing
     //
-    let useShader = true
-    if (useShader) {
-      // brush node (shader-based)
+    if (this.efficiencyMode) {
+      // brush node with a single sprite
+
+      // eslint-disable-next-line new-cap
+      let sprite = new PIXI.Sprite(
+        this.images.brush[brush.settings.brushImage].texture
+      )
+
+      // let iS = Math.ceil(spriteSize)
+      // x -= iS / 2
+      // y -= iS / 2
+      // sprite.x = Math.floor(x)
+      // sprite.y = Math.floor(y)
+      // sprite.width = iS
+      // sprite.height = iS
+      // 
+      // let dX = x - sprite.x
+      // let dY = y - sprite.y
+      // let dS = nodeSize / sprite.width
+      // 
+      // let oXY = [dX, dY]
+      // let oS = [dS, dS]
+
+      // position
+      sprite.position.set(x, y)
+
+      // centering
+      sprite.anchor.set(0.5)
+
+      // color
+      sprite.tint = 0xff0000
+
+      // opacity
+      sprite.alpha = nodeOpacity
+
+      // rotation
+      // TODO
+
+      // bleed
+      // TODO
+
+      // scale
+      sprite.scale.set(nodeSize / sprite.width)
+
+      strokeContainer.addChild(sprite)
+
+    } else {
+      // brush node with shaders
 
       // eslint-disable-next-line new-cap
       let sprite = new PIXI.Sprite(
