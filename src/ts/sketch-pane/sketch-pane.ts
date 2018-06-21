@@ -358,24 +358,6 @@ export default class SketchPane {
     grainOffsetY: number,
     strokeContainer: PIXI.Container
   ) {
-    // the brush node
-    // is larger than the texture size
-    // because, although the x,y coordinates must be integers,
-    //   we still want to draw sub-pixels,
-    //     so we pad 1px
-    //       allowing us to draw a on positive x, y offset
-    // and, although, the dimensions must be integers,
-    //   we want to have a sub-pixel texture size,
-    //     so we sometimes make the node larger than necessary
-    //       and scale the texture down to correct
-    // to allow us to draw a rotated texture,
-    //   we increase the size to accommodate for up to 45 degrees of rotation
-
-    // eslint-disable-next-line new-cap
-    let sprite = new PIXI.Sprite(
-      this.images.brush[brush.settings.brushImage].texture
-    )
-
     //
     //
     // brush params
@@ -395,80 +377,95 @@ export default class SketchPane {
     } else {
       nodeRotation = 0 - this.sketchPaneContainer.rotation
     }
+    
+    let uBleed = Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
     //
     //
-    // sprite setup
+    // brush node drawing
     //
-    // sprite must fit a texture rotated by up to 45 degrees
-    let rad = Math.PI * 45 / 180 // extreme angle in radians
-    let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
+    let useShader = true
+    if (useShader) {
+      // brush node (shader-based)
 
-    let iS = Math.ceil(spriteSize)
-    x -= iS / 2
-    y -= iS / 2
-    sprite.x = Math.floor(x)
-    sprite.y = Math.floor(y)
-    sprite.width = iS
-    sprite.height = iS
+      // eslint-disable-next-line new-cap
+      let sprite = new PIXI.Sprite(
+        this.images.brush[brush.settings.brushImage].texture
+      )
 
-    let dX = x - sprite.x
-    let dY = y - sprite.y
-    let dS = nodeSize / sprite.width
+      // sprite must fit a texture rotated by up to 45 degrees
+      let rad = Math.PI * 45 / 180 // extreme angle in radians
+      let spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad))
 
-    let oXY = [dX, dY]
-    let oS = [dS, dS]
+      // the brush node
+      // is larger than the texture size
+      // because, although the x,y coordinates must be integers,
+      //   we still want to draw sub-pixels,
+      //     so we pad 1px
+      //       allowing us to draw a on positive x, y offset
+      // and, although, the dimensions must be integers,
+      //   we want to have a sub-pixel texture size,
+      //     so we sometimes make the node larger than necessary
+      //       and scale the texture down to correct
+      // to allow us to draw a rotated texture,
+      //   we increase the size to accommodate for up to 45 degrees of rotation
+      let iS = Math.ceil(spriteSize)
+      x -= iS / 2
+      y -= iS / 2
+      sprite.x = Math.floor(x)
+      sprite.y = Math.floor(y)
+      sprite.width = iS
+      sprite.height = iS
 
-    //
-    //
-    // filter setup
-    //
-    // TODO can we avoid creating a new grain sprite for each render?
-    //      used for rendering grain filter texture at correct position
-    let grainSprite = this.images.grain[brush.settings.grainImage]
-    this.offscreenContainer.addChild(grainSprite)
-    // hacky fix to calculate vFilterCoord properly
-    this.offscreenContainer.getLocalBounds()
-    let filter = new BrushNodeFilter(grainSprite)
+      let dX = x - sprite.x
+      let dY = y - sprite.y
+      let dS = nodeSize / sprite.width
 
-    filter.uniforms.uRed = r
-    filter.uniforms.uGreen = g
-    filter.uniforms.uBlue = b
-    filter.uniforms.uOpacity = nodeOpacity
+      let oXY = [dX, dY]
+      let oS = [dS, dS]
 
-    filter.uniforms.uRotation = nodeRotation
+      // filter setup
+      //
+      // TODO can we avoid creating a new grain sprite for each render?
+      //      used for rendering grain filter texture at correct position
+      let grainSprite = this.images.grain[brush.settings.grainImage]
+      this.offscreenContainer.addChild(grainSprite)
+      // hacky fix to calculate vFilterCoord properly
+      this.offscreenContainer.getLocalBounds()
+      let filter = new BrushNodeFilter(grainSprite)
 
-    filter.uniforms.uBleed =
-      Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
+      filter.uniforms.uRed = r
+      filter.uniforms.uGreen = g
+      filter.uniforms.uBlue = b
+      filter.uniforms.uOpacity = nodeOpacity
 
-    filter.uniforms.uGrainScale = brush.settings.scale
+      filter.uniforms.uRotation = nodeRotation
 
-    //
-    //
-    // DEPRECATED
-    //
-    filter.uniforms.uGrainRotation = brush.settings.rotation
-    //
-    //
-    //
+      filter.uniforms.uBleed = uBleed
 
-    filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement
-    filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement
+      filter.uniforms.uGrainScale = brush.settings.scale
 
-    // subpixel offset
-    filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
-    // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
-    // subpixel scale AND padding AND rotation accomdation
-    filter.uniforms.u_node_scale = oS // desired scale
-    filter.padding = 1 // for filterClamp
+      // DEPRECATED
+      filter.uniforms.uGrainRotation = brush.settings.rotation
 
-    sprite.filters = [filter]
-    // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
-    // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
-    // @popelyshev at the same time, the fix only makes it worse :(
-    // sprite.filterArea = this.app.screen
+      filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement
+      filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement
 
-    strokeContainer.addChild(sprite)
+      // subpixel offset
+      filter.uniforms.u_offset_px = oXY // TODO multiply by app.stage.scale if zoomed
+      // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
+      // subpixel scale AND padding AND rotation accomdation
+      filter.uniforms.u_node_scale = oS // desired scale
+      filter.padding = 1 // for filterClamp
+
+      sprite.filters = [filter]
+      // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
+      // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
+      // @popelyshev at the same time, the fix only makes it worse :(
+      // sprite.filterArea = this.app.screen
+
+      strokeContainer.addChild(sprite)
+    }
   }
 
   pointerDown = false
