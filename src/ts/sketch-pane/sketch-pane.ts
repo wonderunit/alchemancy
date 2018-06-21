@@ -105,13 +105,11 @@ export default class SketchPane {
       // width: window.innerWidth,
       // height: window.innerHeight,
 
-      // antialias: false,
-
       // preserveDrawingBuffer: true,  // for toDataUrl on the webgl context
 
       backgroundColor: options.backgroundColor,
       // resolution: 2,
-      antialias: false
+      antialias: this.efficiencyMode ? true : false,
       // powerPreference: 'high-performance'
     })
 
