@@ -417,7 +417,7 @@ export default class SketchPane {
       sprite.anchor.set(0.5)
 
       // color
-      sprite.tint = 0xff0000
+      sprite.tint = PIXI.utils.rgb2hex([r, g, b])
 
       // opacity
       sprite.alpha = nodeOpacity
