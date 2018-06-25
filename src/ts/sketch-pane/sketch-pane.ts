@@ -391,8 +391,7 @@ export default class SketchPane {
 
       // eslint-disable-next-line new-cap
       let sprite = new PIXI.Sprite(
-      this.images.brush['efficient'].texture
-        // this.images.brush[brush.settings.brushImage].texture
+        this.images.brush[this.brushes.efficient.settings.brushImage].texture
       )
 
       // let iS = Math.ceil(spriteSize)
