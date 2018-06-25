@@ -283,7 +283,7 @@ export default class SketchPane {
     this.viewClientRect = this.app.view.getBoundingClientRect()
   }
 
-  brushes: Array<Brush>
+  brushes: Record<string, Brush>
 
   // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
   // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
