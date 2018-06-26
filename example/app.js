@@ -787,6 +787,7 @@ window.fetch('./example/brushes/brushes.json')
           })
 
           let sketchPaneFolder = gui.addFolder('sketchPane')
+          sketchPaneFolder.add(sketchPane, 'efficiencyMode')
           sketchPaneFolder.add(guiState, 'brush')
             .options(Object.keys(sketchPane.brushes))
             .onChange(function (value) {
