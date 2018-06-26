@@ -33,17 +33,17 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "10.3.6",
     "@types/paper": "^0.9.15",
-    "@types/pixi.js": "4.7.5",
-    "@types/node": "10.0.6",
+    "@types/pixi.js": "4.8.0",
     "cross-env": "5.1.5",
     "eslint": "4.19.1",
     "eslint-plugin-typescript": "0.12.0",
     "shader-loader": "1.3.1",
     "standardx": "2.0.0",
     "trash-cli": "1.4.0",
-    "ts-loader": "^4.3.0",
-    "typescript": "^2.8.3",
+    "ts-loader": "4.4.1",
+    "typescript": "2.9.2",
     "typescript-eslint-parser": "15.0.0",
     "webpack": "4.5.0",
     "webpack-cli": "2.0.14",
@@ -51,6 +51,6 @@
   },
   "dependencies": {
     "paper": "0.11.5",
-    "pixi.js": "4.7.3"
+    "pixi.js": "4.8.1"
   }
 }
