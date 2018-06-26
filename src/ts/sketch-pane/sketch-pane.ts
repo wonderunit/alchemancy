@@ -293,7 +293,19 @@ export default class SketchPane {
     }, {})
 
     // get unique file names
-    let brushImageNames = Array.from(new Set(Object.values(this.brushes).map(b => b.settings.brushImage)))
+    let brushImageNames = Array.from(
+      // unique
+      new Set(
+        // flatten
+        [].concat(
+          ...Object.values(this.brushes)
+            .map(b => 
+              [b.settings.brushImage, b.settings.efficiencyBrushImage]
+            )
+        // skip undefined
+        ).filter(Boolean)
+      )
+    )
     let grainImageNames = Array.from(new Set(Object.values(this.brushes).map(b => b.settings.grainImage)))
 
     let promises: Array<Promise<any>> = []
@@ -393,7 +405,7 @@ export default class SketchPane {
 
       // eslint-disable-next-line new-cap
       let sprite = new PIXI.Sprite(
-        this.images.brush[this.brushes.efficient.settings.brushImage].texture
+        this.images.brush[brush.settings.efficiencyBrushImage].texture
       )
 
       // let iS = Math.ceil(spriteSize)
@@ -651,7 +663,11 @@ export default class SketchPane {
 
     // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
 
-    let spacing = Math.max(1, this.strokeState.size * this.brush.settings.spacing)
+    let spacing = Math.max(1, this.strokeState.size * 
+      (this.efficiencyMode
+        ? this.brush.settings.spacing
+        : this.brush.settings.efficiencySpacing)
+    )
 
     // console.log(spacing)
 
