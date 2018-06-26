@@ -48,7 +48,7 @@ export default class SketchPane {
   viewClientRect: ClientRect
   containerPadding: number
 
-  efficiencyMode: boolean
+  efficiencyMode: boolean = false
 
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
@@ -67,8 +67,6 @@ export default class SketchPane {
     this.setImageSize(options.imageWidth, options.imageHeight)
 
     this.app.view.style.cursor = 'none'
-
-    this.efficiencyMode = true
   }
 
   static canInitialize () : boolean {
