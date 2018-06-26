@@ -312,12 +312,16 @@ export default class SketchPane {
         } else if (texture.isLoading) {
           promises.push(
             new Promise((resolve, reject) => {
-              texture.on('loaded', result => resolve(texture))
-              texture.on('error', err => reject(err))
+              texture.on('loaded', (baseTexture: PIXI.BaseTexture) => {
+                resolve(texture)
+              })
+              texture.on('error', (baseTexture: PIXI.BaseTexture) => {
+                reject(new Error(`Could not load brush from file: ${name}.png`))
+              })
             })
           )
         } else {
-          promises.push(Promise.reject(new Error()))
+          promises.push(Promise.reject(new Error(`Failed to load brush from file: ${name}.png`)))
         }
       }
     }
