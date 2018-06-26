@@ -54,7 +54,6 @@ export default class SketchPane {
   onStrokeAfter: (state?: IStrokeState) => {}
 
   constructor (options: any = { backgroundColor: 0xffffff}) {
-    console.log('new SketchPane', this.efficiencyMode)
     this.layerMask = undefined
     this.layerBackground = undefined
     this.viewClientRect = undefined
