@@ -54,6 +54,7 @@ export default class SketchPane {
   onStrokeAfter: (state?: IStrokeState) => {}
 
   constructor (options: any = { backgroundColor: 0xffffff}) {
+    console.log('new SketchPane', this.efficiencyMode)
     this.layerMask = undefined
     this.layerBackground = undefined
     this.viewClientRect = undefined
@@ -665,8 +666,8 @@ export default class SketchPane {
 
     let spacing = Math.max(1, this.strokeState.size * 
       (this.efficiencyMode
-        ? this.brush.settings.spacing
-        : this.brush.settings.efficiencySpacing)
+        ? this.brush.settings.efficiencySpacing
+        : this.brush.settings.spacing)
     )
 
     // console.log(spacing)
