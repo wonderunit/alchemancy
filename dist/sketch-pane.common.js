@@ -1142,8 +1142,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
         var spacing = Math.max(1, this.strokeState.size *
             (this.efficiencyMode
-                ? this.brush.settings.spacing
-                : this.brush.settings.efficiencySpacing));
+                ? this.brush.settings.efficiencySpacing
+                : this.brush.settings.spacing));
         // console.log(spacing)
         if (this.strokeState.lastSpacing == null)
             this.strokeState.lastSpacing = spacing;
