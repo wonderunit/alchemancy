@@ -672,6 +672,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             brush: {},
             grain: {}
         };
+        this.efficiencyMode = false;
         this.pointerDown = false;
         this.layerMask = undefined;
         this.layerBackground = undefined;
@@ -705,12 +706,10 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.app = new external_pixi_js_["Application"]({
             // width: window.innerWidth,
             // height: window.innerHeight,
-            // antialias: false,
             // preserveDrawingBuffer: true,  // for toDataUrl on the webgl context
             backgroundColor: options.backgroundColor,
             // resolution: 2,
-            antialias: false
-            // powerPreference: 'high-performance'
+            antialias: this.efficiencyMode ? true : false,
         });
         this.app.renderer.roundPixels = false;
         // this.app.renderer.transparent = true
@@ -851,7 +850,16 @@ var sketch_pane_SketchPane = /** @class */ (function () {
                             brushes[brush.name] = new Brush(brush);
                             return brushes;
                         }, {});
-                        brushImageNames = Array.from(new Set(Object.values(this.brushes).map(function (b) { return b.settings.brushImage; })));
+                        brushImageNames = Array.from(
+                        // unique
+                        new Set(
+                        // flatten
+                        [].concat.apply([], Object.values(this.brushes)
+                            .map(function (b) {
+                            return [b.settings.brushImage, b.settings.efficiencyBrushImage];
+                        })
+                        // skip undefined
+                        ).filter(Boolean)));
                         grainImageNames = Array.from(new Set(Object.values(this.brushes).map(function (b) { return b.settings.grainImage; })));
                         promises = [];
                         for (_i = 0, _a = [[brushImageNames, this.images.brush], [grainImageNames, this.images.grain]]; _i < _a.length; _i++) {
@@ -866,12 +874,16 @@ var sketch_pane_SketchPane = /** @class */ (function () {
                                 }
                                 else if (texture.isLoading) {
                                     promises.push(new Promise(function (resolve, reject) {
-                                        texture.on('loaded', function (result) { return resolve(texture); });
-                                        texture.on('error', function (err) { return reject(err); });
+                                        texture.on('loaded', function (baseTexture) {
+                                            resolve(texture);
+                                        });
+                                        texture.on('error', function (baseTexture) {
+                                            reject(new Error("Could not load brush from file: " + name_1 + ".png"));
+                                        });
                                     }));
                                 }
                                 else {
-                                    promises.push(Promise.reject(new Error()));
+                                    promises.push(Promise.reject(new Error("Failed to load brush from file: " + name_1 + ".png")));
                                 }
                             };
                             for (_c = 0, names_1 = names; _c < names_1.length; _c++) {
@@ -905,20 +917,6 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         container.removeChildren();
     };
     SketchPane.prototype.addStrokeNode = function (r, g, b, size, opacity, x, y, pressure, angle, tilt, brush, grainOffsetX, grainOffsetY, strokeContainer) {
-        // the brush node
-        // is larger than the texture size
-        // because, although the x,y coordinates must be integers,
-        //   we still want to draw sub-pixels,
-        //     so we pad 1px
-        //       allowing us to draw a on positive x, y offset
-        // and, although, the dimensions must be integers,
-        //   we want to have a sub-pixel texture size,
-        //     so we sometimes make the node larger than necessary
-        //       and scale the texture down to correct
-        // to allow us to draw a rotated texture,
-        //   we increase the size to accommodate for up to 45 degrees of rotation
-        // eslint-disable-next-line new-cap
-        var sprite = new external_pixi_js_["Sprite"](this.images.brush[brush.settings.brushImage].texture);
         //
         //
         // brush params
@@ -937,66 +935,109 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         else {
             nodeRotation = 0 - this.sketchPaneContainer.rotation;
         }
+        var uBleed = Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed;
         //
         //
-        // sprite setup
+        // brush node drawing
         //
-        // sprite must fit a texture rotated by up to 45 degrees
-        var rad = Math.PI * 45 / 180; // extreme angle in radians
-        var spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad));
-        var iS = Math.ceil(spriteSize);
-        x -= iS / 2;
-        y -= iS / 2;
-        sprite.x = Math.floor(x);
-        sprite.y = Math.floor(y);
-        sprite.width = iS;
-        sprite.height = iS;
-        var dX = x - sprite.x;
-        var dY = y - sprite.y;
-        var dS = nodeSize / sprite.width;
-        var oXY = [dX, dY];
-        var oS = [dS, dS];
-        //
-        //
-        // filter setup
-        //
-        // TODO can we avoid creating a new grain sprite for each render?
-        //      used for rendering grain filter texture at correct position
-        var grainSprite = this.images.grain[brush.settings.grainImage];
-        this.offscreenContainer.addChild(grainSprite);
-        // hacky fix to calculate vFilterCoord properly
-        this.offscreenContainer.getLocalBounds();
-        var filter = new brush_node_filter(grainSprite);
-        filter.uniforms.uRed = r;
-        filter.uniforms.uGreen = g;
-        filter.uniforms.uBlue = b;
-        filter.uniforms.uOpacity = nodeOpacity;
-        filter.uniforms.uRotation = nodeRotation;
-        filter.uniforms.uBleed =
-            Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed;
-        filter.uniforms.uGrainScale = brush.settings.scale;
-        //
-        //
-        // DEPRECATED
-        //
-        filter.uniforms.uGrainRotation = brush.settings.rotation;
-        //
-        //
-        //
-        filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement;
-        filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement;
-        // subpixel offset
-        filter.uniforms.u_offset_px = oXY; // TODO multiply by app.stage.scale if zoomed
-        // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
-        // subpixel scale AND padding AND rotation accomdation
-        filter.uniforms.u_node_scale = oS; // desired scale
-        filter.padding = 1; // for filterClamp
-        sprite.filters = [filter];
-        // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
-        // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
-        // @popelyshev at the same time, the fix only makes it worse :(
-        // sprite.filterArea = this.app.screen
-        strokeContainer.addChild(sprite);
+        if (this.efficiencyMode) {
+            // brush node with a single sprite
+            // eslint-disable-next-line new-cap
+            var sprite = new external_pixi_js_["Sprite"](this.images.brush[brush.settings.efficiencyBrushImage].texture);
+            // let iS = Math.ceil(spriteSize)
+            // x -= iS / 2
+            // y -= iS / 2
+            // sprite.x = Math.floor(x)
+            // sprite.y = Math.floor(y)
+            // sprite.width = iS
+            // sprite.height = iS
+            // 
+            // let dX = x - sprite.x
+            // let dY = y - sprite.y
+            // let dS = nodeSize / sprite.width
+            // 
+            // let oXY = [dX, dY]
+            // let oS = [dS, dS]
+            // position
+            sprite.position.set(x, y);
+            // centering
+            sprite.anchor.set(0.5);
+            // color
+            sprite.tint = external_pixi_js_["utils"].rgb2hex([r, g, b]);
+            // opacity
+            sprite.alpha = nodeOpacity;
+            // rotation
+            // TODO
+            // bleed
+            // TODO
+            // scale
+            sprite.scale.set(nodeSize / sprite.width);
+            strokeContainer.addChild(sprite);
+        }
+        else {
+            // brush node with shaders
+            // eslint-disable-next-line new-cap
+            var sprite = new external_pixi_js_["Sprite"](this.images.brush[brush.settings.brushImage].texture);
+            // sprite must fit a texture rotated by up to 45 degrees
+            var rad = Math.PI * 45 / 180; // extreme angle in radians
+            var spriteSize = Math.abs(nodeSize * Math.sin(rad)) + Math.abs(nodeSize * Math.cos(rad));
+            // the brush node
+            // is larger than the texture size
+            // because, although the x,y coordinates must be integers,
+            //   we still want to draw sub-pixels,
+            //     so we pad 1px
+            //       allowing us to draw a on positive x, y offset
+            // and, although, the dimensions must be integers,
+            //   we want to have a sub-pixel texture size,
+            //     so we sometimes make the node larger than necessary
+            //       and scale the texture down to correct
+            // to allow us to draw a rotated texture,
+            //   we increase the size to accommodate for up to 45 degrees of rotation
+            var iS = Math.ceil(spriteSize);
+            x -= iS / 2;
+            y -= iS / 2;
+            sprite.x = Math.floor(x);
+            sprite.y = Math.floor(y);
+            sprite.width = iS;
+            sprite.height = iS;
+            var dX = x - sprite.x;
+            var dY = y - sprite.y;
+            var dS = nodeSize / sprite.width;
+            var oXY = [dX, dY];
+            var oS = [dS, dS];
+            // filter setup
+            //
+            // TODO can we avoid creating a new grain sprite for each render?
+            //      used for rendering grain filter texture at correct position
+            var grainSprite = this.images.grain[brush.settings.grainImage];
+            this.offscreenContainer.addChild(grainSprite);
+            // hacky fix to calculate vFilterCoord properly
+            this.offscreenContainer.getLocalBounds();
+            var filter = new brush_node_filter(grainSprite);
+            filter.uniforms.uRed = r;
+            filter.uniforms.uGreen = g;
+            filter.uniforms.uBlue = b;
+            filter.uniforms.uOpacity = nodeOpacity;
+            filter.uniforms.uRotation = nodeRotation;
+            filter.uniforms.uBleed = uBleed;
+            filter.uniforms.uGrainScale = brush.settings.scale;
+            // DEPRECATED
+            filter.uniforms.uGrainRotation = brush.settings.rotation;
+            filter.uniforms.u_x_offset = grainOffsetX * brush.settings.movement;
+            filter.uniforms.u_y_offset = grainOffsetY * brush.settings.movement;
+            // subpixel offset
+            filter.uniforms.u_offset_px = oXY; // TODO multiply by app.stage.scale if zoomed
+            // console.log('iX', iX, 'iY', iY, 'u_offset_px', oXY)
+            // subpixel scale AND padding AND rotation accomdation
+            filter.uniforms.u_node_scale = oS; // desired scale
+            filter.padding = 1; // for filterClamp
+            sprite.filters = [filter];
+            // via https://github.com/pixijs/pixi.js/wiki/v4-Creating-Filters#bleeding-problem
+            // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
+            // @popelyshev at the same time, the fix only makes it worse :(
+            // sprite.filterArea = this.app.screen
+            strokeContainer.addChild(sprite);
+        }
     };
     SketchPane.prototype.down = function (e, options) {
         if (options === void 0) { options = {}; }
@@ -1099,7 +1140,10 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // console.log(segmentLookup)
         var currentSegment = 0;
         // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
-        var spacing = Math.max(1, this.strokeState.size * this.brush.settings.spacing);
+        var spacing = Math.max(1, this.strokeState.size *
+            (this.efficiencyMode
+                ? this.brush.settings.spacing
+                : this.brush.settings.efficiencySpacing));
         // console.log(spacing)
         if (this.strokeState.lastSpacing == null)
             this.strokeState.lastSpacing = spacing;
