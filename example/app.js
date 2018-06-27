@@ -76,7 +76,7 @@ window.fetch('./example/brushes/brushes.json')
         sketchPane.brush = sketchPane.brushes.pencil
         sketchPane.brushColor = 0x000000
         sketchPane.brushSize = 4
-        sketchPane.brushOpacity = 0.9
+        sketchPane.nodeOpacityScale = 0.9
 
         sketchPane.onStrokeBefore = strokeState => {
           // console.log('onStrokeBefore: addToUndoStack', strokeState)
@@ -202,35 +202,35 @@ window.fetch('./example/brushes/brushes.json')
         document.getElementById('b-1').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.pencil
           sketchPane.brushSize = 4
-          sketchPane.brushOpacity = 0.8
+          sketchPane.nodeOpacityScale = 0.8
           sketchPane.brushColor = 0x000000
         })
 
         document.getElementById('b-2').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.pen
           sketchPane.brushSize = 4
-          sketchPane.brushOpacity = 0.9
+          sketchPane.nodeOpacityScale = 0.9
           sketchPane.brushColor = 0x000000
         })
 
         document.getElementById('b-copic').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.copic
           sketchPane.brushSize = 40
-          sketchPane.brushOpacity = 0.6
+          sketchPane.nodeOpacityScale = 0.6
           sketchPane.brushColor = 0xccccff
         })
 
         document.getElementById('b-3').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.charcoal
           sketchPane.brushSize = 50
-          sketchPane.brushOpacity = 0.6
+          sketchPane.nodeOpacityScale = 0.6
           sketchPane.brushColor = 0x9999ff
         })
 
         document.getElementById('b-4').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.watercolor
           sketchPane.brushSize = 100
-          sketchPane.brushOpacity = 0.4
+          sketchPane.nodeOpacityScale = 0.4
           sketchPane.brushColor = 0xccccff
         })
 
@@ -245,7 +245,7 @@ window.fetch('./example/brushes/brushes.json')
         document.getElementById('b-7').addEventListener('click', function (e) {
           sketchPane.brush = sketchPane.brushes.brushpen
           sketchPane.brushSize = 15
-          sketchPane.brushOpacity = 1
+          sketchPane.nodeOpacityScale = 1
           sketchPane.brushColor = 0x000000
         })
 
@@ -294,23 +294,23 @@ window.fetch('./example/brushes/brushes.json')
         })
 
         document.getElementById('o-1').addEventListener('click', function (e) {
-          sketchPane.brushOpacity = 0.1
+          sketchPane.nodeOpacityScale = 0.1
         })
 
         document.getElementById('o-2').addEventListener('click', function (e) {
-          sketchPane.brushOpacity = 0.3
+          sketchPane.nodeOpacityScale = 0.3
         })
 
         document.getElementById('o-3').addEventListener('click', function (e) {
-          sketchPane.brushOpacity = 0.5
+          sketchPane.nodeOpacityScale = 0.5
         })
 
         document.getElementById('o-4').addEventListener('click', function (e) {
-          sketchPane.brushOpacity = 0.8
+          sketchPane.nodeOpacityScale = 0.8
         })
 
         document.getElementById('o-5').addEventListener('click', function (e) {
-          sketchPane.brushOpacity = 1
+          sketchPane.nodeOpacityScale = 1
         })
 
         document.getElementById('clear').addEventListener('click', function (e) {
@@ -372,7 +372,7 @@ window.fetch('./example/brushes/brushes.json')
         const drawStrokes = () => {
           // sketchPane.brush = sketchPane.brushes.pen
           // sketchPane.brushSize = 30
-          // sketchPane.brushOpacity = 0.9
+          // sketchPane.nodeOpacityScale = 0.9
           // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
           // sketchPane.brush.settings.spacing = 0.7
 
@@ -408,17 +408,17 @@ window.fetch('./example/brushes/brushes.json')
         const plotLines = (px = 550, py = 400) => {
           // sketchPane.brush = sketchPane.brushes.pen
           // sketchPane.brushSize = 4
-          // sketchPane.brushOpacity = 0.9
+          // sketchPane.nodeOpacityScale = 0.9
           // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
 
           // sketchPane.brush = sketchPane.brushes.brushpen
           // sketchPane.brushSize = 15
-          // sketchPane.brushOpacity = 1
+          // sketchPane.nodeOpacityScale = 1
           // sketchPane.brushColor = { r: 0, g: 0, b: 0 }
 
           // sketchPane.brush = sketchPane.brushes.watercolor
           // sketchPane.brushSize = 50
-          // sketchPane.brushOpacity = 0.4
+          // sketchPane.nodeOpacityScale = 0.4
           // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
 
           let angle = 0
@@ -429,7 +429,7 @@ window.fetch('./example/brushes/brushes.json')
               ((sketchPane.brushColor >> 8) & 255) / 255,
               (sketchPane.brushColor & 255) / 255,
               sketchPane.brushSize,
-              sketchPane.brushOpacity,
+              sketchPane.nodeOpacityScale,
               x,
               y,
               1.0, // pressure
@@ -656,7 +656,7 @@ window.fetch('./example/brushes/brushes.json')
             ((sketchPane.brushColor >> 8) & 255) / 255,
             (sketchPane.brushColor & 255) / 255,
             sketchPane.brushSize,
-            sketchPane.brushOpacity,
+            sketchPane.nodeOpacityScale,
             x + guiState.nodeTest.offsetX,
             y + guiState.nodeTest.offsetY,
             state.pressure, // pressure
@@ -692,13 +692,13 @@ window.fetch('./example/brushes/brushes.json')
 
           // sketchPane.brush = sketchPane.brushes.watercolor
           // sketchPane.brushSize = 75
-          // sketchPane.brushOpacity = 0.4
+          // sketchPane.nodeOpacityScale = 0.4
           // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
           // drawPressureWave(550, 350)
 
           // sketchPane.brush = sketchPane.brushes.watercolor
           // sketchPane.brushSize = 75
-          // sketchPane.brushOpacity = 0.4
+          // sketchPane.nodeOpacityScale = 0.4
           // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
           // drawPressureLine(550, 350)
 
@@ -710,7 +710,7 @@ window.fetch('./example/brushes/brushes.json')
 
           // sketchPane.brush = sketchPane.brushes.watercolor
           // sketchPane.brushSize = 50
-          // sketchPane.brushOpacity = 0.4
+          // sketchPane.nodeOpacityScale = 0.4
           // sketchPane.brushColor = { r: 0.8, g: 0.8, b: 1 }
           // plotLines(550, 450)
 
@@ -795,7 +795,7 @@ window.fetch('./example/brushes/brushes.json')
             })
           sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 256).listen()
           sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 16).name('brushSize (fine)').listen()
-          sketchPaneFolder.add(sketchPane, 'brushOpacity', 0, 1.0).listen()
+          sketchPaneFolder.add(sketchPane, 'nodeOpacityScale', 0, 1.0).listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()

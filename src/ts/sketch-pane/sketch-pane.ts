@@ -32,7 +32,9 @@ interface IStrokeState {
 // snapshot brush configuration
   size?: number
   color?: number
-  opacity?: number
+
+  nodeOpacityScale?: number
+  strokeOpacityScale?: number
 }
 
 export default class SketchPane {
@@ -363,7 +365,7 @@ export default class SketchPane {
     g: number,
     b: number,
     size: number,
-    opacity: number,
+    nodeOpacityScale: number,
     x: number,
     y: number,
     pressure: number,
@@ -385,7 +387,7 @@ export default class SketchPane {
 
     let nodeOpacity = 1 - (1 - pressure) * brush.settings.pressureOpacity
     let tiltOpacity = 1 - tilt / 90.0 * brush.settings.tiltOpacity
-    nodeOpacity *= tiltOpacity * opacity
+    nodeOpacity *= tiltOpacity * nodeOpacityScale
 
     let nodeRotation: number
     if (brush.settings.azimuth) {
@@ -559,7 +561,8 @@ export default class SketchPane {
 
   strokeState: IStrokeState
   brushColor: number
-  brushOpacity: number
+  nodeOpacityScale: number
+  strokeOpacityScale: number
   brush: Brush
 
   strokeBegin (e: PointerEvent, options: IStrokeSettings) {
@@ -581,7 +584,9 @@ export default class SketchPane {
       // snapshot brush configuration
       size: this.brushSize,
       color: this.brushColor,
-      opacity: this.brushOpacity
+
+      nodeOpacityScale: this.nodeOpacityScale,
+      strokeOpacityScale: this.strokeOpacityScale
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
@@ -731,7 +736,7 @@ export default class SketchPane {
         this.strokeState.isErasing ? 0 : ((this.strokeState.color >> 8) & 255) / 255,
         this.strokeState.isErasing ? 0 : (this.strokeState.color & 255) / 255,
         this.strokeState.size,
-        this.strokeState.opacity,
+        this.strokeState.nodeOpacityScale,
         point.x,
         point.y,
         pressure,
