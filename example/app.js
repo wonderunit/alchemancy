@@ -804,6 +804,9 @@ window.fetch('./example/brushes/brushes.json')
           sketchPaneFolder.open()
 
           let brushSettingsFolder = gui.addFolder('brush.settings')
+          brushSettingsFolder.add(sketchPane.brush.settings, 'pressureOpacity', 0, 1.0).listen()
+          brushSettingsFolder.add(sketchPane.brush.settings, 'tiltOpacity', 0, 1.0).listen()
+
           brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0.001, 8.0).listen()
           brushSettingsFolder.add(sketchPane.brush.settings, 'spacing', 0.001, 1.0).name('spacing (fine)').listen()
           brushSettingsFolder.open()
