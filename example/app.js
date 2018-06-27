@@ -77,6 +77,7 @@ window.fetch('./example/brushes/brushes.json')
         sketchPane.brushColor = 0x000000
         sketchPane.brushSize = 4
         sketchPane.nodeOpacityScale = 0.9
+        sketchPane.strokeOpacityScale = 1.0
 
         sketchPane.onStrokeBefore = strokeState => {
           // console.log('onStrokeBefore: addToUndoStack', strokeState)
@@ -796,6 +797,7 @@ window.fetch('./example/brushes/brushes.json')
           sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 256).listen()
           sketchPaneFolder.add(sketchPane, 'brushSize', 0.5, 16).name('brushSize (fine)').listen()
           sketchPaneFolder.add(sketchPane, 'nodeOpacityScale', 0, 1.0).listen()
+          sketchPaneFolder.add(sketchPane, 'strokeOpacityScale', 0, 1.0).listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'r', 0, 1.0).name('brushColor (r)').listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'g', 0, 1.0).name('brushColor (g)').listen()
           // sketchPaneFolder.add(sketchPane.brushColor, 'b', 0, 1.0).name('brushColor (b)').listen()

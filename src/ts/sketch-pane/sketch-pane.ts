@@ -61,6 +61,9 @@ export default class SketchPane {
     this.viewClientRect = undefined
     this.containerPadding = 50
 
+    // initialize
+    this.strokeOpacityScale = 1.0
+
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
     this.onStrokeAfter = options.onStrokeAfter
@@ -601,7 +604,7 @@ export default class SketchPane {
     } else {
       // NOTE only sets liveStrokeContainer.alpha at beginning of stroke
       //      if layer opacity can change during the stroke, we should move this to `drawStroke`
-      this.liveStrokeContainer.alpha = this.getLayerOpacity(this.layers.currentIndex)
+      this.liveStrokeContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * this.strokeState.strokeOpacityScale
       this.layerContainer.addChild(this.liveStrokeContainer)
       // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
       this.updateLayerDepths()
@@ -847,11 +850,17 @@ export default class SketchPane {
         // stamp to erase texture
         this.updateMask(this.strokeContainer, true)
       } else {
+        // remember the current strokeContainer alpha
+        let prevAlpha = this.strokeContainer.alpha
+        // force it to match the stroke opacity
+        this.strokeContainer.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
           this.layers.getCurrentLayer()
         )
+        // reset
+        this.strokeContainer.alpha = prevAlpha
       }
       this.disposeContainer(this.strokeContainer)
       this.offscreenContainer.removeChildren()
@@ -878,11 +887,17 @@ export default class SketchPane {
         // stamp to the erase texture
         this.updateMask(this.strokeContainer)
       } else {
+        // remember the current strokeContainer alpha
+        let prevAlpha = this.strokeContainer.alpha
+        // force it to match the stroke opacity
+        this.strokeContainer.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
           this.strokeContainer,
           this.layers.getCurrentLayer()
         )
+        // reset
+        this.strokeContainer.alpha = prevAlpha
       }
       this.disposeContainer(this.strokeContainer)
       this.offscreenContainer.removeChildren()
