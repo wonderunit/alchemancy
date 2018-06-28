@@ -878,13 +878,11 @@ export default class SketchPane {
         this.strokeSprite.texture as PIXI.RenderTexture,
         false
       )
-      this.disposeContainer(this.segmentContainer)
-      this.offscreenContainer.removeChildren()
 
       // stamp
       if (this.strokeState.isErasing) {
         // stamp to erase texture
-        this.updateMask(this.strokeSprite, true)
+        this.updateMask(this.segmentContainer, true)
       } else {
         // stamp to layer texture
         this.stampStroke(
@@ -892,6 +890,8 @@ export default class SketchPane {
           this.layers.getCurrentLayer()
         )
       }
+      this.disposeContainer(this.segmentContainer)
+      this.offscreenContainer.removeChildren()
 
       // clear any sprites from live or stroke
       this.disposeContainer(this.liveContainer)
@@ -924,7 +924,7 @@ export default class SketchPane {
       // stamp
       if (this.strokeState.isErasing) {
         // stamp to the erase texture
-        this.updateMask(this.strokeSprite)
+        this.updateMask(this.segmentContainer)
       } else {
         // render to stroke texture
         this.app.renderer.render(
@@ -979,6 +979,7 @@ export default class SketchPane {
         )
       )[0]
 
+    // TODO move this to an initialize step
     // starting a new round
     if (!layer.sprite.mask) {
       // add the mask on top of all layers
