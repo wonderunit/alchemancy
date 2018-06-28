@@ -35,6 +35,7 @@ interface IStrokeState {
 
   nodeOpacityScale?: number
   strokeOpacityScale?: number
+  layerOpacity?: number
 }
 
 export default class SketchPane {
@@ -598,7 +599,8 @@ export default class SketchPane {
       color: this.brushColor,
 
       nodeOpacityScale: this.nodeOpacityScale,
-      strokeOpacityScale: this.strokeOpacityScale
+      strokeOpacityScale: this.strokeOpacityScale,
+      layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
@@ -617,7 +619,7 @@ export default class SketchPane {
       // NOTE
       // at beginning of stroke, sets liveContainer.alpha
       // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
-      this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * 
+      this.liveContainer.alpha = this.strokeState.layerOpacity * 
         // because shaders are not composited with alpha on the live container,
         // we fake the effect of stroke opacity on the live shaders, which build up in intensity.
         // this exp value is just tweaked by eye
@@ -626,7 +628,7 @@ export default class SketchPane {
 
       this.layerContainer.addChild(this.liveContainer)
 
-      this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
+      this.strokeSprite.alpha = this.strokeState.layerOpacity * this.strokeState.strokeOpacityScale
       this.layerContainer.addChild(this.strokeSprite)
 
       // TODO can we determine the exact index
@@ -884,11 +886,15 @@ export default class SketchPane {
         // stamp to erase texture
         this.updateMask(this.segmentContainer, true)
       } else {
+        // temporarily set layer to 100% opaque
+        this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
           this.strokeSprite,
           this.layers.getCurrentLayer()
         )
+        // reset layer for visual preview
+        this.strokeSprite.alpha = this.strokeState.layerOpacity * this.strokeState.strokeOpacityScale
       }
       this.disposeContainer(this.segmentContainer)
       this.offscreenContainer.removeChildren()
