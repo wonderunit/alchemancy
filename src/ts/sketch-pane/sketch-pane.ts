@@ -618,6 +618,10 @@ export default class SketchPane {
       // at beginning of stroke, sets liveContainer.alpha
       // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
       this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * 
+        // because shaders are not composited with alpha on the live container,
+        // we fake the effect of stroke opacity on the live shaders, which build up in intensity.
+        // this exp value is just tweaked by eye
+        // in the future we could relate the exp to the spacing value for better results
         Math.pow(this.strokeState.strokeOpacityScale, 5)
 
       this.layerContainer.addChild(this.liveContainer)
