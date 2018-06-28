@@ -61,9 +61,6 @@ export default class SketchPane {
     this.viewClientRect = undefined
     this.containerPadding = 50
 
-    // initialize
-    this.strokeOpacityScale = 1.0
-
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
     this.onStrokeAfter = options.onStrokeAfter
@@ -80,8 +77,11 @@ export default class SketchPane {
 
   sketchPaneContainer: PIXI.Container
   layerContainer: PIXI.Container
-  strokeContainer: PIXI.Container
-  liveStrokeContainer: PIXI.Container
+
+  liveContainer: PIXI.Container
+  segmentContainer: PIXI.Container
+  strokeSprite: PIXI.Sprite
+
   offscreenContainer: PIXI.Container
   eraseMask: PIXI.Sprite
   cursor: Cursor
@@ -128,17 +128,24 @@ export default class SketchPane {
     this.layerContainer.name = 'layerContainer'
     this.sketchPaneContainer.addChild(this.layerContainer)
 
-    // static stroke
-    // - not shown to user
-    // - used only as a temporary area to setup for texture rendering
-    this.strokeContainer = new PIXI.Container()
-    this.strokeContainer.name = 'static'
-
     // live stroke
     // - shown to user
-    this.liveStrokeContainer = new PIXI.Container()
-    this.liveStrokeContainer.name = 'live'
-    this.layerContainer.addChild(this.liveStrokeContainer)
+    this.liveContainer = new PIXI.Container()
+    this.liveContainer.name = 'live'
+    this.layerContainer.addChild(this.liveContainer)
+
+    // static stroke
+    // - shown to user
+    // - used as a temporary area to render before stamping to layer texture
+    this.strokeSprite = new PIXI.Sprite()
+    this.strokeSprite.name = 'static'
+    this.layerContainer.addChild(this.strokeSprite)
+
+    // current segment
+    // - not shown to user
+    // - used as a temporary area to render before stamping to layer texture
+    this.segmentContainer = new PIXI.Container()
+    this.segmentContainer.name = 'segment'
 
     // off-screen container
     // - used for placement of grain sprites
@@ -183,6 +190,7 @@ export default class SketchPane {
     this.layerContainer.addChild(this.layerBackground)
 
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
+    this.strokeSprite.texture = PIXI.RenderTexture.create(this.width, this.height)
 
     this.centerContainer()
 
@@ -222,7 +230,8 @@ export default class SketchPane {
 
       if (layer.sprite === selectedLayer.sprite) {
         this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
-        this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex)
+        this.layerContainer.setChildIndex(this.liveContainer, ++childIndex)
+        this.layerContainer.setChildIndex(this.strokeSprite, ++childIndex)
       }
       childIndex++
     }
@@ -377,7 +386,7 @@ export default class SketchPane {
     brush: Brush,
     grainOffsetX: number,
     grainOffsetY: number,
-    strokeContainer: PIXI.Container
+    container: PIXI.Container
   ) {
     //
     //
@@ -449,7 +458,7 @@ export default class SketchPane {
       // scale
       sprite.scale.set(nodeSize / sprite.width)
 
-      strokeContainer.addChild(sprite)
+      container.addChild(sprite)
 
     } else {
       // brush node with shaders
@@ -530,7 +539,7 @@ export default class SketchPane {
       // @popelyshev at the same time, the fix only makes it worse :(
       // sprite.filterArea = this.app.screen
 
-      strokeContainer.addChild(sprite)
+      container.addChild(sprite)
     }
   }
 
@@ -596,17 +605,27 @@ export default class SketchPane {
 
     this.addPointerEventAsPoint(e)
 
-    // don't show the live container while we're erasing
+    // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
-      if (this.liveStrokeContainer.parent) {
-        this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer)
+      if (this.liveContainer.parent) {
+        this.liveContainer.parent.removeChild(this.liveContainer)
+      }
+      if (this.strokeSprite.parent) {
+        this.strokeSprite.parent.removeChild(this.strokeSprite)
       }
     } else {
-      // NOTE only sets liveStrokeContainer.alpha at beginning of stroke
-      //      if layer opacity can change during the stroke, we should move this to `drawStroke`
-      this.liveStrokeContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * this.strokeState.strokeOpacityScale
-      this.layerContainer.addChild(this.liveStrokeContainer)
-      // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
+      // NOTE
+      // at beginning of stroke, sets liveContainer.alpha
+      // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
+      this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * this.strokeState.strokeOpacityScale
+      this.layerContainer.addChild(this.liveContainer)
+
+      this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
+      this.layerContainer.addChild(this.strokeSprite)
+
+      // TODO can we determine the exact index
+      // and use addChildAt
+      // instead of brute-force updating all depths?
       this.updateLayerDepths()
     }
 
@@ -627,17 +646,17 @@ export default class SketchPane {
   stopDrawing () {
     this.drawStroke(true) // finalize
 
-    this.disposeContainer(this.liveStrokeContainer)
-    this.offscreenContainer.removeChildren()
-
     this.layers.markDirty(this.strokeState.layerIndices)
 
-    // add the liveStrokeContainer back
+    // if we were just erasing, add the live container and stroke sprite back
     if (this.strokeState.isErasing) {
-      this.layerContainer.addChild(this.liveStrokeContainer)
-      // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
-      this.updateLayerDepths()
+      this.layerContainer.addChild(this.liveContainer)
+      this.layerContainer.addChild(this.strokeSprite)
     }
+    // TODO can we determine the exact index
+    // and use addChildAt
+    // instead of brute-force updating all depths?
+    this.updateLayerDepths()
 
     this.pointerDown = false
 
@@ -756,14 +775,14 @@ export default class SketchPane {
     return interpolatedStrokeInput
   }
 
-  addStrokeNodes (strokeInput: Array<IStrokePoint>, path: paper.Path, strokeContainer: PIXI.Container) {
+  addStrokeNodes (strokeInput: Array<IStrokePoint>, path: paper.Path, container: PIXI.Container) {
     // we have 2+ StrokeInput points (with x, y, pressure, etc),
     // and 2+ matching path segments (with location and handles)
     //  e.g.: strokeInput[0].x === path.segments[0].point.x
     let interpolatedStrokeInput = this.getInterpolatedStrokeInput(strokeInput, path)
 
     for (let args of interpolatedStrokeInput) {
-      ;(this.addStrokeNode as any)(...args, strokeContainer)
+      ;(this.addStrokeNode as any)(...args, container)
     }
   }
 
@@ -838,31 +857,45 @@ export default class SketchPane {
       //   'drawing stroke from point idx', a,
       //   'to point idx', b, '\n'
       // )
-
+      
+      
+      // TODO refactor / DRY with similar code below
+      //
+      // add the last segment
       this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
         new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
-        this.strokeContainer
+        this.segmentContainer
       )
+      this.app.renderer.render(
+        this.segmentContainer,
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        false
+      )
+      this.disposeContainer(this.segmentContainer)
+      this.offscreenContainer.removeChildren()
 
       // stamp
       if (this.strokeState.isErasing) {
         // stamp to erase texture
-        this.updateMask(this.strokeContainer, true)
+        this.updateMask(this.strokeSprite, true)
       } else {
-        // remember the current strokeContainer alpha
-        let prevAlpha = this.strokeContainer.alpha
-        // force it to match the stroke opacity
-        this.strokeContainer.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
-          this.strokeContainer,
+          this.strokeSprite,
           this.layers.getCurrentLayer()
         )
-        // reset
-        this.strokeContainer.alpha = prevAlpha
       }
-      this.disposeContainer(this.strokeContainer)
+
+      // clear any sprites from live or stroke
+      this.disposeContainer(this.liveContainer)
+      this.disposeContainer(this.strokeSprite)
+      // clear the strokeSprite texture
+      this.app.renderer.render(
+        new PIXI.Sprite(PIXI.Texture.EMPTY),
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        true
+      )
       this.offscreenContainer.removeChildren()
 
       return
@@ -875,31 +908,26 @@ export default class SketchPane {
       let a = last - 2
       let b = last - 1
 
-      // draw to the static container
+      // draw to the segment container
       this.addStrokeNodes(
         this.strokeState.points.slice(a, b + 1),
         new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
-        this.strokeContainer
+        this.segmentContainer
       )
 
       // stamp
       if (this.strokeState.isErasing) {
         // stamp to the erase texture
-        this.updateMask(this.strokeContainer)
+        this.updateMask(this.strokeSprite)
       } else {
-        // remember the current strokeContainer alpha
-        let prevAlpha = this.strokeContainer.alpha
-        // force it to match the stroke opacity
-        this.strokeContainer.alpha = this.strokeState.strokeOpacityScale
-        // stamp to layer texture
-        this.stampStroke(
-          this.strokeContainer,
-          this.layers.getCurrentLayer()
+        // render to stroke texture
+        this.app.renderer.render(
+          this.segmentContainer,
+          this.strokeSprite.texture as PIXI.RenderTexture,
+          false
         )
-        // reset
-        this.strokeContainer.alpha = prevAlpha
       }
-      this.disposeContainer(this.strokeContainer)
+      this.disposeContainer(this.segmentContainer)
       this.offscreenContainer.removeChildren()
 
       this.strokeState.lastStaticIndex = b
@@ -908,7 +936,7 @@ export default class SketchPane {
     // live
     // do we have enough points to draw a live stroke to the container?
     if (len >= 2) {
-      this.disposeContainer(this.liveStrokeContainer)
+      this.disposeContainer(this.liveContainer)
 
       let last = this.strokeState.points.length - 1
       let a = last - 1
@@ -917,7 +945,7 @@ export default class SketchPane {
       // render the current stroke live
       if (this.strokeState.isErasing) {
         // TODO find a good way to add live strokes to erase mask
-        // this.updateMask(this.liveStrokeContainer)
+        // this.updateMask(this.liveContainer)
       } else {
         // store the current spacing
         let tmpLastSpacing = this.strokeState.lastSpacing
@@ -925,7 +953,7 @@ export default class SketchPane {
         this.addStrokeNodes(
           this.strokeState.points.slice(a, b + 1),
           new paper.Path(this.strokeState.path.segments.slice(a, b + 1)),
-          this.liveStrokeContainer
+          this.liveContainer
         )
         // revert the spacing so the real stroke will be correct
         this.strokeState.lastSpacing = tmpLastSpacing
@@ -945,7 +973,7 @@ export default class SketchPane {
         )
       )[0]
 
-    // we're starting a new round
+    // starting a new round
     if (!layer.sprite.mask) {
       // add the mask on top of all layers
       this.layerContainer.addChild(this.eraseMask)
