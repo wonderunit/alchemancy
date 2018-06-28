@@ -37,17 +37,32 @@ module.exports =
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
 /******/ 	};
 /******/
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
 /******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -719,16 +734,22 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.layerContainer = new external_pixi_js_["Container"]();
         this.layerContainer.name = 'layerContainer';
         this.sketchPaneContainer.addChild(this.layerContainer);
-        // static stroke
-        // - not shown to user
-        // - used only as a temporary area to setup for texture rendering
-        this.strokeContainer = new external_pixi_js_["Container"]();
-        this.strokeContainer.name = 'static';
         // live stroke
         // - shown to user
-        this.liveStrokeContainer = new external_pixi_js_["Container"]();
-        this.liveStrokeContainer.name = 'live';
-        this.layerContainer.addChild(this.liveStrokeContainer);
+        this.liveContainer = new external_pixi_js_["Container"]();
+        this.liveContainer.name = 'live';
+        this.layerContainer.addChild(this.liveContainer);
+        // static stroke
+        // - shown to user
+        // - used as a temporary area to render before stamping to layer texture
+        this.strokeSprite = new external_pixi_js_["Sprite"]();
+        this.strokeSprite.name = 'static';
+        this.layerContainer.addChild(this.strokeSprite);
+        // current segment
+        // - not shown to user
+        // - used as a temporary area to render before stamping to layer texture
+        this.segmentContainer = new external_pixi_js_["Container"]();
+        this.segmentContainer.name = 'segment';
         // off-screen container
         // - used for placement of grain sprites
         this.offscreenContainer = new external_pixi_js_["Container"]();
@@ -761,6 +782,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.layerBackground.name = 'background';
         this.layerContainer.addChild(this.layerBackground);
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
+        this.strokeSprite.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
         this.layers = layers_collection.create({
             renderer: this.app.renderer,
@@ -790,7 +812,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             this.layerContainer.setChildIndex(layer.sprite, childIndex);
             if (layer.sprite === selectedLayer.sprite) {
                 this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex);
-                this.layerContainer.setChildIndex(this.liveStrokeContainer, ++childIndex);
+                this.layerContainer.setChildIndex(this.liveContainer, ++childIndex);
+                this.layerContainer.setChildIndex(this.strokeSprite, ++childIndex);
             }
             childIndex++;
         }
@@ -916,7 +939,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         container.removeChildren();
     };
-    SketchPane.prototype.addStrokeNode = function (r, g, b, size, opacity, x, y, pressure, angle, tilt, brush, grainOffsetX, grainOffsetY, strokeContainer) {
+    SketchPane.prototype.addStrokeNode = function (r, g, b, size, nodeOpacityScale, x, y, pressure, angle, tilt, brush, grainOffsetX, grainOffsetY, container) {
         //
         //
         // brush params
@@ -927,7 +950,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // nodeSize = this.brushSize
         var nodeOpacity = 1 - (1 - pressure) * brush.settings.pressureOpacity;
         var tiltOpacity = 1 - tilt / 90.0 * brush.settings.tiltOpacity;
-        nodeOpacity *= tiltOpacity * opacity;
+        nodeOpacity *= tiltOpacity * nodeOpacityScale;
         var nodeRotation;
         if (brush.settings.azimuth) {
             nodeRotation = angle * Math.PI / 180.0 - this.sketchPaneContainer.rotation;
@@ -972,7 +995,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             // TODO
             // scale
             sprite.scale.set(nodeSize / sprite.width);
-            strokeContainer.addChild(sprite);
+            container.addChild(sprite);
         }
         else {
             // brush node with shaders
@@ -1036,7 +1059,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             // @popelyshev this property is for Sprite, not for filter. Thans to TypeScript!
             // @popelyshev at the same time, the fix only makes it worse :(
             // sprite.filterArea = this.app.screen
-            strokeContainer.addChild(sprite);
+            container.addChild(sprite);
         }
     };
     SketchPane.prototype.down = function (e, options) {
@@ -1078,22 +1101,36 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             // snapshot brush configuration
             size: this.brushSize,
             color: this.brushColor,
-            opacity: this.brushOpacity
+            nodeOpacityScale: this.nodeOpacityScale,
+            strokeOpacityScale: this.strokeOpacityScale
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
-        // don't show the live container while we're erasing
+        // don't show the live container or stroke sprite while erasing
         if (this.strokeState.isErasing) {
-            if (this.liveStrokeContainer.parent) {
-                this.liveStrokeContainer.parent.removeChild(this.liveStrokeContainer);
+            if (this.liveContainer.parent) {
+                this.liveContainer.parent.removeChild(this.liveContainer);
+            }
+            if (this.strokeSprite.parent) {
+                this.strokeSprite.parent.removeChild(this.strokeSprite);
             }
         }
         else {
-            // NOTE only sets liveStrokeContainer.alpha at beginning of stroke
-            //      if layer opacity can change during the stroke, we should move this to `drawStroke`
-            this.liveStrokeContainer.alpha = this.getLayerOpacity(this.layers.currentIndex);
-            this.layerContainer.addChild(this.liveStrokeContainer);
-            // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
+            // NOTE
+            // at beginning of stroke, sets liveContainer.alpha
+            // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
+            this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) *
+                // because shaders are not composited with alpha on the live container,
+                // we fake the effect of stroke opacity on the live shaders, which build up in intensity.
+                // this exp value is just tweaked by eye
+                // in the future we could relate the exp to the spacing value for better results
+                Math.pow(this.strokeState.strokeOpacityScale, 5);
+            this.layerContainer.addChild(this.liveContainer);
+            this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
+            this.layerContainer.addChild(this.strokeSprite);
+            // TODO can we determine the exact index
+            // and use addChildAt
+            // instead of brute-force updating all depths?
             this.updateLayerDepths();
         }
         this.drawStroke();
@@ -1109,15 +1146,16 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     // public
     SketchPane.prototype.stopDrawing = function () {
         this.drawStroke(true); // finalize
-        this.disposeContainer(this.liveStrokeContainer);
-        this.offscreenContainer.removeChildren();
         this.layers.markDirty(this.strokeState.layerIndices);
-        // add the liveStrokeContainer back
+        // if we were just erasing, add the live container and stroke sprite back
         if (this.strokeState.isErasing) {
-            this.layerContainer.addChild(this.liveStrokeContainer);
-            // TODO can we determine the exact index and use addChildAt instead of brute-force updating all depths?
-            this.updateLayerDepths();
+            this.layerContainer.addChild(this.liveContainer);
+            this.layerContainer.addChild(this.strokeSprite);
         }
+        // TODO can we determine the exact index
+        // and use addChildAt
+        // instead of brute-force updating all depths?
+        this.updateLayerDepths();
         this.pointerDown = false;
         this.onStrokeAfter && this.onStrokeAfter(this.strokeState);
     };
@@ -1188,7 +1226,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
                 this.strokeState.isErasing ? 0 : ((this.strokeState.color >> 8) & 255) / 255,
                 this.strokeState.isErasing ? 0 : (this.strokeState.color & 255) / 255,
                 this.strokeState.size,
-                this.strokeState.opacity,
+                this.strokeState.nodeOpacityScale,
                 point.x,
                 point.y,
                 pressure,
@@ -1203,7 +1241,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.strokeState.lastSpacing = len - k;
         return interpolatedStrokeInput;
     };
-    SketchPane.prototype.addStrokeNodes = function (strokeInput, path, strokeContainer) {
+    SketchPane.prototype.addStrokeNodes = function (strokeInput, path, container) {
         // we have 2+ StrokeInput points (with x, y, pressure, etc),
         // and 2+ matching path segments (with location and handles)
         //  e.g.: strokeInput[0].x === path.segments[0].point.x
@@ -1211,7 +1249,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         for (var _i = 0, interpolatedStrokeInput_1 = interpolatedStrokeInput; _i < interpolatedStrokeInput_1.length; _i++) {
             var args = interpolatedStrokeInput_1[_i];
             ;
-            this.addStrokeNode.apply(this, args.concat([strokeContainer]));
+            this.addStrokeNode.apply(this, args.concat([container]));
         }
     };
     // public
@@ -1269,17 +1307,27 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             //   'drawing stroke from point idx', a,
             //   'to point idx', b, '\n'
             // )
-            this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.strokeContainer);
+            // TODO refactor / DRY with similar code below
+            //
+            // add the last segment
+            this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.segmentContainer);
+            this.app.renderer.render(this.segmentContainer, this.strokeSprite.texture, false);
             // stamp
             if (this.strokeState.isErasing) {
                 // stamp to erase texture
-                this.updateMask(this.strokeContainer, true);
+                this.updateMask(this.segmentContainer, true);
             }
             else {
                 // stamp to layer texture
-                this.stampStroke(this.strokeContainer, this.layers.getCurrentLayer());
+                this.stampStroke(this.strokeSprite, this.layers.getCurrentLayer());
             }
-            this.disposeContainer(this.strokeContainer);
+            this.disposeContainer(this.segmentContainer);
+            this.offscreenContainer.removeChildren();
+            // clear any sprites from live or stroke
+            this.disposeContainer(this.liveContainer);
+            this.disposeContainer(this.strokeSprite);
+            // clear the strokeSprite texture
+            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             this.offscreenContainer.removeChildren();
             return;
         }
@@ -1289,38 +1337,38 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             var last = this.strokeState.points.length - 1;
             var a = last - 2;
             var b = last - 1;
-            // draw to the static container
-            this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.strokeContainer);
+            // draw to the segment container
+            this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.segmentContainer);
             // stamp
             if (this.strokeState.isErasing) {
                 // stamp to the erase texture
-                this.updateMask(this.strokeContainer);
+                this.updateMask(this.segmentContainer);
             }
             else {
-                // stamp to layer texture
-                this.stampStroke(this.strokeContainer, this.layers.getCurrentLayer());
+                // render to stroke texture
+                this.app.renderer.render(this.segmentContainer, this.strokeSprite.texture, false);
             }
-            this.disposeContainer(this.strokeContainer);
+            this.disposeContainer(this.segmentContainer);
             this.offscreenContainer.removeChildren();
             this.strokeState.lastStaticIndex = b;
         }
         // live
         // do we have enough points to draw a live stroke to the container?
         if (len >= 2) {
-            this.disposeContainer(this.liveStrokeContainer);
+            this.disposeContainer(this.liveContainer);
             var last = this.strokeState.points.length - 1;
             var a = last - 1;
             var b = last;
             // render the current stroke live
             if (this.strokeState.isErasing) {
                 // TODO find a good way to add live strokes to erase mask
-                // this.updateMask(this.liveStrokeContainer)
+                // this.updateMask(this.liveContainer)
             }
             else {
                 // store the current spacing
                 var tmpLastSpacing = this.strokeState.lastSpacing;
                 // draw a live stroke
-                this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.liveStrokeContainer);
+                this.addStrokeNodes(this.strokeState.points.slice(a, b + 1), new external_paper_["Path"](this.strokeState.path.segments.slice(a, b + 1)), this.liveContainer);
                 // revert the spacing so the real stroke will be correct
                 this.strokeState.lastSpacing = tmpLastSpacing;
             }
@@ -1334,7 +1382,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         var layer = this.strokeState.layerIndices
             .map(function (i) { return _this.layers[i]; })
             .sort(function (a, b) { return descending(a.sprite.parent.getChildIndex(a.sprite), b.sprite.parent.getChildIndex(b.sprite)); })[0];
-        // we're starting a new round
+        // TODO move this to an initialize step
+        // starting a new round
         if (!layer.sprite.mask) {
             // add the mask on top of all layers
             this.layerContainer.addChild(this.eraseMask);
