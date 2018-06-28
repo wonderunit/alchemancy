@@ -886,7 +886,7 @@ export default class SketchPane {
         // stamp to erase texture
         this.updateMask(this.segmentContainer, true)
       } else {
-        // temporarily set layer to 100% opaque
+        // temporarily set layer to full stroke opacity
         this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
