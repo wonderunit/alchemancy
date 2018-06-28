@@ -617,7 +617,9 @@ export default class SketchPane {
       // NOTE
       // at beginning of stroke, sets liveContainer.alpha
       // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
-      this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * this.strokeState.strokeOpacityScale
+      this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) * 
+        Math.pow(this.strokeState.strokeOpacityScale, 5)
+
       this.layerContainer.addChild(this.liveContainer)
 
       this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
