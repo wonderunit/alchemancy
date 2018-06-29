@@ -54,6 +54,7 @@ export default class SketchPane {
   efficiencyMode: boolean = false
 
   zoom: number
+  anchor: PIXI.Point
 
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
@@ -243,11 +244,20 @@ export default class SketchPane {
   }
 
   centerContainer () {
-    this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
-    this.sketchPaneContainer.position.set(
-      Math.floor(this.app.renderer.width / 2),
-      Math.floor(this.app.renderer.height / 2)
-    )
+    if (this.anchor) {
+      // use anchor
+      let point = this.localizePoint(this.anchor)
+
+      this.sketchPaneContainer.pivot.set(point.x, point.y)
+      this.sketchPaneContainer.position.set(this.anchor.x, this.anchor.y)
+    } else {
+      // center
+      this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
+      this.sketchPaneContainer.position.set(
+        Math.floor(this.app.renderer.width / 2),
+        Math.floor(this.app.renderer.height / 2)
+      )
+    }
   }
 
   // resizeToParent () {
@@ -284,13 +294,13 @@ export default class SketchPane {
       ? src.width * dst.height / src.height
       : dst.width
 
+    // center
+    this.centerContainer()
+
     // set scale
     this.sketchPaneContainer.scale.set(
       (Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom
     )
-
-    // center
-    this.centerContainer()
 
     // update viewClientRect
     this.viewClientRect = this.app.view.getBoundingClientRect()

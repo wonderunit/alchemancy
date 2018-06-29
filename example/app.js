@@ -136,8 +136,14 @@ window.fetch('./example/brushes/brushes.json')
 
         window.addEventListener('wheel', function (e) {
           let delta = e.deltaY / 100
+
           sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.5), 4)
-          sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
+          sketchPane.anchor = new PIXI.Point(e.x, e.y)
+
+          sketchPane.resize(
+            document.body.offsetWidth,
+            document.body.offsetHeight
+          )
         })
 
         let stats = new Stats()
