@@ -41,6 +41,10 @@ const sketchPane = new SketchLib.SketchPane({
   imageHeight: 900
 })
 sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
+sketchPane.anchor = new PIXI.Point(
+  sketchPane.sketchPaneContainer.position.x,
+  sketchPane.sketchPaneContainer.position.y
+)
 
 const forceClear = () => {
   sketchPane.app.renderer.render(
@@ -135,15 +139,23 @@ window.fetch('./example/brushes/brushes.json')
         })
 
         window.addEventListener('wheel', function (e) {
-          let delta = e.deltaY / 100
+          if (!e.shiftKey) {
+            // zoom
+            let delta = e.deltaY / 100
 
-          sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.5), 4)
-          sketchPane.anchor = new PIXI.Point(e.x, e.y)
-
-          sketchPane.resize(
-            document.body.offsetWidth,
-            document.body.offsetHeight
-          )
+            sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.75), 16)
+            sketchPane.anchor = new PIXI.Point(e.x, e.y)
+            sketchPane.resize(
+              document.body.offsetWidth,
+              document.body.offsetHeight
+            )
+          } else {
+            // pan
+            sketchPane.anchor.x -= e.deltaX
+            sketchPane.anchor.y -= e.deltaY
+            sketchPane.sketchPaneContainer.position.set(sketchPane.anchor.x, sketchPane.anchor.y)
+            sketchPane.cursor.renderCursor(e)
+          }
         })
 
         let stats = new Stats()
