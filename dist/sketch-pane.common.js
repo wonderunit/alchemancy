@@ -373,6 +373,9 @@ var layer_Layer = /** @class */ (function () {
         this.name = params.name;
         this.sprite = new external_pixi_js_["Sprite"](external_pixi_js_["RenderTexture"].create(this.width, this.height));
         this.sprite.name = params.name;
+        this.container = new external_pixi_js_["Container"]();
+        this.container.name = params.name + " container";
+        this.container.addChild(this.sprite);
         this.dirty = false;
     }
     Layer.prototype.getOpacity = function () {
@@ -730,21 +733,21 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // this.app.renderer.transparent = true
         this.sketchPaneContainer = new external_pixi_js_["Container"]();
         this.sketchPaneContainer.name = 'sketchPaneContainer';
-        // layer
-        this.layerContainer = new external_pixi_js_["Container"]();
-        this.layerContainer.name = 'layerContainer';
-        this.sketchPaneContainer.addChild(this.layerContainer);
+        // current layer
+        this.layersContainer = new external_pixi_js_["Container"]();
+        this.layersContainer.name = 'layersContainer';
+        this.sketchPaneContainer.addChild(this.layersContainer);
+        // setup an alpha filter
+        this.alphaFilter = new external_pixi_js_["filters"].AlphaFilter();
         // live stroke
         // - shown to user
         this.liveContainer = new external_pixi_js_["Container"]();
         this.liveContainer.name = 'live';
-        this.layerContainer.addChild(this.liveContainer);
         // static stroke
         // - shown to user
         // - used as a temporary area to render before stamping to layer texture
         this.strokeSprite = new external_pixi_js_["Sprite"]();
         this.strokeSprite.name = 'static';
-        this.layerContainer.addChild(this.strokeSprite);
         // current segment
         // - not shown to user
         // - used as a temporary area to render before stamping to layer texture
@@ -755,7 +758,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.offscreenContainer = new external_pixi_js_["Container"]();
         this.offscreenContainer.name = 'offscreen';
         this.offscreenContainer.renderable = false;
-        this.layerContainer.addChild(this.offscreenContainer);
+        this.layersContainer.addChild(this.offscreenContainer);
         // erase mask
         this.eraseMask = new external_pixi_js_["Sprite"]();
         this.eraseMask.name = 'eraseMask';
@@ -773,14 +776,14 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             .drawRect(0, 0, this.width, this.height)
             .endFill();
         this.layerMask.name = 'layerMask';
-        this.layerContainer.mask = this.layerMask;
-        this.sketchPaneContainer.addChild(this.layerMask);
+        this.layersContainer.mask = this.layerMask;
+        this.sketchPaneContainer.addChildAt(this.layerMask, this.sketchPaneContainer.getChildIndex(this.layersContainer) + 1);
         this.layerBackground = new external_pixi_js_["Graphics"]()
             .beginFill(0xffffff)
             .drawRect(0, 0, this.width, this.height)
             .endFill();
         this.layerBackground.name = 'background';
-        this.layerContainer.addChild(this.layerBackground);
+        this.sketchPaneContainer.addChildAt(this.layerBackground, 0);
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.strokeSprite.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
@@ -795,27 +798,24 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.onLayersCollectionAdd = function (index) {
         var layer = this.layers[index];
         // layer.sprite.texture.baseTexture.premultipliedAlpha = false
-        this.layerContainer.position.set(0, 0);
-        this.layerContainer.addChild(layer.sprite);
+        this.layersContainer.position.set(0, 0);
+        this.layersContainer.addChild(layer.container);
         this.centerContainer();
     };
     SketchPane.prototype.onLayersCollectionSelect = function (index) {
         this.updateLayerDepths();
     };
     SketchPane.prototype.updateLayerDepths = function () {
-        var index = this.layers.getCurrentIndex();
-        var selectedLayer = this.layers[index];
-        this.layerContainer.setChildIndex(this.layerBackground, 0);
-        var childIndex = 1;
         for (var _i = 0, _a = this.layers; _i < _a.length; _i++) {
             var layer = _a[_i];
-            this.layerContainer.setChildIndex(layer.sprite, childIndex);
-            if (layer.sprite === selectedLayer.sprite) {
-                this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex);
-                this.layerContainer.setChildIndex(this.liveContainer, ++childIndex);
-                this.layerContainer.setChildIndex(this.strokeSprite, ++childIndex);
+            if (layer.index === this.layers.currentIndex) {
+                layer.container.addChild(this.strokeSprite);
+                layer.container.addChild(this.liveContainer);
+                // layer.filters = [this.alphaFilter]
             }
-            childIndex++;
+            else {
+                // layer.filters = []
+            }
         }
     };
     SketchPane.prototype.newLayer = function (options) {
@@ -1102,7 +1102,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             size: this.brushSize,
             color: this.brushColor,
             nodeOpacityScale: this.nodeOpacityScale,
-            strokeOpacityScale: this.strokeOpacityScale
+            strokeOpacityScale: this.strokeOpacityScale,
+            layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
@@ -1119,18 +1120,17 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             // NOTE
             // at beginning of stroke, sets liveContainer.alpha
             // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
-            this.liveContainer.alpha = this.getLayerOpacity(this.layers.currentIndex) *
+            this.liveContainer.alpha = this.strokeState.layerOpacity *
                 // because shaders are not composited with alpha on the live container,
                 // we fake the effect of stroke opacity on the live shaders, which build up in intensity.
                 // this exp value is just tweaked by eye
                 // in the future we could relate the exp to the spacing value for better results
                 Math.pow(this.strokeState.strokeOpacityScale, 5);
-            this.layerContainer.addChild(this.liveContainer);
             this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
-            this.layerContainer.addChild(this.strokeSprite);
-            // TODO can we determine the exact index
-            // and use addChildAt
-            // instead of brute-force updating all depths?
+            // switch from sprite alpha to alpha filter
+            this.setLayerOpacity(this.layers.currentIndex, 1);
+            this.alphaFilter.alpha = this.strokeState.layerOpacity;
+            this.layers[this.layers.currentIndex].container.filters = [this.alphaFilter];
             this.updateLayerDepths();
         }
         this.drawStroke();
@@ -1147,14 +1147,9 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.stopDrawing = function () {
         this.drawStroke(true); // finalize
         this.layers.markDirty(this.strokeState.layerIndices);
-        // if we were just erasing, add the live container and stroke sprite back
-        if (this.strokeState.isErasing) {
-            this.layerContainer.addChild(this.liveContainer);
-            this.layerContainer.addChild(this.strokeSprite);
-        }
-        // TODO can we determine the exact index
-        // and use addChildAt
-        // instead of brute-force updating all depths?
+        // switch from alpha filter back to sprite alpha
+        this.setLayerOpacity(this.layers.currentIndex, this.strokeState.layerOpacity);
+        this.layers[this.layers.currentIndex].container.filters = [];
         this.updateLayerDepths();
         this.pointerDown = false;
         this.onStrokeAfter && this.onStrokeAfter(this.strokeState);
@@ -1386,7 +1381,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         // starting a new round
         if (!layer.sprite.mask) {
             // add the mask on top of all layers
-            this.layerContainer.addChild(this.eraseMask);
+            this.layersContainer.addChild(this.eraseMask);
             // reset the mask with a solid red background
             var graphics = new external_pixi_js_["Graphics"]()
                 .beginFill(0xff0000, 1.0)
