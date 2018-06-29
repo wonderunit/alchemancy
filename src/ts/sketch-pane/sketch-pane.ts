@@ -53,6 +53,8 @@ export default class SketchPane {
 
   efficiencyMode: boolean = false
 
+  zoom: number
+
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
@@ -169,6 +171,8 @@ export default class SketchPane {
     this.sketchPaneContainer.scale.set(1)
 
     this.viewClientRect = this.app.view.getBoundingClientRect()
+
+    this.zoom = 1
   }
 
   width: number
@@ -282,7 +286,7 @@ export default class SketchPane {
 
     // set scale
     this.sketchPaneContainer.scale.set(
-      Math.floor(targetWidth) / Math.floor(src.width)
+      (Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom
     )
 
     // center

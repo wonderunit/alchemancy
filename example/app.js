@@ -134,6 +134,12 @@ window.fetch('./example/brushes/brushes.json')
           sketchPane.up(e)
         })
 
+        window.addEventListener('wheel', function (e) {
+          let delta = e.deltaY / 100
+          sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.5), 4)
+          sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
+        })
+
         let stats = new Stats()
         stats.showPanel(0)
         document.body.appendChild(stats.dom)
