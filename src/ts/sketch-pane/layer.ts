@@ -5,6 +5,7 @@ export default class Layer {
   renderer: PIXI.WebGLRenderer
   width: number
   height: number
+  container: PIXI.Container
   sprite: PIXI.Sprite
   dirty: boolean
 
@@ -19,6 +20,9 @@ export default class Layer {
 
     this.sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.width, this.height))
     this.sprite.name = params.name
+
+    this.container = new PIXI.Container()
+    this.container.addChild(this.sprite)
 
     this.dirty = false
   }
