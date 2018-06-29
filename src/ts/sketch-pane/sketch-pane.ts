@@ -77,11 +77,13 @@ export default class SketchPane {
   }
 
   sketchPaneContainer: PIXI.Container
-  layerContainer: PIXI.Container
+  layersContainer: PIXI.Container
 
   liveContainer: PIXI.Container
   segmentContainer: PIXI.Container
   strokeSprite: PIXI.Sprite
+
+  alphaFilter: PIXI.filters.AlphaFilter
 
   offscreenContainer: PIXI.Container
   eraseMask: PIXI.Sprite
@@ -124,23 +126,24 @@ export default class SketchPane {
     this.sketchPaneContainer = new PIXI.Container()
     this.sketchPaneContainer.name = 'sketchPaneContainer'
 
-    // layer
-    this.layerContainer = new PIXI.Container()
-    this.layerContainer.name = 'layerContainer'
-    this.sketchPaneContainer.addChild(this.layerContainer)
+    // current layer
+    this.layersContainer = new PIXI.Container()
+    this.layersContainer.name = 'layersContainer'
+    this.sketchPaneContainer.addChild(this.layersContainer)
+
+    // setup an alpha filter
+    this.alphaFilter = new PIXI.filters.AlphaFilter()
 
     // live stroke
     // - shown to user
     this.liveContainer = new PIXI.Container()
     this.liveContainer.name = 'live'
-    this.layerContainer.addChild(this.liveContainer)
 
     // static stroke
     // - shown to user
     // - used as a temporary area to render before stamping to layer texture
     this.strokeSprite = new PIXI.Sprite()
     this.strokeSprite.name = 'static'
-    this.layerContainer.addChild(this.strokeSprite)
 
     // current segment
     // - not shown to user
@@ -153,7 +156,7 @@ export default class SketchPane {
     this.offscreenContainer = new PIXI.Container()
     this.offscreenContainer.name = 'offscreen'
     this.offscreenContainer.renderable = false
-    this.layerContainer.addChild(this.offscreenContainer)
+    this.layersContainer.addChild(this.offscreenContainer)
 
     // erase mask
     this.eraseMask = new PIXI.Sprite()
@@ -180,15 +183,15 @@ export default class SketchPane {
       .drawRect(0, 0, this.width, this.height)
       .endFill()
     this.layerMask.name = 'layerMask'
-    this.layerContainer.mask = this.layerMask
-    this.sketchPaneContainer.addChild(this.layerMask)
+    this.layersContainer.mask = this.layerMask
+    this.sketchPaneContainer.addChildAt(this.layerMask, this.sketchPaneContainer.getChildIndex(this.layersContainer) + 1)
 
     this.layerBackground = new PIXI.Graphics()
       .beginFill(0xffffff)
       .drawRect(0, 0, this.width, this.height)
       .endFill()
     this.layerBackground.name = 'background'
-    this.layerContainer.addChild(this.layerBackground)
+    this.sketchPaneContainer.addChildAt(this.layerBackground, 0)
 
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
     this.strokeSprite.texture = PIXI.RenderTexture.create(this.width, this.height)
@@ -208,8 +211,9 @@ export default class SketchPane {
     let layer = this.layers[index]
 
     // layer.sprite.texture.baseTexture.premultipliedAlpha = false
-    this.layerContainer.position.set(0, 0)
-    this.layerContainer.addChild(layer.sprite)
+
+    this.layersContainer.position.set(0, 0)
+    this.layersContainer.addChild(layer.container)
 
     this.centerContainer()
   }
@@ -219,22 +223,14 @@ export default class SketchPane {
   }
 
   updateLayerDepths () {
-    let index = this.layers.getCurrentIndex()
-
-    let selectedLayer = this.layers[index]
-
-    this.layerContainer.setChildIndex(this.layerBackground, 0)
-
-    let childIndex = 1
     for (let layer of this.layers) {
-      this.layerContainer.setChildIndex(layer.sprite, childIndex)
-
-      if (layer.sprite === selectedLayer.sprite) {
-        this.layerContainer.setChildIndex(this.offscreenContainer, ++childIndex)
-        this.layerContainer.setChildIndex(this.liveContainer, ++childIndex)
-        this.layerContainer.setChildIndex(this.strokeSprite, ++childIndex)
+      if (layer.index === this.layers.currentIndex) {
+        layer.container.addChild(this.strokeSprite)
+        layer.container.addChild(this.liveContainer)
+        // layer.filters = [this.alphaFilter]
+      } else {
+        // layer.filters = []
       }
-      childIndex++
     }
   }
 
@@ -626,14 +622,12 @@ export default class SketchPane {
         // in the future we could relate the exp to the spacing value for better results
         Math.pow(this.strokeState.strokeOpacityScale, 5)
 
-      this.layerContainer.addChild(this.liveContainer)
+      this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
 
-      this.strokeSprite.alpha = this.strokeState.layerOpacity * this.strokeState.strokeOpacityScale
-      this.layerContainer.addChild(this.strokeSprite)
-
-      // TODO can we determine the exact index
-      // and use addChildAt
-      // instead of brute-force updating all depths?
+      // switch from sprite alpha to alpha filter
+      this.setLayerOpacity(this.layers.currentIndex, 1)
+      this.alphaFilter.alpha = this.strokeState.layerOpacity
+      this.layers[this.layers.currentIndex].container.filters = [this.alphaFilter]
       this.updateLayerDepths()
     }
 
@@ -656,14 +650,9 @@ export default class SketchPane {
 
     this.layers.markDirty(this.strokeState.layerIndices)
 
-    // if we were just erasing, add the live container and stroke sprite back
-    if (this.strokeState.isErasing) {
-      this.layerContainer.addChild(this.liveContainer)
-      this.layerContainer.addChild(this.strokeSprite)
-    }
-    // TODO can we determine the exact index
-    // and use addChildAt
-    // instead of brute-force updating all depths?
+    // switch from alpha filter back to sprite alpha
+    this.setLayerOpacity(this.layers.currentIndex, this.strokeState.layerOpacity)
+    this.layers[this.layers.currentIndex].container.filters = []
     this.updateLayerDepths()
 
     this.pointerDown = false
@@ -886,15 +875,11 @@ export default class SketchPane {
         // stamp to erase texture
         this.updateMask(this.segmentContainer, true)
       } else {
-        // temporarily set layer to full stroke opacity
-        this.strokeSprite.alpha = this.strokeState.strokeOpacityScale
         // stamp to layer texture
         this.stampStroke(
           this.strokeSprite,
           this.layers.getCurrentLayer()
         )
-        // reset layer for visual preview
-        this.strokeSprite.alpha = this.strokeState.layerOpacity * this.strokeState.strokeOpacityScale
       }
       this.disposeContainer(this.segmentContainer)
       this.offscreenContainer.removeChildren()
@@ -989,7 +974,7 @@ export default class SketchPane {
     // starting a new round
     if (!layer.sprite.mask) {
       // add the mask on top of all layers
-      this.layerContainer.addChild(this.eraseMask)
+      this.layersContainer.addChild(this.eraseMask)
 
       // reset the mask with a solid red background
       let graphics = new PIXI.Graphics()

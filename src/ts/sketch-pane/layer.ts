@@ -22,6 +22,7 @@ export default class Layer {
     this.sprite.name = params.name
 
     this.container = new PIXI.Container()
+    this.container.name = `${params.name} container`
     this.container.addChild(this.sprite)
 
     this.dirty = false
