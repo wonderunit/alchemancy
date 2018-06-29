@@ -62,10 +62,10 @@ window.fetch('./example/brushes/brushes.json')
       // NOTE example images are 1000 × 800
       .then(() => loadLayers(sketchPane, layersData))
 
-      // .then(() => sketchPane.newLayer())
-      // .then(() => sketchPane.newLayer())
-      // .then(() => sketchPane.newLayer())
-      // .then(() => sketchPane.newLayer())
+      // .then(() => sketchPane.newLayer({ name: 'layer 0' }))
+      // .then(() => sketchPane.newLayer({ name: 'layer 1' }))
+      // .then(() => sketchPane.newLayer({ name: 'layer 2' }))
+      // .then(() => sketchPane.newLayer({ name: 'layer 3' }))
 
       .then(() => sketchPane.setCurrentLayerIndex(sketchPane.getNumLayers()))
 
