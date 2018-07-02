@@ -45,6 +45,10 @@ sketchPane.anchor = new PIXI.Point(
   sketchPane.sketchPaneContainer.position.x,
   sketchPane.sketchPaneContainer.position.y
 )
+sketchPane.lastPointer = new PIXI.Point(
+  sketchPane.sketchPaneContainer.position.x,
+  sketchPane.sketchPaneContainer.position.y
+)
 
 const forceClear = () => {
   sketchPane.app.renderer.render(
@@ -128,6 +132,8 @@ window.fetch('./example/brushes/brushes.json')
         window.addEventListener('pointermove', function (e) {
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
+          sketchPane.lastPointer = new PIXI.Point(e.x, e.y)
+
           // if (e.target.parentNode !== document.body) return
           sketchPane.move(e)
         })
@@ -143,8 +149,8 @@ window.fetch('./example/brushes/brushes.json')
             // zoom
             let delta = e.deltaY / 100
 
-            sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.75), 16)
             sketchPane.anchor = new PIXI.Point(e.x, e.y)
+            sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.75), 16)
             sketchPane.resize(
               document.body.offsetWidth,
               document.body.offsetHeight
@@ -155,6 +161,33 @@ window.fetch('./example/brushes/brushes.json')
             sketchPane.anchor.y -= e.deltaY
             sketchPane.sketchPaneContainer.position.set(sketchPane.anchor.x, sketchPane.anchor.y)
             sketchPane.cursor.renderCursor(e)
+          }
+        })
+
+        window.addEventListener('keyup', function (e) {
+          switch (e.key) {
+            case '=':
+              // if (e.metaKey) {
+                sketchPane.anchor.x = sketchPane.lastPointer.x
+                sketchPane.anchor.y = sketchPane.lastPointer.y
+                sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + 0.25, 0.75), 16)
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+              // }
+              break
+            case '-':
+              // if (e.metaKey) {
+                sketchPane.anchor.x = sketchPane.lastPointer.x
+                sketchPane.anchor.y = sketchPane.lastPointer.y
+                sketchPane.zoom = Math.min(Math.max(sketchPane.zoom - 0.25, 0.75), 16)
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+              // }
+              break
           }
         })
 
