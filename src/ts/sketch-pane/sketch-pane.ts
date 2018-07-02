@@ -294,6 +294,14 @@ export default class SketchPane {
       ? src.width * dst.height / src.height
       : dst.width
 
+    // if cursor has not moved yet, pretend it's in the center of the known screen
+    if (!this.cursor.lastPointer) {
+      this.cursor.lastPointer = new PIXI.Point(
+        this.app.renderer.width / 2,
+        this.app.renderer.height / 2
+      )
+    }
+
     // center
     this.centerContainer()
 

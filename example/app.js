@@ -45,10 +45,6 @@ sketchPane.anchor = new PIXI.Point(
   sketchPane.sketchPaneContainer.position.x,
   sketchPane.sketchPaneContainer.position.y
 )
-sketchPane.lastPointer = new PIXI.Point(
-  sketchPane.sketchPaneContainer.position.x,
-  sketchPane.sketchPaneContainer.position.y
-)
 
 const forceClear = () => {
   sketchPane.app.renderer.render(
@@ -132,8 +128,6 @@ window.fetch('./example/brushes/brushes.json')
         window.addEventListener('pointermove', function (e) {
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
-          sketchPane.lastPointer = new PIXI.Point(e.x, e.y)
-
           // if (e.target.parentNode !== document.body) return
           sketchPane.move(e)
         })
@@ -155,6 +149,7 @@ window.fetch('./example/brushes/brushes.json')
               document.body.offsetWidth,
               document.body.offsetHeight
             )
+            sketchPane.cursor.renderCursor(e)
           } else {
             // pan
             sketchPane.anchor.x -= e.deltaX
@@ -168,8 +163,8 @@ window.fetch('./example/brushes/brushes.json')
           switch (e.key) {
             case '=':
               // if (e.metaKey) {
-                sketchPane.anchor.x = sketchPane.lastPointer.x
-                sketchPane.anchor.y = sketchPane.lastPointer.y
+                sketchPane.anchor.x = sketchPane.cursor.lastPointer.x
+                sketchPane.anchor.y = sketchPane.cursor.lastPointer.y
                 sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + 0.25, 0.75), 16)
                 sketchPane.resize(
                   document.body.offsetWidth,
@@ -179,8 +174,8 @@ window.fetch('./example/brushes/brushes.json')
               break
             case '-':
               // if (e.metaKey) {
-                sketchPane.anchor.x = sketchPane.lastPointer.x
-                sketchPane.anchor.y = sketchPane.lastPointer.y
+                sketchPane.anchor.x = sketchPane.cursor.lastPointer.x
+                sketchPane.anchor.y = sketchPane.cursor.lastPointer.y
                 sketchPane.zoom = Math.min(Math.max(sketchPane.zoom - 0.25, 0.75), 16)
                 sketchPane.resize(
                   document.body.offsetWidth,
@@ -190,17 +185,20 @@ window.fetch('./example/brushes/brushes.json')
               break
             case '0':
               // if (e.metaKey) {
+                
+                sketchPane.anchor = new PIXI.Point(
+                  sketchPane.app.renderer.width / 2,
+                  sketchPane.app.renderer.height / 2
+                )
                 sketchPane.zoom = 1
                 sketchPane.resize(
                   document.body.offsetWidth,
                   document.body.offsetHeight
                 )
-
-                // recenter
-                sketchPane.sketchPaneContainer.pivot.set(sketchPane.width / 2, sketchPane.height / 2)
-                sketchPane.sketchPaneContainer.position.set(
-                  Math.floor(sketchPane.app.renderer.width / 2),
-                  Math.floor(sketchPane.app.renderer.height / 2)
+                // re-center
+                sketchPane.sketchPaneContainer.pivot = new PIXI.Point(
+                  sketchPane.width / 2,
+                  sketchPane.height / 2
                 )
 
               // }
