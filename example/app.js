@@ -188,6 +188,23 @@ window.fetch('./example/brushes/brushes.json')
                 )
               // }
               break
+            case '0':
+              // if (e.metaKey) {
+                sketchPane.zoom = 1
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+
+                // recenter
+                sketchPane.sketchPaneContainer.pivot.set(sketchPane.width / 2, sketchPane.height / 2)
+                sketchPane.sketchPaneContainer.position.set(
+                  Math.floor(sketchPane.app.renderer.width / 2),
+                  Math.floor(sketchPane.app.renderer.height / 2)
+                )
+
+              // }
+              break
           }
         })
 
