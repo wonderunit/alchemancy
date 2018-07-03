@@ -246,16 +246,25 @@ export default class SketchPane {
   centerContainer () {
     if (this.anchor) {
       // use anchor
-      let point = this.localizePoint(this.anchor)
-
+      let point = this.sketchPaneContainer.toLocal(
+        this.anchor,
+        this.app.stage
+      )
       this.sketchPaneContainer.pivot.set(point.x, point.y)
-      this.sketchPaneContainer.position.set(this.anchor.x, this.anchor.y)
+      this.sketchPaneContainer.position.set(
+        // TODO Math.floor?
+        this.anchor.x,
+        this.anchor.y
+      )
     } else {
+      // TODO set anchor if not present?
+
       // center
       this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
       this.sketchPaneContainer.position.set(
-        Math.floor(this.app.renderer.width / 2),
-        Math.floor(this.app.renderer.height / 2)
+        // TODO Math.floor?
+        this.app.renderer.width / 2,
+        this.app.renderer.height / 2
       )
     }
   }
@@ -272,6 +281,9 @@ export default class SketchPane {
   resize (width: number, height: number) {
     // resize the canvas to fit the parent bounds
     this.app.renderer.resize(width, height)
+
+    // update viewClientRect
+    this.viewClientRect = this.app.view.getBoundingClientRect()
 
     // copy the canvas dimensions rectangle value
     // min size of 0×0 to prevent flip
@@ -297,8 +309,8 @@ export default class SketchPane {
     // if cursor has not moved yet, pretend it's in the center of the known screen
     if (!this.cursor.lastPointer) {
       this.cursor.lastPointer = new PIXI.Point(
-        this.app.renderer.width / 2,
-        this.app.renderer.height / 2
+        (this.app.renderer.width / 2) + this.viewClientRect.left,
+        (this.app.renderer.height / 2) + this.viewClientRect.top
       )
     }
 
@@ -309,9 +321,6 @@ export default class SketchPane {
     this.sketchPaneContainer.scale.set(
       (Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom
     )
-
-    // update viewClientRect
-    this.viewClientRect = this.app.view.getBoundingClientRect()
   }
 
   brushes: Record<string, Brush>
