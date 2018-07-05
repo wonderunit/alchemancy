@@ -313,7 +313,8 @@ var cursor_Cursor = /** @class */ (function (_super) {
         return _this;
     }
     Cursor.prototype.renderCursor = function (e) {
-        var point = this.container.localizePoint(e);
+        this.lastPointer.set(e.x, e.y);
+        var point = this.container.localizePoint(this.lastPointer);
         this.position.set(point.x, point.y);
         this.anchor.set(0.5);
         // show (only when moved)
@@ -767,6 +768,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.app.stage.addChild(this.sketchPaneContainer);
         this.sketchPaneContainer.scale.set(1);
         this.viewClientRect = this.app.view.getBoundingClientRect();
+        this.zoom = 1;
     };
     SketchPane.prototype.setImageSize = function (width, height) {
         this.width = width;
@@ -822,8 +824,22 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         return this.layers.create(options);
     };
     SketchPane.prototype.centerContainer = function () {
-        this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2);
-        this.sketchPaneContainer.position.set(Math.floor(this.app.renderer.width / 2), Math.floor(this.app.renderer.height / 2));
+        if (this.anchor) {
+            // use anchor
+            var point = this.sketchPaneContainer.toLocal(this.anchor, this.app.stage);
+            this.sketchPaneContainer.pivot.set(point.x, point.y);
+            this.sketchPaneContainer.position.set(
+            // TODO Math.floor?
+            this.anchor.x, this.anchor.y);
+        }
+        else {
+            // TODO set anchor if not present?
+            // center
+            this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2);
+            this.sketchPaneContainer.position.set(
+            // TODO Math.floor?
+            this.app.renderer.width / 2, this.app.renderer.height / 2);
+        }
     };
     // resizeToParent () {
     //   this.resizeToElement(this.app.view.parentElement)
@@ -836,6 +852,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.resize = function (width, height) {
         // resize the canvas to fit the parent bounds
         this.app.renderer.resize(width, height);
+        // update viewClientRect
+        this.viewClientRect = this.app.view.getBoundingClientRect();
         // copy the canvas dimensions rectangle value
         // min size of 0×0 to prevent flip
         var dst = {
@@ -853,12 +871,14 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         var targetWidth = (frameAr > imageAr)
             ? src.width * dst.height / src.height
             : dst.width;
-        // set scale
-        this.sketchPaneContainer.scale.set(Math.floor(targetWidth) / Math.floor(src.width));
+        // if cursor has not moved yet, pretend it's in the center of the known screen
+        if (!this.cursor.lastPointer) {
+            this.cursor.lastPointer = new external_pixi_js_["Point"]((this.app.renderer.width / 2) + this.viewClientRect.left, (this.app.renderer.height / 2) + this.viewClientRect.top);
+        }
         // center
         this.centerContainer();
-        // update viewClientRect
-        this.viewClientRect = this.app.view.getBoundingClientRect();
+        // set scale
+        this.sketchPaneContainer.scale.set((Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom);
     };
     // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
