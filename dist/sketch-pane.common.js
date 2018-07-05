@@ -1141,11 +1141,20 @@ var sketch_pane_SketchPane = /** @class */ (function () {
                 // this exp value is just tweaked by eye
                 // in the future we could relate the exp to the spacing value for better results
                 Math.pow(this.strokeState.strokeOpacityScale, 5);
-            this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
-            // switch from sprite alpha to alpha filter
-            this.setLayerOpacity(this.layers.currentIndex, 1);
-            this.alphaFilter.alpha = this.strokeState.layerOpacity;
-            this.layers[this.layers.currentIndex].container.filters = [this.alphaFilter];
+            // AlphaFilter only if stroke opacity < 1
+            if (this.strokeState.strokeOpacityScale < 1) {
+                // switch from sprite alpha to alpha filter
+                this.setLayerOpacity(this.layers.currentIndex, 1);
+                this.alphaFilter.alpha = this.strokeState.layerOpacity;
+                this.layers[this.layers.currentIndex].container.filters = [this.alphaFilter];
+                this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
+            }
+            else {
+                // switch from alpha filter to sprite alpha
+                this.setLayerOpacity(this.layers.currentIndex, this.strokeState.layerOpacity);
+                this.layers[this.layers.currentIndex].container.filters = [];
+                this.strokeSprite.alpha = this.strokeState.layerOpacity;
+            }
             this.updateLayerDepths();
         }
         this.drawStroke();
@@ -1328,8 +1337,17 @@ var sketch_pane_SketchPane = /** @class */ (function () {
                 this.updateMask(this.segmentContainer, true);
             }
             else {
+                // temporarily set
+                this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
                 // stamp to layer texture
                 this.stampStroke(this.strokeSprite, this.layers.getCurrentLayer());
+                // reset
+                if (this.strokeState.strokeOpacityScale < 1) {
+                    this.strokeSprite.alpha = this.strokeState.strokeOpacityScale;
+                }
+                else {
+                    this.strokeSprite.alpha = this.strokeState.layerOpacity;
+                }
             }
             this.disposeContainer(this.segmentContainer);
             this.offscreenContainer.removeChildren();
