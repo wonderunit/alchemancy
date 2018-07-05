@@ -397,6 +397,75 @@
       canvas.addEventListener('pointerup', e => sketchPane.up(e))
       canvas.addEventListener('pointermove', e => sketchPane.move(e))
 
+      //
+      //
+      // pan & zoom controls
+      //
+      const rerender = () => {
+        sketchPane.resize(sketchPane.app.view.width, sketchPane.app.view.height)
+      }
+      window.addEventListener('wheel', function (e) {
+        if (!e.shiftKey) {
+          // zoom
+          let delta = e.deltaY / 100
+
+          sketchPane.anchor = new PIXI.Point(
+            e.x - sketchPane.viewClientRect.left,
+            e.y - sketchPane.viewClientRect.top
+          )
+          sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.75), 16)
+          sketchPane.cursor.renderCursor(e)
+          rerender()
+        } else {
+          // pan
+          if (!sketchPane.anchor) {
+            sketchPane.anchor = new PIXI.Point(
+              sketchPane.sketchPaneContainer.x,
+              sketchPane.sketchPaneContainer.y
+            )
+          }
+          sketchPane.anchor.x -= e.deltaX
+          sketchPane.anchor.y -= e.deltaY
+
+          sketchPane.sketchPaneContainer.position.set(sketchPane.anchor.x, sketchPane.anchor.y)
+          sketchPane.cursor.renderCursor(e)
+        }
+      })
+      window.addEventListener('keyup', function (e) {
+        switch (e.key) {
+          case '=':
+              sketchPane.anchor = new PIXI.Point(
+                sketchPane.cursor.lastPointer.x - sketchPane.viewClientRect.left,
+                sketchPane.cursor.lastPointer.y - sketchPane.viewClientRect.top
+              )
+              sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + 0.25, 0.75), 16)
+              rerender()
+            break
+          case '-':
+              sketchPane.anchor = new PIXI.Point(
+                sketchPane.cursor.lastPointer.x - sketchPane.viewClientRect.left,
+                sketchPane.cursor.lastPointer.y - sketchPane.viewClientRect.top
+              )
+              sketchPane.zoom = Math.min(Math.max(sketchPane.zoom - 0.25, 0.75), 16)
+              rerender()
+            break
+          case '0':
+              sketchPane.anchor = null
+              // sketchPane.anchor = new PIXI.Point(
+              //   sketchPane.app.renderer.width / 2,
+              //   sketchPane.app.renderer.height / 2
+              // )
+              sketchPane.zoom = 1
+              rerender()
+              // re-center
+              // sketchPane.sketchPaneContainer.pivot = new PIXI.Point(
+              //   sketchPane.width / 2,
+              //   sketchPane.height / 2
+              // )
+            break
+        }
+      })
+
       window.sketchPane = sketchPane
     })()
   </script>

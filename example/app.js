@@ -41,6 +41,10 @@ const sketchPane = new SketchLib.SketchPane({
   imageHeight: 900
 })
 sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
+sketchPane.anchor = new PIXI.Point(
+  sketchPane.sketchPaneContainer.position.x,
+  sketchPane.sketchPaneContainer.position.y
+)
 
 const forceClear = () => {
   sketchPane.app.renderer.render(
@@ -132,6 +136,74 @@ window.fetch('./example/brushes/brushes.json')
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
           sketchPane.up(e)
+        })
+
+        window.addEventListener('wheel', function (e) {
+          if (!e.shiftKey) {
+            // zoom
+            let delta = e.deltaY / 100
+
+            sketchPane.anchor = new PIXI.Point(e.x, e.y)
+            sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + delta, 0.75), 16)
+            sketchPane.resize(
+              document.body.offsetWidth,
+              document.body.offsetHeight
+            )
+            sketchPane.cursor.renderCursor(e)
+          } else {
+            // pan
+            sketchPane.anchor.x -= e.deltaX
+            sketchPane.anchor.y -= e.deltaY
+            sketchPane.sketchPaneContainer.position.set(sketchPane.anchor.x, sketchPane.anchor.y)
+            sketchPane.cursor.renderCursor(e)
+          }
+        })
+
+        window.addEventListener('keyup', function (e) {
+          switch (e.key) {
+            case '=':
+              // if (e.metaKey) {
+                sketchPane.anchor.x = sketchPane.cursor.lastPointer.x
+                sketchPane.anchor.y = sketchPane.cursor.lastPointer.y
+                sketchPane.zoom = Math.min(Math.max(sketchPane.zoom + 0.25, 0.75), 16)
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+              // }
+              break
+            case '-':
+              // if (e.metaKey) {
+                sketchPane.anchor.x = sketchPane.cursor.lastPointer.x
+                sketchPane.anchor.y = sketchPane.cursor.lastPointer.y
+                sketchPane.zoom = Math.min(Math.max(sketchPane.zoom - 0.25, 0.75), 16)
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+              // }
+              break
+            case '0':
+              // if (e.metaKey) {
+                
+                sketchPane.anchor = new PIXI.Point(
+                  sketchPane.app.renderer.width / 2,
+                  sketchPane.app.renderer.height / 2
+                )
+                sketchPane.zoom = 1
+                sketchPane.resize(
+                  document.body.offsetWidth,
+                  document.body.offsetHeight
+                )
+                // re-center
+                sketchPane.sketchPaneContainer.pivot = new PIXI.Point(
+                  sketchPane.width / 2,
+                  sketchPane.height / 2
+                )
+
+              // }
+              break
+          }
         })
 
         let stats = new Stats()

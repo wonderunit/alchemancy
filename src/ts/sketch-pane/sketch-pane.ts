@@ -53,6 +53,9 @@ export default class SketchPane {
 
   efficiencyMode: boolean = false
 
+  zoom: number
+  anchor: PIXI.Point
+
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
@@ -169,6 +172,8 @@ export default class SketchPane {
     this.sketchPaneContainer.scale.set(1)
 
     this.viewClientRect = this.app.view.getBoundingClientRect()
+
+    this.zoom = 1
   }
 
   width: number
@@ -239,11 +244,25 @@ export default class SketchPane {
   }
 
   centerContainer () {
-    this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
-    this.sketchPaneContainer.position.set(
-      Math.floor(this.app.renderer.width / 2),
-      Math.floor(this.app.renderer.height / 2)
-    )
+    if (this.anchor) {
+      // use anchor
+      let point = this.sketchPaneContainer.toLocal(
+        this.anchor,
+        this.app.stage
+      )
+      this.sketchPaneContainer.pivot.set(point.x, point.y)
+      this.sketchPaneContainer.position.set(
+        this.anchor.x,
+        this.anchor.y
+      )
+    } else {
+      // center
+      this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
+      this.sketchPaneContainer.position.set(
+        this.app.renderer.width / 2,
+        this.app.renderer.height / 2
+      )
+    }
   }
 
   // resizeToParent () {
@@ -258,6 +277,9 @@ export default class SketchPane {
   resize (width: number, height: number) {
     // resize the canvas to fit the parent bounds
     this.app.renderer.resize(width, height)
+
+    // update viewClientRect
+    this.viewClientRect = this.app.view.getBoundingClientRect()
 
     // copy the canvas dimensions rectangle value
     // min size of 0×0 to prevent flip
@@ -280,16 +302,21 @@ export default class SketchPane {
       ? src.width * dst.height / src.height
       : dst.width
 
-    // set scale
-    this.sketchPaneContainer.scale.set(
-      Math.floor(targetWidth) / Math.floor(src.width)
-    )
+    // if cursor has not moved yet, pretend it's in the center of the known screen
+    if (!this.cursor.lastPointer) {
+      this.cursor.lastPointer = new PIXI.Point(
+        (this.app.renderer.width / 2) + this.viewClientRect.left,
+        (this.app.renderer.height / 2) + this.viewClientRect.top
+      )
+    }
 
     // center
     this.centerContainer()
 
-    // update viewClientRect
-    this.viewClientRect = this.app.view.getBoundingClientRect()
+    // set scale
+    this.sketchPaneContainer.scale.set(
+      (Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom
+    )
   }
 
   brushes: Record<string, Brush>

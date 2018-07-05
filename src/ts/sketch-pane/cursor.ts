@@ -11,6 +11,8 @@ export class Cursor extends PIXI.Sprite {
   _enabled: boolean
   gfx: PIXI.Graphics
 
+  lastPointer: PIXI.Point
+
   constructor (container: ICursorContainer) {
     super()
     this.container = container
@@ -30,7 +32,8 @@ export class Cursor extends PIXI.Sprite {
   }
 
   renderCursor (e: {x: number, y: number}) {
-    let point = this.container.localizePoint(e)
+    this.lastPointer.set(e.x, e.y)
+    let point = this.container.localizePoint(this.lastPointer)
     this.position.set(point.x, point.y)
     this.anchor.set(0.5)
 
