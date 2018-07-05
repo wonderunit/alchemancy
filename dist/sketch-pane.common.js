@@ -828,17 +828,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             // use anchor
             var point = this.sketchPaneContainer.toLocal(this.anchor, this.app.stage);
             this.sketchPaneContainer.pivot.set(point.x, point.y);
-            this.sketchPaneContainer.position.set(
-            // TODO Math.floor?
-            this.anchor.x, this.anchor.y);
+            this.sketchPaneContainer.position.set(this.anchor.x, this.anchor.y);
         }
         else {
-            // TODO set anchor if not present?
             // center
             this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2);
-            this.sketchPaneContainer.position.set(
-            // TODO Math.floor?
-            this.app.renderer.width / 2, this.app.renderer.height / 2);
+            this.sketchPaneContainer.position.set(this.app.renderer.width / 2, this.app.renderer.height / 2);
         }
     };
     // resizeToParent () {
