@@ -252,17 +252,13 @@ export default class SketchPane {
       )
       this.sketchPaneContainer.pivot.set(point.x, point.y)
       this.sketchPaneContainer.position.set(
-        // TODO Math.floor?
         this.anchor.x,
         this.anchor.y
       )
     } else {
-      // TODO set anchor if not present?
-
       // center
       this.sketchPaneContainer.pivot.set(this.width / 2, this.height / 2)
       this.sketchPaneContainer.position.set(
-        // TODO Math.floor?
         this.app.renderer.width / 2,
         this.app.renderer.height / 2
       )
