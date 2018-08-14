@@ -38,6 +38,23 @@ interface IStrokeState {
   layerOpacity?: number
 }
 
+class IdleTimer {
+	callback: any;
+	timer: number;
+  delay: number = 500
+  constructor (callback: any) {
+    this.timer = null
+    this.callback = callback
+  }
+  reset () {
+    clearTimeout(this.timer)
+    this.timer = setTimeout(this.callback, this.delay)
+  }
+  clear () {
+    clearTimeout(this.timer)
+  }
+}
+
 export default class SketchPane {
   layerMask: PIXI.Graphics
   layerBackground: PIXI.Graphics
@@ -56,6 +73,8 @@ export default class SketchPane {
   zoom: number
   anchor: PIXI.Point
 
+  idleTimer: IdleTimer
+
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
@@ -64,6 +83,9 @@ export default class SketchPane {
     this.layerBackground = undefined
     this.viewClientRect = undefined
     this.containerPadding = 50
+
+    this.onIdle = this.onIdle.bind(this)
+    this.idleTimer = new IdleTimer(this.onIdle)
 
     // callbacks
     this.onStrokeBefore = options.onStrokeBefore
@@ -571,6 +593,7 @@ export default class SketchPane {
 
   down (e: PointerEvent, options = {}) {
     this.pointerDown = true
+    this.idleTimer.reset()
     this.strokeBegin(e, options)
 
     this.app.view.style.cursor = 'none'
@@ -579,6 +602,7 @@ export default class SketchPane {
 
   move (e: PointerEvent) {
     if (this.pointerDown) {
+      this.idleTimer.reset()
       this.strokeContinue(e)
     }
 
@@ -680,8 +704,14 @@ export default class SketchPane {
     this.stopDrawing()
   }
 
+  onIdle () {
+    console.log('was idle')
+  }
+
   // public
   stopDrawing () {
+    this.idleTimer.clear()
+
     this.drawStroke(true) // finalize
 
     this.layers.markDirty(this.strokeState.layerIndices)
