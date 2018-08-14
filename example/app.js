@@ -74,12 +74,16 @@ window.fetch('./example/brushes/brushes.json')
       .then(() => sketchPane.setCurrentLayerIndex(sketchPane.getNumLayers()))
 
       .then(() => {
+        sketchPane.setLayerOpacity(sketchPane.getCurrentLayerIndex(), 0.75)
+      })
+
+      .then(() => {
         console.log('ready')
 
         // set default brush
         sketchPane.brush = sketchPane.brushes.pencil
         sketchPane.brushColor = 0x000000
-        sketchPane.brushSize = 4
+        sketchPane.brushSize = 32
         sketchPane.nodeOpacityScale = 0.9
         sketchPane.strokeOpacityScale = 1.0
 
