@@ -714,7 +714,7 @@ export default class SketchPane {
   }
 
   onIdle () {
-    if (!this.strokeState.isStraightLine) {
+    if (!this.strokeState.isStraightLine && !this.strokeState.isErasing) {
       this.strokeState.isStraightLine = true
 
       // clear the strokeSprite texture
