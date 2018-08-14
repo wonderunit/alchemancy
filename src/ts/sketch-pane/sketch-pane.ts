@@ -36,6 +36,9 @@ interface IStrokeState {
   nodeOpacityScale?: number
   strokeOpacityScale?: number
   layerOpacity?: number
+
+  isStraightLine: boolean,
+  origin: IStrokePoint
 }
 
 class IdleTimer {
@@ -647,12 +650,16 @@ export default class SketchPane {
 
       nodeOpacityScale: this.nodeOpacityScale,
       strokeOpacityScale: this.strokeOpacityScale,
-      layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
+      layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
+
+      isStraightLine: false,
+      origin: undefined
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
 
     this.addPointerEventAsPoint(e)
+    this.strokeState.origin = this.strokeState.points[0]
 
     // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
@@ -705,7 +712,19 @@ export default class SketchPane {
   }
 
   onIdle () {
-    console.log('was idle')
+    if (!this.strokeState.isStraightLine) {
+      this.strokeState.isStraightLine = true
+
+      // clear the strokeSprite texture
+      this.app.renderer.render(
+        new PIXI.Sprite(PIXI.Texture.EMPTY),
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        true
+      )
+
+      this.segmentContainer
+      this.drawStroke()
+    }
   }
 
   // public
@@ -899,6 +918,14 @@ export default class SketchPane {
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
   drawStroke (finalize = false) {
+    if (this.strokeState.isStraightLine) {
+      let pointA = this.strokeState.origin
+      let pointB = this.strokeState.points[this.strokeState.points.length - 1]
+
+      this.strokeState.points = [pointA, pointB]
+      this.strokeState.path = new paper.Path(this.strokeState.points)
+    }
+
     let len = this.strokeState.points.length
 
     // finalize
