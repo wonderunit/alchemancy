@@ -920,10 +920,18 @@ export default class SketchPane {
   // TODO instead of slices, could pass offset and length?
   drawStroke (finalize = false) {
     if (this.strokeState.isStraightLine) {
+
+      // clear the strokeSprite texture
+      this.app.renderer.render(
+        new PIXI.Sprite(PIXI.Texture.EMPTY),
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        true
+      )
+
       let pointA = this.strokeState.origin
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
 
-      this.strokeState.points = [pointA, pointB]
+      this.strokeState.points = [pointA, pointB, pointB]
       this.strokeState.lastStaticIndex = 0
       this.strokeState.path = new paper.Path(this.strokeState.points)
     }
