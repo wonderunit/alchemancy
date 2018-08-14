@@ -684,6 +684,21 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+var IdleTimer = /** @class */ (function () {
+    function IdleTimer(callback) {
+        this.delay = 500;
+        this.timer = null;
+        this.callback = callback;
+    }
+    IdleTimer.prototype.reset = function () {
+        clearTimeout(this.timer);
+        this.timer = setTimeout(this.callback, this.delay);
+    };
+    IdleTimer.prototype.clear = function () {
+        clearTimeout(this.timer);
+    };
+    return IdleTimer;
+}());
 var sketch_pane_SketchPane = /** @class */ (function () {
     function SketchPane(options) {
         if (options === void 0) { options = { backgroundColor: 0xffffff }; }
@@ -697,6 +712,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.layerBackground = undefined;
         this.viewClientRect = undefined;
         this.containerPadding = 50;
+        this.onIdle = this.onIdle.bind(this);
+        this.idleTimer = new IdleTimer(this.onIdle);
         // callbacks
         this.onStrokeBefore = options.onStrokeBefore;
         this.onStrokeAfter = options.onStrokeAfter;
@@ -1080,12 +1097,14 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.down = function (e, options) {
         if (options === void 0) { options = {}; }
         this.pointerDown = true;
+        this.idleTimer.reset();
         this.strokeBegin(e, options);
         this.app.view.style.cursor = 'none';
         this.cursor.renderCursor(e);
     };
     SketchPane.prototype.move = function (e) {
         if (this.pointerDown) {
+            this.idleTimer.reset();
             this.strokeContinue(e);
         }
         this.app.view.style.cursor = 'none';
@@ -1118,10 +1137,13 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             color: this.brushColor,
             nodeOpacityScale: this.nodeOpacityScale,
             strokeOpacityScale: this.strokeOpacityScale,
-            layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
+            layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
+            isStraightLine: false,
+            origin: undefined
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
+        this.strokeState.origin = this.strokeState.points[0];
         // don't show the live container or stroke sprite while erasing
         if (this.strokeState.isErasing) {
             if (this.liveContainer.parent) {
@@ -1164,11 +1186,22 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.drawStroke();
     };
     SketchPane.prototype.strokeEnd = function (e) {
-        this.addPointerEventAsPoint(e);
+        if (!this.strokeState.isStraightLine) {
+            this.addPointerEventAsPoint(e);
+        }
         this.stopDrawing();
+    };
+    SketchPane.prototype.onIdle = function () {
+        if (!this.strokeState.isStraightLine && !this.strokeState.isErasing) {
+            this.strokeState.isStraightLine = true;
+            // clear the strokeSprite texture
+            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
+            this.drawStroke();
+        }
     };
     // public
     SketchPane.prototype.stopDrawing = function () {
+        this.idleTimer.clear();
         this.drawStroke(true); // finalize
         this.layers.markDirty(this.strokeState.layerIndices);
         // switch from alpha filter back to sprite alpha
@@ -1307,6 +1340,15 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     // TODO instead of slices, could pass offset and length?
     SketchPane.prototype.drawStroke = function (finalize) {
         if (finalize === void 0) { finalize = false; }
+        if (this.strokeState.isStraightLine) {
+            // clear the strokeSprite texture
+            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
+            var pointA = this.strokeState.origin;
+            var pointB = this.strokeState.points[this.strokeState.points.length - 1];
+            this.strokeState.points = [pointA, pointB, pointB];
+            this.strokeState.lastStaticIndex = 0;
+            this.strokeState.path = new external_paper_["Path"](this.strokeState.points);
+        }
         var len = this.strokeState.points.length;
         // finalize
         // draws all remaining points we know of
