@@ -724,7 +724,6 @@ export default class SketchPane {
         true
       )
 
-      this.segmentContainer
       this.drawStroke()
     }
   }
