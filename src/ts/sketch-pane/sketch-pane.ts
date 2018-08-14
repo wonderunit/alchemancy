@@ -707,7 +707,9 @@ export default class SketchPane {
   }
 
   strokeEnd (e: PointerEvent) {
-    this.addPointerEventAsPoint(e)
+    if (!this.strokeState.isStraightLine) {
+      this.addPointerEventAsPoint(e)
+    }
     this.stopDrawing()
   }
 
@@ -923,6 +925,7 @@ export default class SketchPane {
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
 
       this.strokeState.points = [pointA, pointB]
+      this.strokeState.lastStaticIndex = 0
       this.strokeState.path = new paper.Path(this.strokeState.points)
     }
 
