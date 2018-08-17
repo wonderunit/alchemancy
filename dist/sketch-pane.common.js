@@ -684,21 +684,6 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
-var IdleTimer = /** @class */ (function () {
-    function IdleTimer(callback) {
-        this.delay = 500;
-        this.timer = null;
-        this.callback = callback;
-    }
-    IdleTimer.prototype.reset = function () {
-        clearTimeout(this.timer);
-        this.timer = setTimeout(this.callback, this.delay);
-    };
-    IdleTimer.prototype.clear = function () {
-        clearTimeout(this.timer);
-    };
-    return IdleTimer;
-}());
 var sketch_pane_SketchPane = /** @class */ (function () {
     function SketchPane(options) {
         if (options === void 0) { options = { backgroundColor: 0xffffff }; }
@@ -712,8 +697,6 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.layerBackground = undefined;
         this.viewClientRect = undefined;
         this.containerPadding = 50;
-        this.onIdle = this.onIdle.bind(this);
-        this.idleTimer = new IdleTimer(this.onIdle);
         // callbacks
         this.onStrokeBefore = options.onStrokeBefore;
         this.onStrokeAfter = options.onStrokeAfter;
@@ -1097,14 +1080,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.down = function (e, options) {
         if (options === void 0) { options = {}; }
         this.pointerDown = true;
-        this.idleTimer.reset();
         this.strokeBegin(e, options);
         this.app.view.style.cursor = 'none';
         this.cursor.renderCursor(e);
     };
     SketchPane.prototype.move = function (e) {
         if (this.pointerDown) {
-            this.idleTimer.reset();
             this.strokeContinue(e);
         }
         this.app.view.style.cursor = 'none';
@@ -1192,10 +1173,6 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         this.stopDrawing();
     };
-    // TODO should this be client app's responsibility?
-    SketchPane.prototype.onIdle = function () {
-        this.setIsStraightLine(true);
-    };
     // public
     SketchPane.prototype.setIsStraightLine = function (yes) {
         if (!this.strokeState)
@@ -1217,11 +1194,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             return;
         if (this.strokeState.isErasing)
             return;
+        if (!this.strokeState.isStraightLine)
+            return;
         this.strokeState.shouldSnap = choice;
     };
     // public
     SketchPane.prototype.stopDrawing = function () {
-        this.idleTimer.clear();
         this.drawStroke(true); // finalize
         this.layers.markDirty(this.strokeState.layerIndices);
         // switch from alpha filter back to sprite alpha
