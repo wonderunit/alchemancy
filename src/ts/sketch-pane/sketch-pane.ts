@@ -914,6 +914,9 @@ export default class SketchPane {
       let pointA = this.strokeState.origin
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
 
+      // force pressure to match
+      pointB.pressure = pointA.pressure
+
       if (this.strokeState.shouldSnap) {
         let angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x)
         let distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y)
