@@ -1184,8 +1184,6 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         if (yes && !this.strokeState.isStraightLine) {
             this.strokeState.isStraightLine = true;
-            // clear the strokeSprite texture
-            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             this.drawStroke();
         }
     };
@@ -1343,6 +1341,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             var pointA = this.strokeState.origin;
             var pointB = this.strokeState.points[this.strokeState.points.length - 1];
+            // force pressure to match
+            pointB.pressure = pointA.pressure;
             if (this.strokeState.shouldSnap) {
                 var angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
                 var distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
