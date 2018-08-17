@@ -702,14 +702,6 @@ export default class SketchPane {
 
     if (yes && !this.strokeState.isStraightLine) {
       this.strokeState.isStraightLine = true
-
-      // clear the strokeSprite texture
-      this.app.renderer.render(
-        new PIXI.Sprite(PIXI.Texture.EMPTY),
-        this.strokeSprite.texture as PIXI.RenderTexture,
-        true
-      )
-
       this.drawStroke()
     }
   }
