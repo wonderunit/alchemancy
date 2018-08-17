@@ -38,7 +38,8 @@ interface IStrokeState {
   layerOpacity?: number
 
   isStraightLine: boolean,
-  origin: IStrokePoint
+  origin: IStrokePoint,
+  shouldSnap: boolean
 }
 
 class IdleTimer {
@@ -653,7 +654,8 @@ export default class SketchPane {
       layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
 
       isStraightLine: false,
-      origin: undefined
+      origin: undefined,
+      shouldSnap: false
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
@@ -713,8 +715,21 @@ export default class SketchPane {
     this.stopDrawing()
   }
 
+  // TODO should this be client app's responsibility?
   onIdle () {
-    if (!this.strokeState.isStraightLine && !this.strokeState.isErasing) {
+    this.setIsStraightLine(true)
+  }
+
+  // public
+  setIsStraightLine (yes: boolean) {
+    if (!this.strokeState) return
+    if (this.strokeState.isErasing) return
+
+    if (!yes) {
+      this.strokeState.isStraightLine = false
+    }
+
+    if (yes && !this.strokeState.isStraightLine) {
       this.strokeState.isStraightLine = true
 
       // clear the strokeSprite texture
@@ -726,6 +741,12 @@ export default class SketchPane {
 
       this.drawStroke()
     }
+  }
+  setShouldSnap (choice: boolean) {
+    if (!this.strokeState) return
+    if (this.strokeState.isErasing) return
+
+    this.strokeState.shouldSnap = choice
   }
 
   // public
@@ -930,6 +951,18 @@ export default class SketchPane {
 
       let pointA = this.strokeState.origin
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
+
+      if (this.strokeState.shouldSnap) {
+        let angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x)
+        let distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y)
+
+        let snapAt = 45
+        let nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt
+        let snapAngle = (nearestDegree - 180) * Math.PI / 180
+
+        pointB.x = pointA.x + (Math.cos(snapAngle) * distance)
+        pointB.y = pointA.y + (Math.sin(snapAngle) * distance)
+      }
 
       this.strokeState.points = [pointA, pointB, pointB]
       this.strokeState.lastStaticIndex = 0
