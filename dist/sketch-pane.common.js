@@ -1139,7 +1139,8 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             strokeOpacityScale: this.strokeOpacityScale,
             layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
             isStraightLine: false,
-            origin: undefined
+            origin: undefined,
+            shouldSnap: false
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
@@ -1191,13 +1192,32 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         this.stopDrawing();
     };
+    // TODO should this be client app's responsibility?
     SketchPane.prototype.onIdle = function () {
-        if (!this.strokeState.isStraightLine && !this.strokeState.isErasing) {
+        this.setIsStraightLine(true);
+    };
+    // public
+    SketchPane.prototype.setIsStraightLine = function (yes) {
+        if (!this.strokeState)
+            return;
+        if (this.strokeState.isErasing)
+            return;
+        if (!yes) {
+            this.strokeState.isStraightLine = false;
+        }
+        if (yes && !this.strokeState.isStraightLine) {
             this.strokeState.isStraightLine = true;
             // clear the strokeSprite texture
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             this.drawStroke();
         }
+    };
+    SketchPane.prototype.setShouldSnap = function (choice) {
+        if (!this.strokeState)
+            return;
+        if (this.strokeState.isErasing)
+            return;
+        this.strokeState.shouldSnap = choice;
     };
     // public
     SketchPane.prototype.stopDrawing = function () {
@@ -1345,6 +1365,15 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             var pointA = this.strokeState.origin;
             var pointB = this.strokeState.points[this.strokeState.points.length - 1];
+            if (this.strokeState.shouldSnap) {
+                var angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
+                var distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+                var snapAt = 45;
+                var nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt;
+                var snapAngle = (nearestDegree - 180) * Math.PI / 180;
+                pointB.x = pointA.x + (Math.cos(snapAngle) * distance);
+                pointB.y = pointA.y + (Math.sin(snapAngle) * distance);
+            }
             this.strokeState.points = [pointA, pointB, pointB];
             this.strokeState.lastStaticIndex = 0;
             this.strokeState.path = new external_paper_["Path"](this.strokeState.points);
