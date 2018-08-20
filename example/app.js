@@ -137,8 +137,16 @@ window.fetch('./example/brushes/brushes.json')
         window.addEventListener('pointermove', function (e) {
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
-          idleTimer && clearTimeout(idleTimer)
-          idleTimer = setTimeout(onIdle, 500)
+          if (sketchPane.strokeState && !sketchPane.strokeState.isStraightLine) {
+            let prev = sketchPane.strokeState.points[sketchPane.strokeState.points.length - 2]
+            if (prev) {
+              let curr = sketchPane.localizePoint(e)
+              if (Math.abs(prev.x - curr.x) > 1 || Math.abs(prev.y - curr.y) > 1) {
+                idleTimer && clearTimeout(idleTimer)
+                idleTimer = setTimeout(onIdle, 500)
+              }
+            }
+          }
 
           // if (e.target.parentNode !== document.body) return
           sketchPane.move(e)
