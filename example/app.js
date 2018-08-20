@@ -138,7 +138,7 @@ window.fetch('./example/brushes/brushes.json')
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
           if (sketchPane.strokeState && !sketchPane.strokeState.isStraightLine) {
-            let prev = sketchPane.strokeState.points[sketchPane.strokeState.points.length - 2]
+            let prev = sketchPane.strokeState.points[sketchPane.strokeState.points.length - 1]
             if (prev) {
               let curr = sketchPane.localizePoint(e)
               if (Math.abs(prev.x - curr.x) > 1 || Math.abs(prev.y - curr.y) > 1) {
