@@ -1121,6 +1121,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
             isStraightLine: false,
             origin: undefined,
+            straightLinePressure: 1,
             shouldSnap: false
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
@@ -1184,8 +1185,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         if (yes && !this.strokeState.isStraightLine) {
             this.strokeState.isStraightLine = true;
+            this.strokeState.straightLinePressure = this.strokeState.points[this.strokeState.points.length - 1].pressure;
             this.drawStroke();
         }
+    };
+    SketchPane.prototype.getIsStraightLine = function () {
+        return !!this.pointerDown && !!this.strokeState && this.strokeState.isStraightLine;
     };
     SketchPane.prototype.setShouldSnap = function (choice) {
         if (!this.strokeState)
@@ -1341,8 +1346,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
             var pointA = this.strokeState.origin;
             var pointB = this.strokeState.points[this.strokeState.points.length - 1];
-            // force pressure to match
-            pointB.pressure = pointA.pressure;
+            pointB.pressure = pointA.pressure = this.strokeState.straightLinePressure;
             if (this.strokeState.shouldSnap) {
                 var angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
                 var distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
