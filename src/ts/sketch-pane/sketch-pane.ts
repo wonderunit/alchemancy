@@ -708,6 +708,11 @@ export default class SketchPane {
       this.drawStroke()
     }
   }
+
+  getIsStraightLine () {
+    return this.strokeState && this.strokeState.isStraightLine
+  }
+
   setShouldSnap (choice: boolean) {
     if (!this.strokeState) return
     if (this.strokeState.isErasing) return
