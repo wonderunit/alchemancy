@@ -710,7 +710,7 @@ export default class SketchPane {
   }
 
   getIsStraightLine () {
-    return this.strokeState && this.strokeState.isStraightLine
+    return !!this.pointerDown && !!this.strokeState && this.strokeState.isStraightLine
   }
 
   setShouldSnap (choice: boolean) {
