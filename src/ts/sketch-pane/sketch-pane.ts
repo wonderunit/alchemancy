@@ -39,6 +39,7 @@ interface IStrokeState {
 
   isStraightLine: boolean,
   origin: IStrokePoint,
+  straightLinePressure: number,
   shouldSnap: boolean
 }
 
@@ -631,6 +632,7 @@ export default class SketchPane {
 
       isStraightLine: false,
       origin: undefined,
+      straightLinePressure: 1,
       shouldSnap: false
     }
 
@@ -702,6 +704,7 @@ export default class SketchPane {
 
     if (yes && !this.strokeState.isStraightLine) {
       this.strokeState.isStraightLine = true
+      this.strokeState.straightLinePressure = this.strokeState.points[this.strokeState.points.length - 1].pressure
       this.drawStroke()
     }
   }
@@ -914,8 +917,7 @@ export default class SketchPane {
       let pointA = this.strokeState.origin
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
 
-      // force pressure to match
-      pointB.pressure = pointA.pressure
+      pointB.pressure = pointA.pressure = this.strokeState.straightLinePressure
 
       if (this.strokeState.shouldSnap) {
         let angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x)
