@@ -36,6 +36,10 @@ interface IStrokeState {
   nodeOpacityScale?: number
   strokeOpacityScale?: number
   layerOpacity?: number
+
+  isStraightLine: boolean,
+  origin: IStrokePoint,
+  shouldSnap: boolean
 }
 
 export default class SketchPane {
@@ -623,12 +627,17 @@ export default class SketchPane {
 
       nodeOpacityScale: this.nodeOpacityScale,
       strokeOpacityScale: this.strokeOpacityScale,
-      layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
+      layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
+
+      isStraightLine: false,
+      origin: undefined,
+      shouldSnap: false
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
 
     this.addPointerEventAsPoint(e)
+    this.strokeState.origin = this.strokeState.points[0]
 
     // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
@@ -676,8 +685,32 @@ export default class SketchPane {
   }
 
   strokeEnd (e: PointerEvent) {
-    this.addPointerEventAsPoint(e)
+    if (!this.strokeState.isStraightLine) {
+      this.addPointerEventAsPoint(e)
+    }
     this.stopDrawing()
+  }
+
+  // public
+  setIsStraightLine (yes: boolean) {
+    if (!this.strokeState) return
+    if (this.strokeState.isErasing) return
+
+    if (!yes) {
+      this.strokeState.isStraightLine = false
+    }
+
+    if (yes && !this.strokeState.isStraightLine) {
+      this.strokeState.isStraightLine = true
+      this.drawStroke()
+    }
+  }
+  setShouldSnap (choice: boolean) {
+    if (!this.strokeState) return
+    if (this.strokeState.isErasing) return
+    if (!this.strokeState.isStraightLine) return
+
+    this.strokeState.shouldSnap = choice
   }
 
   // public
@@ -869,6 +902,38 @@ export default class SketchPane {
   // render the live strokes
   // TODO instead of slices, could pass offset and length?
   drawStroke (finalize = false) {
+    if (this.strokeState.isStraightLine) {
+
+      // clear the strokeSprite texture
+      this.app.renderer.render(
+        new PIXI.Sprite(PIXI.Texture.EMPTY),
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        true
+      )
+
+      let pointA = this.strokeState.origin
+      let pointB = this.strokeState.points[this.strokeState.points.length - 1]
+
+      // force pressure to match
+      pointB.pressure = pointA.pressure
+
+      if (this.strokeState.shouldSnap) {
+        let angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x)
+        let distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y)
+
+        let snapAt = 45
+        let nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt
+        let snapAngle = (nearestDegree - 180) * Math.PI / 180
+
+        pointB.x = pointA.x + (Math.cos(snapAngle) * distance)
+        pointB.y = pointA.y + (Math.sin(snapAngle) * distance)
+      }
+
+      this.strokeState.points = [pointA, pointB, pointB]
+      this.strokeState.lastStaticIndex = 0
+      this.strokeState.path = new paper.Path(this.strokeState.points)
+    }
+
     let len = this.strokeState.points.length
 
     // finalize

@@ -1118,10 +1118,14 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             color: this.brushColor,
             nodeOpacityScale: this.nodeOpacityScale,
             strokeOpacityScale: this.strokeOpacityScale,
-            layerOpacity: this.getLayerOpacity(this.layers.currentIndex)
+            layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
+            isStraightLine: false,
+            origin: undefined,
+            shouldSnap: false
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
+        this.strokeState.origin = this.strokeState.points[0];
         // don't show the live container or stroke sprite while erasing
         if (this.strokeState.isErasing) {
             if (this.liveContainer.parent) {
@@ -1164,8 +1168,33 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.drawStroke();
     };
     SketchPane.prototype.strokeEnd = function (e) {
-        this.addPointerEventAsPoint(e);
+        if (!this.strokeState.isStraightLine) {
+            this.addPointerEventAsPoint(e);
+        }
         this.stopDrawing();
+    };
+    // public
+    SketchPane.prototype.setIsStraightLine = function (yes) {
+        if (!this.strokeState)
+            return;
+        if (this.strokeState.isErasing)
+            return;
+        if (!yes) {
+            this.strokeState.isStraightLine = false;
+        }
+        if (yes && !this.strokeState.isStraightLine) {
+            this.strokeState.isStraightLine = true;
+            this.drawStroke();
+        }
+    };
+    SketchPane.prototype.setShouldSnap = function (choice) {
+        if (!this.strokeState)
+            return;
+        if (this.strokeState.isErasing)
+            return;
+        if (!this.strokeState.isStraightLine)
+            return;
+        this.strokeState.shouldSnap = choice;
     };
     // public
     SketchPane.prototype.stopDrawing = function () {
@@ -1307,6 +1336,26 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     // TODO instead of slices, could pass offset and length?
     SketchPane.prototype.drawStroke = function (finalize) {
         if (finalize === void 0) { finalize = false; }
+        if (this.strokeState.isStraightLine) {
+            // clear the strokeSprite texture
+            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
+            var pointA = this.strokeState.origin;
+            var pointB = this.strokeState.points[this.strokeState.points.length - 1];
+            // force pressure to match
+            pointB.pressure = pointA.pressure;
+            if (this.strokeState.shouldSnap) {
+                var angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
+                var distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
+                var snapAt = 45;
+                var nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt;
+                var snapAngle = (nearestDegree - 180) * Math.PI / 180;
+                pointB.x = pointA.x + (Math.cos(snapAngle) * distance);
+                pointB.y = pointA.y + (Math.sin(snapAngle) * distance);
+            }
+            this.strokeState.points = [pointA, pointB, pointB];
+            this.strokeState.lastStaticIndex = 0;
+            this.strokeState.path = new external_paper_["Path"](this.strokeState.points);
+        }
         var len = this.strokeState.points.length;
         // finalize
         // draws all remaining points we know of

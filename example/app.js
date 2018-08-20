@@ -74,12 +74,18 @@ window.fetch('./example/brushes/brushes.json')
       .then(() => sketchPane.setCurrentLayerIndex(sketchPane.getNumLayers()))
 
       .then(() => {
+        sketchPane.setLayerOpacity(sketchPane.getCurrentLayerIndex(), 0.75)
+      })
+
+      .then(() => {
         console.log('ready')
+
+        idleTimer = null
 
         // set default brush
         sketchPane.brush = sketchPane.brushes.pencil
         sketchPane.brushColor = 0x000000
-        sketchPane.brushSize = 4
+        sketchPane.brushSize = 32
         sketchPane.nodeOpacityScale = 0.9
         sketchPane.strokeOpacityScale = 1.0
 
@@ -122,11 +128,17 @@ window.fetch('./example/brushes/brushes.json')
               : { erase: [sketchPane.getCurrentLayerIndex()] }
             : {}
 
+          idleTimer && clearTimeout(idleTimer)
+          idleTimer = setTimeout(onIdle, 500)
+
           sketchPane.down(e, options)
         })
 
         window.addEventListener('pointermove', function (e) {
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
+
+          idleTimer && clearTimeout(idleTimer)
+          idleTimer = setTimeout(onIdle, 500)
 
           // if (e.target.parentNode !== document.body) return
           sketchPane.move(e)
@@ -135,6 +147,7 @@ window.fetch('./example/brushes/brushes.json')
         window.addEventListener('pointerup', function (e) {
           if (gui.domElement.contains(e.target)) return // ignore GUI pointer movement
 
+          idleTimer && clearTimeout(idleTimer)
           sketchPane.up(e)
         })
 
@@ -205,6 +218,10 @@ window.fetch('./example/brushes/brushes.json')
               break
           }
         })
+
+        const onIdle = () => {
+          sketchPane.setIsStraightLine(true)
+        }
 
         let stats = new Stats()
         stats.showPanel(0)
