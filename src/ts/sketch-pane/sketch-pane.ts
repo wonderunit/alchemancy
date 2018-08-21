@@ -934,7 +934,7 @@ export default class SketchPane {
         let angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x)
         let distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y)
 
-        let snapAt = 45
+        let snapAt = 360/32
         let nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt
         let snapAngle = (nearestDegree - 180) * Math.PI / 180
 
