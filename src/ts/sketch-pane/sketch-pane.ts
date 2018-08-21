@@ -19,6 +19,7 @@ interface IStrokePoint {
 
 interface IStrokeSettings {
   erase?: Array<number>
+  isStraightLine?: boolean
 }
 
 interface IStrokeState {
@@ -630,7 +631,7 @@ export default class SketchPane {
       strokeOpacityScale: this.strokeOpacityScale,
       layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
 
-      isStraightLine: false,
+      isStraightLine: options.isStraightLine ? true : false,
       origin: undefined,
       straightLinePressure: 1,
       shouldSnap: false
@@ -640,6 +641,11 @@ export default class SketchPane {
 
     this.addPointerEventAsPoint(e)
     this.strokeState.origin = this.strokeState.points[0]
+
+    if (options.isStraightLine) {
+      this.strokeState.isStraightLine = true
+      this.strokeState.straightLinePressure = this.strokeState.points[0].pressure
+    }
 
     // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
