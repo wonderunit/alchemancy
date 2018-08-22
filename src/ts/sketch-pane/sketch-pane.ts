@@ -21,6 +21,7 @@ interface IStrokeSettings {
   erase?: Array<number>
   isStraightLine?: boolean
   shouldSnap?: boolean
+  straightLinePressure?: number
 }
 
 interface IStrokeState {
@@ -634,7 +635,7 @@ export default class SketchPane {
 
       isStraightLine: options.isStraightLine ? true : false,
       origin: undefined,
-      straightLinePressure: 1,
+      straightLinePressure: options.straightLinePressure,
       shouldSnap: options.shouldSnap ? true : false,
     }
 
@@ -643,9 +644,12 @@ export default class SketchPane {
     this.addPointerEventAsPoint(e)
     this.strokeState.origin = this.strokeState.points[0]
 
-    if (options.isStraightLine) {
-      this.strokeState.straightLinePressure = this.strokeState.origin.pressure
-    }
+    // if straightLinePressure was initialized
+    this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
+      // use the existing value
+      ? this.strokeState.straightLinePressure
+      // otherwise, set to the origin point pressure
+      : this.strokeState.origin.pressure
 
     // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
@@ -710,7 +714,9 @@ export default class SketchPane {
 
     if (yes && !this.strokeState.isStraightLine) {
       this.strokeState.isStraightLine = true
-      this.strokeState.straightLinePressure = this.strokeState.points[this.strokeState.points.length - 1].pressure
+      this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
+        ? this.strokeState.straightLinePressure
+        : this.strokeState.points[this.strokeState.points.length - 1].pressure
       this.drawStroke()
     }
   }
