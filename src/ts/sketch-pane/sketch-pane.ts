@@ -643,8 +643,7 @@ export default class SketchPane {
     this.strokeState.origin = this.strokeState.points[0]
 
     if (options.isStraightLine) {
-      this.strokeState.isStraightLine = true
-      this.strokeState.straightLinePressure = this.strokeState.points[0].pressure
+      this.strokeState.straightLinePressure = this.strokeState.origin.pressure
     }
 
     // don't show the live container or stroke sprite while erasing
