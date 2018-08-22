@@ -19,8 +19,8 @@ interface IStrokePoint {
 
 interface IStrokeSettings {
   erase?: Array<number>
-  isStraightLine?: boolean,
-  shouldSnap: boolean
+  isStraightLine?: boolean
+  shouldSnap?: boolean
 }
 
 interface IStrokeState {
@@ -39,9 +39,9 @@ interface IStrokeState {
   strokeOpacityScale?: number
   layerOpacity?: number
 
-  isStraightLine: boolean,
-  origin: IStrokePoint,
-  straightLinePressure: number,
+  isStraightLine: boolean
+  origin: IStrokePoint
+  straightLinePressure: number
   shouldSnap: boolean
 }
 
