@@ -19,7 +19,8 @@ interface IStrokePoint {
 
 interface IStrokeSettings {
   erase?: Array<number>
-  isStraightLine?: boolean
+  isStraightLine?: boolean,
+  shouldSnap: boolean
 }
 
 interface IStrokeState {
@@ -634,7 +635,7 @@ export default class SketchPane {
       isStraightLine: options.isStraightLine ? true : false,
       origin: undefined,
       straightLinePressure: 1,
-      shouldSnap: false
+      shouldSnap: options.shouldSnap ? true : false,
     }
 
     this.onStrokeBefore && this.onStrokeBefore(this.strokeState)
