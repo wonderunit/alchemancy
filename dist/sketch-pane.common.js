@@ -1119,14 +1119,20 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             nodeOpacityScale: this.nodeOpacityScale,
             strokeOpacityScale: this.strokeOpacityScale,
             layerOpacity: this.getLayerOpacity(this.layers.currentIndex),
-            isStraightLine: false,
+            isStraightLine: options.isStraightLine ? true : false,
             origin: undefined,
-            straightLinePressure: 1,
-            shouldSnap: false
+            straightLinePressure: options.straightLinePressure,
+            shouldSnap: options.shouldSnap ? true : false,
         };
         this.onStrokeBefore && this.onStrokeBefore(this.strokeState);
         this.addPointerEventAsPoint(e);
         this.strokeState.origin = this.strokeState.points[0];
+        // if straightLinePressure was initialized
+        this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
+            // use the existing value
+            ? this.strokeState.straightLinePressure
+            // otherwise, leave undefined
+            : undefined;
         // don't show the live container or stroke sprite while erasing
         if (this.strokeState.isErasing) {
             if (this.liveContainer.parent) {
@@ -1185,7 +1191,12 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         }
         if (yes && !this.strokeState.isStraightLine) {
             this.strokeState.isStraightLine = true;
-            this.strokeState.straightLinePressure = this.strokeState.points[this.strokeState.points.length - 1].pressure;
+            // TODO could take the average of *changed* points, so idle unmoving point pressure doesn't sway result
+            var averagePressure = this.strokeState.points.map(function (p) { return p.pressure; }).reduce(function (a, b) { return a + b; }) /
+                this.strokeState.points.length;
+            this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
+                ? this.strokeState.straightLinePressure
+                : averagePressure;
             this.drawStroke();
         }
     };
@@ -1350,7 +1361,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             if (this.strokeState.shouldSnap) {
                 var angle = Math.atan2(pointB.y - pointA.y, pointB.x - pointA.x);
                 var distance = Math.hypot(pointB.x - pointA.x, pointB.y - pointA.y);
-                var snapAt = 45;
+                var snapAt = 360 / 32;
                 var nearestDegree = Math.round((angle * 180 / Math.PI + 180) / snapAt) * snapAt;
                 var snapAngle = (nearestDegree - 180) * Math.PI / 180;
                 pointB.x = pointA.x + (Math.cos(snapAngle) * distance);
