@@ -1213,8 +1213,20 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.strokeState.shouldSnap = choice;
     };
     // public
-    SketchPane.prototype.stopDrawing = function () {
-        this.drawStroke(true); // finalize
+    SketchPane.prototype.stopDrawing = function (options) {
+        if (options === void 0) { options = { cancel: false }; }
+        if (options.cancel) {
+            // clear in-progress drawing
+            // TODO DRY this up
+            this.offscreenContainer.removeChildren();
+            this.disposeContainer(this.segmentContainer);
+            this.disposeContainer(this.liveContainer);
+            this.disposeContainer(this.strokeSprite);
+            this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
+        }
+        else {
+            this.drawStroke(true); // finalize
+        }
         this.layers.markDirty(this.strokeState.layerIndices);
         // switch from alpha filter back to sprite alpha
         this.setLayerOpacity(this.layers.currentIndex, this.strokeState.layerOpacity);
@@ -1420,7 +1432,6 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             this.disposeContainer(this.strokeSprite);
             // clear the strokeSprite texture
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
-            this.offscreenContainer.removeChildren();
             return;
         }
         // static
