@@ -46,6 +46,10 @@ interface IStrokeState {
   shouldSnap: boolean
 }
 
+interface IStopDrawingOptions {
+  cancel: boolean
+}
+
 export default class SketchPane {
   layerMask: PIXI.Graphics
   layerBackground: PIXI.Graphics
@@ -740,8 +744,22 @@ export default class SketchPane {
   }
 
   // public
-  stopDrawing () {
-    this.drawStroke(true) // finalize
+  stopDrawing (options : IStopDrawingOptions = { cancel: false }) {
+    if (options.cancel) {
+      // clear in-progress drawing
+      // TODO DRY this up
+      this.offscreenContainer.removeChildren()
+      this.disposeContainer(this.segmentContainer)
+      this.disposeContainer(this.liveContainer)
+      this.disposeContainer(this.strokeSprite)
+      this.app.renderer.render(
+        new PIXI.Sprite(PIXI.Texture.EMPTY),
+        this.strokeSprite.texture as PIXI.RenderTexture,
+        true
+      )
+    } else {
+      this.drawStroke(true) // finalize
+    }
 
     this.layers.markDirty(this.strokeState.layerIndices)
 
