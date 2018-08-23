@@ -1041,13 +1041,13 @@ export default class SketchPane {
       // clear any sprites from live or stroke
       this.disposeContainer(this.liveContainer)
       this.disposeContainer(this.strokeSprite)
+
       // clear the strokeSprite texture
       this.app.renderer.render(
         new PIXI.Sprite(PIXI.Texture.EMPTY),
         this.strokeSprite.texture as PIXI.RenderTexture,
         true
       )
-      this.offscreenContainer.removeChildren()
 
       return
     }
