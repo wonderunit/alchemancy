@@ -648,8 +648,8 @@ export default class SketchPane {
     this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
       // use the existing value
       ? this.strokeState.straightLinePressure
-      // otherwise, set to the origin point pressure
-      : this.strokeState.origin.pressure
+      // otherwise, leave undefined
+      : undefined
 
     // don't show the live container or stroke sprite while erasing
     if (this.strokeState.isErasing) {
@@ -714,9 +714,15 @@ export default class SketchPane {
 
     if (yes && !this.strokeState.isStraightLine) {
       this.strokeState.isStraightLine = true
+
+      // TODO could take the average of *changed* points, so idle unmoving point pressure doesn't sway result
+      let averagePressure =
+        this.strokeState.points.map(p => p.pressure).reduce((a, b) => a + b) /
+        this.strokeState.points.length
+
       this.strokeState.straightLinePressure = this.strokeState.straightLinePressure != null
         ? this.strokeState.straightLinePressure
-        : this.strokeState.points[this.strokeState.points.length - 1].pressure
+        : averagePressure
       this.drawStroke()
     }
   }
