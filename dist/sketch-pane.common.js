@@ -1184,8 +1184,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.setIsStraightLine = function (yes) {
         if (!this.strokeState)
             return;
-        if (this.strokeState.isErasing)
-            return;
+        // if (this.strokeState.isErasing) return
         if (!yes) {
             this.strokeState.isStraightLine = false;
         }
@@ -1206,8 +1205,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.setShouldSnap = function (choice) {
         if (!this.strokeState)
             return;
-        if (this.strokeState.isErasing)
-            return;
+        // if (this.strokeState.isErasing) return
         if (!this.strokeState.isStraightLine)
             return;
         this.strokeState.shouldSnap = choice;
@@ -1332,6 +1330,13 @@ var sketch_pane_SketchPane = /** @class */ (function () {
     SketchPane.prototype.localizePoint = function (point) {
         return this.sketchPaneContainer.toLocal(new external_pixi_js_["Point"](point.x - this.viewClientRect.left, point.y - this.viewClientRect.top), this.app.stage);
     };
+    // public
+    SketchPane.prototype.globalizePoint = function (point) {
+        var result = this.sketchPaneContainer.toGlobal(new external_pixi_js_["Point"](point.x, point.y));
+        result.x += this.viewClientRect.left;
+        result.y += this.viewClientRect.top;
+        return result;
+    };
     SketchPane.prototype.addPointerEventAsPoint = function (e) {
         var corrected = this.localizePoint(e);
         var pressure = e.pointerType === 'mouse'
@@ -1367,6 +1372,13 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         if (this.strokeState.isStraightLine) {
             // clear the strokeSprite texture
             this.app.renderer.render(new external_pixi_js_["Sprite"](external_pixi_js_["Texture"].EMPTY), this.strokeSprite.texture, true);
+            // clear the erase mask
+            // reset the mask with a solid red background
+            var graphics = new external_pixi_js_["Graphics"]()
+                .beginFill(0xff0000, 1.0)
+                .drawRect(0, 0, this.width, this.height)
+                .endFill();
+            this.app.renderer.render(graphics, this.eraseMask.texture, true);
             var pointA = this.strokeState.origin;
             var pointB = this.strokeState.points[this.strokeState.points.length - 1];
             pointB.pressure = pointA.pressure = this.strokeState.straightLinePressure;
