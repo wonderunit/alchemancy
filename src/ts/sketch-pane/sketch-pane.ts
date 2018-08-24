@@ -710,7 +710,7 @@ export default class SketchPane {
   // public
   setIsStraightLine (yes: boolean) {
     if (!this.strokeState) return
-    if (this.strokeState.isErasing) return
+    // if (this.strokeState.isErasing) return
 
     if (!yes) {
       this.strokeState.isStraightLine = false
@@ -737,7 +737,7 @@ export default class SketchPane {
 
   setShouldSnap (choice: boolean) {
     if (!this.strokeState) return
-    if (this.strokeState.isErasing) return
+    // if (this.strokeState.isErasing) return
     if (!this.strokeState.isStraightLine) return
 
     this.strokeState.shouldSnap = choice
