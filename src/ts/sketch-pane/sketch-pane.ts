@@ -905,6 +905,18 @@ export default class SketchPane {
     this.app.stage)
   }
 
+  // public
+  globalizePoint (point: {x: number, y: number}) {
+    let result = this.sketchPaneContainer.toGlobal(new PIXI.Point(
+      point.x,
+      point.y
+    ))
+    result.x += this.viewClientRect.left
+    result.y += this.viewClientRect.top
+
+    return result
+  }
+
   addPointerEventAsPoint (e: PointerEvent) {
     let corrected = this.localizePoint(e)
 
