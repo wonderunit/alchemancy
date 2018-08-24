@@ -967,6 +967,18 @@ export default class SketchPane {
         true
       )
 
+      // clear the erase mask
+      // reset the mask with a solid red background
+      let graphics = new PIXI.Graphics()
+        .beginFill(0xff0000, 1.0)
+        .drawRect(0, 0, this.width, this.height)
+        .endFill()
+      this.app.renderer.render(
+        graphics,
+        this.eraseMask.texture as PIXI.RenderTexture,
+        true
+      )
+
       let pointA = this.strokeState.origin
       let pointB = this.strokeState.points[this.strokeState.points.length - 1]
 
