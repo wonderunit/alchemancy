@@ -108,8 +108,21 @@ export default class Layer {
     )
   }
 
+  applyMask (mask : PIXI.Sprite) {
+    // add child so transform is correct
+    this.sprite.addChild(mask)
+    this.sprite.mask = mask
+
+    // stamp mask'd version of layer sprite to its own texture
+    this.rewrite()
+
+    // cleanup
+    this.sprite.mask = null
+    this.sprite.removeChild(mask)
+  }
+
   // write to texture (ignoring alpha)
-  // TODO beter name for this?
+  // TODO better name for this?
   rewrite () {
     // temporarily reset the sprite alpha
     let alpha = this.sprite.alpha
