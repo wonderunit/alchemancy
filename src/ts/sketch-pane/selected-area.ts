@@ -16,30 +16,54 @@ export default class SelectedArea {
     this.areaPath = null
   }
 
-  // translated so origin = top left of areaPath bounds
-  asPolygon () : PIXI.Polygon {
+  asPolygon (translate : boolean = true) : PIXI.Polygon {
+    let offset = translate
+			? [-this.areaPath.bounds.x, -this.areaPath.bounds.y]
+			: [0, 0]
+
     return new PIXI.Polygon(
       this.areaPath.segments.map(
         segment => new PIXI.Point(
-          segment.point.x - this.areaPath.bounds.x,
-          segment.point.y - this.areaPath.bounds.y
+          segment.point.x + offset[0],
+          segment.point.y + offset[1]
         )
       )
     )
   }
 
-  asMaskSprite () {
+  asMaskSprite (invert : boolean = false) {
     // delete ALL cached canvas textures to ensure canvas is re-rendered
     PIXI.utils.clearTextureCache()
 
-    let polygon = this.asPolygon()
+    let polygon
 
     let canvas: HTMLCanvasElement = document.createElement('canvas')
-    canvas.width = this.areaPath.bounds.width
-    canvas.height = this.areaPath.bounds.height
 
     let ctx = canvas.getContext('2d')
     ctx.globalAlpha = 1.0
+
+    if (invert) {
+      canvas.width = this.sketchPane.width
+      canvas.height = this.sketchPane.height
+
+      // white on red
+      ctx.fillStyle = '#f00'
+      ctx.rect(0, 0, canvas.width, canvas.height)
+      ctx.fill()
+
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.fillStyle = '#fff'
+
+      polygon = this.asPolygon(false)
+    } else {
+      canvas.width = this.areaPath.bounds.width
+      canvas.height = this.areaPath.bounds.height
+
+      // red on transparent
+      ctx.fillStyle = '#f00'
+
+      polygon = this.asPolygon(true)
+    }
 
     ctx.beginPath()
     ctx.moveTo(polygon.points[0], polygon.points[1])
@@ -47,7 +71,6 @@ export default class SelectedArea {
       ctx.lineTo(polygon.points[i], polygon.points[i + 1])
     }
     ctx.closePath()
-    ctx.fillStyle = '#f00'
     ctx.fill()
 
     return new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
@@ -95,6 +118,15 @@ export default class SelectedArea {
     return sprite
   }
 
+  clear (layerIndices? : Array<number>) {
+    let inverseMask = this.asMaskSprite(true)
+
+    for (let i of layerIndices) {
+      let layer = this.sketchPane.layers[i]
+      layer.applyMask(inverseMask)
+    }
+  }
+
   demo () {
     this.set(new paper.Path([
       [550, 300],
@@ -109,9 +141,7 @@ export default class SelectedArea {
     //   [0, 900]
     // ]))
 
-
-
-    let maskSprite : PIXI.Sprite = this.asMaskSprite()
+    let maskSprite : PIXI.Sprite = this.asMaskSprite(false)
     maskSprite.name = 'maskSprite'
     this.sketchPane.sketchPaneContainer.addChildAt(
       maskSprite,
@@ -134,5 +164,7 @@ export default class SelectedArea {
     sprite.x = this.areaPath.bounds.x + 315
     sprite.y = this.areaPath.bounds.y - 280
 
+
+    this.clear([0, 1, 2, 3])
   }
 }
