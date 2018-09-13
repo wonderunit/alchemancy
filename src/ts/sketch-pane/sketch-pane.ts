@@ -8,6 +8,7 @@ import { Cursor } from './cursor'
 
 import LayersCollection from './layers-collection'
 import Layer from './layer'
+import SelectedArea from './selected-area'
 
 interface IStrokePoint {
   x: number
@@ -51,6 +52,7 @@ interface IStopDrawingOptions {
 }
 
 export default class SketchPane {
+	selectedArea: any;
   layerMask: PIXI.Graphics
   layerBackground: PIXI.Graphics
   layers: LayersCollection
@@ -83,6 +85,8 @@ export default class SketchPane {
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
+
+    this.selectedArea = new SelectedArea({ sketchPane: this })
 
     this.app.view.style.cursor = 'none'
   }
