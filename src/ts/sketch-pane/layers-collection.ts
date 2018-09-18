@@ -123,6 +123,24 @@ export default class LayersCollection extends Array {
     return rt
   }
 
+  asFlattenedCanvas (width : number, height : number, indices: Array<number> = []) {
+    let pixels = this.extractThumbnailPixels(
+      width,
+      height,
+      indices
+    )
+    // un-premultiply
+    Util.arrayPostDivide(pixels)
+    // as a canvas
+    let canvas = Util.pixelsToCanvas(
+      pixels,
+      width,
+      height
+    )
+
+    return canvas
+  }
+
   findByName (name:string) : Layer {
     return this.find(layer => layer.name === name)
   }
