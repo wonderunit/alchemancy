@@ -1,6 +1,9 @@
 import * as paper from 'paper'
 
 export default class SelectedArea {
+	cutSprite: any;
+	target: any;
+	outlineSprite: any;
   sketchPane: any
   areaPath?: paper.Path
 
@@ -76,6 +79,15 @@ export default class SelectedArea {
     return new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
   }
 
+  asOutlineSprite () : PIXI.Sprite {
+    PIXI.utils.clearTextureCache()
+
+    return new PIXI.Sprite(
+      PIXI.Texture.fromCanvas(
+        this.asOutlineCanvas()
+      )
+    )
+  }
 
   // extract transparent sprite from layers
   asSprite (layerIndices? : Array<number>) : PIXI.Sprite {
@@ -125,6 +137,42 @@ export default class SelectedArea {
       let layer = this.sketchPane.layers[i]
       layer.applyMask(inverseMask)
     }
+  }
+
+  asOutlineCanvas () : HTMLCanvasElement {
+    let polygon = this.asPolygon(true)
+
+    let canvas: HTMLCanvasElement = document.createElement('canvas')
+
+    let ctx = canvas.getContext('2d')
+    ctx.globalAlpha = 1.0
+
+    canvas.width = this.areaPath.bounds.width
+    canvas.height = this.areaPath.bounds.height
+
+    ctx.lineWidth = 9
+    ctx.strokeStyle = '#fff'
+    ctx.setLineDash([])
+    ctx.beginPath()
+    ctx.moveTo(polygon.points[0], polygon.points[1])
+    for (let i = 2; i < polygon.points.length; i += 2) {
+      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+    }
+    ctx.closePath()
+    ctx.stroke()
+
+    ctx.lineWidth = 3
+    ctx.strokeStyle = '#6A4DE7'
+    ctx.setLineDash([5, 15])
+    ctx.beginPath()
+    ctx.moveTo(polygon.points[0], polygon.points[1])
+    for (let i = 2; i < polygon.points.length; i += 2) {
+      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+    }
+    ctx.closePath()
+    ctx.stroke()
+
+    return canvas
   }
 
   demo () {
