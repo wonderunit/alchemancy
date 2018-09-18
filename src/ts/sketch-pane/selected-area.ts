@@ -130,7 +130,7 @@ export default class SelectedArea {
     return sprite
   }
 
-  clear (layerIndices? : Array<number>) {
+  clearLayers (layerIndices? : Array<number>) {
     let inverseMask = this.asMaskSprite(true)
 
     for (let i of layerIndices) {
@@ -175,44 +175,44 @@ export default class SelectedArea {
     return canvas
   }
 
-  demo () {
-    this.set(new paper.Path([
-      [550, 300],
-      [850, 400],
-      [850, 575],
-      [550, 575]
-    ]))
-    // this.set(new paper.Path([
-    //   [0, 0],
-    //   [1200, 0],
-    //   [1200, 900],
-    //   [0, 900]
-    // ]))
-
-    let maskSprite : PIXI.Sprite = this.asMaskSprite(false)
-    maskSprite.name = 'maskSprite'
-    this.sketchPane.sketchPaneContainer.addChildAt(
-      maskSprite,
-      this.sketchPane.sketchPaneContainer.getChildIndex(
-        this.sketchPane.layersContainer
-      ) + 1
-    )
-    maskSprite.x += 10
-    maskSprite.y += 10
-
-
-    let sprite : PIXI.Sprite = this.asSprite([0, 1, 2, 3]) // layer indices
-    sprite.name = 'demo'
-    this.sketchPane.sketchPaneContainer.addChildAt(
-      sprite,
-      this.sketchPane.sketchPaneContainer.getChildIndex(
-        this.sketchPane.layersContainer
-      ) + 1
-    )
-    sprite.x = this.areaPath.bounds.x + 315
-    sprite.y = this.areaPath.bounds.y - 280
-
-
-    this.clear([0, 1, 2, 3])
-  }
+  // demo () {
+  //   this.set(new paper.Path([
+  //     [550, 300],
+  //     [850, 400],
+  //     [850, 575],
+  //     [550, 575]
+  //   ]))
+  //   // this.set(new paper.Path([
+  //   //   [0, 0],
+  //   //   [1200, 0],
+  //   //   [1200, 900],
+  //   //   [0, 900]
+  //   // ]))
+  // 
+  //   let maskSprite : PIXI.Sprite = this.asMaskSprite(false)
+  //   maskSprite.name = 'maskSprite'
+  //   this.sketchPane.sketchPaneContainer.addChildAt(
+  //     maskSprite,
+  //     this.sketchPane.sketchPaneContainer.getChildIndex(
+  //       this.sketchPane.layersContainer
+  //     ) + 1
+  //   )
+  //   maskSprite.x += 10
+  //   maskSprite.y += 10
+  // 
+  // 
+  //   let sprite : PIXI.Sprite = this.asSprite([0, 1, 2, 3]) // layer indices
+  //   sprite.name = 'demo'
+  //   this.sketchPane.sketchPaneContainer.addChildAt(
+  //     sprite,
+  //     this.sketchPane.sketchPaneContainer.getChildIndex(
+  //       this.sketchPane.layersContainer
+  //     ) + 1
+  //   )
+  //   sprite.x = this.areaPath.bounds.x + 315
+  //   sprite.y = this.areaPath.bounds.y - 280
+  // 
+  // 
+  //   this.clearLayers([0, 1, 2, 3])
+  // }
 }
