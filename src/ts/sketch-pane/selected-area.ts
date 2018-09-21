@@ -225,6 +225,27 @@ export default class SelectedArea {
     }
 	}
 
+	fill (indices : Array<number>, color : number) {
+	  let mask = this.asMaskSprite(false)
+
+	  let colorGraphics = new PIXI.Graphics()
+	  colorGraphics.beginFill(color)
+	  colorGraphics.drawRect(0, 0, mask.width, mask.height)
+	  colorGraphics.addChild(mask)
+	  colorGraphics.mask = mask
+
+	  for (let i of indices) {
+	    let layer = this.sketchPane.layers[i]
+	    layer.sprite.addChild(colorGraphics)
+
+	    colorGraphics.x = this.areaPath.bounds.x
+	    colorGraphics.y = this.areaPath.bounds.y
+
+	    layer.rewrite()
+	    layer.sprite.removeChild(colorGraphics)
+	  }
+	}
+
   // demo () {
   //   this.set(new paper.Path([
   //     [550, 300],
