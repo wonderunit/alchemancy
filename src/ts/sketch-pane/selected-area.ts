@@ -193,6 +193,38 @@ export default class SelectedArea {
     return canvas
   }
 
+	copy (indices : Array<number>) : Array<PIXI.Sprite> {
+		let result = []
+		for (let i of indices) {
+			let sprite = this.asSprite([i])
+			sprite.x = this.target.x
+			sprite.y = this.target.y
+			result[i] = sprite
+		}
+		return result
+	}
+
+	erase (indices : Array<number>) {
+		let inverseMask = this.asMaskSprite(true)
+
+		for (let i of indices) {
+      let layer = this.sketchPane.layers[i]
+      layer.applyMask(inverseMask)
+    }
+	}
+
+	paste (indices : Array<number>, sprites : Array<PIXI.Sprite>) {
+    let inverseMask = this.asMaskSprite(true)
+
+    for (let i of indices) {
+      let layer = this.sketchPane.layers[i]
+
+      layer.sprite.addChild(sprites[i])
+      layer.rewrite()
+      layer.sprite.removeChild(sprites[i])
+    }
+	}
+
   // demo () {
   //   this.set(new paper.Path([
   //     [550, 300],
