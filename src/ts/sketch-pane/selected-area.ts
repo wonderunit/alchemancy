@@ -5,7 +5,7 @@ export default class SelectedArea {
 	target: any;
 	outlineSprite: any;
   sketchPane: any
-  areaPath?: paper.Path
+  areaPath?: paper.Path | paper.CompoundPath
 
   constructor (options: any) {
     this.sketchPane = options.sketchPane
@@ -19,26 +19,38 @@ export default class SelectedArea {
     this.areaPath = null
   }
 
-  asPolygon (translate : boolean = true) : PIXI.Polygon {
+	children () : Array<paper.Path> {
+		return this.areaPath.children
+			? this.areaPath.children as Array<paper.Path>
+			: [this.areaPath] as Array<paper.Path>
+	}
+
+  asPolygons (translate : boolean = true) : Array<PIXI.Polygon> {
     let offset = translate
 			? [-this.areaPath.bounds.x, -this.areaPath.bounds.y]
 			: [0, 0]
 
-    return new PIXI.Polygon(
-      this.areaPath.segments.map(
-        segment => new PIXI.Point(
-          segment.point.x + offset[0],
-          segment.point.y + offset[1]
-        )
-      )
-    )
+		let result = []
+		for (let child of this.children()) {
+			result.push(
+				new PIXI.Polygon(
+		      child.segments.map(
+		        segment => new PIXI.Point(
+		          segment.point.x + offset[0],
+		          segment.point.y + offset[1]
+		        )
+		      )
+		    )
+			)
+		}
+		return result
   }
 
   asMaskSprite (invert : boolean = false) {
     // delete ALL cached canvas textures to ensure canvas is re-rendered
     PIXI.utils.clearTextureCache()
 
-    let polygon
+    let polygons
 
     let canvas: HTMLCanvasElement = document.createElement('canvas')
 
@@ -57,7 +69,7 @@ export default class SelectedArea {
       ctx.globalCompositeOperation = 'destination-out'
       ctx.fillStyle = '#fff'
 
-      polygon = this.asPolygon(false)
+      polygons = this.asPolygons(false)
     } else {
       canvas.width = this.areaPath.bounds.width
       canvas.height = this.areaPath.bounds.height
@@ -65,16 +77,18 @@ export default class SelectedArea {
       // red on transparent
       ctx.fillStyle = '#f00'
 
-      polygon = this.asPolygon(true)
+      polygons = this.asPolygons(true)
     }
 
-    ctx.beginPath()
-    ctx.moveTo(polygon.points[0], polygon.points[1])
-    for (let i = 2; i < polygon.points.length; i += 2) {
-      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-    }
-    ctx.closePath()
-    ctx.fill()
+		for (let polygon of polygons) {
+	    ctx.beginPath()
+	    ctx.moveTo(polygon.points[0], polygon.points[1])
+	    for (let i = 2; i < polygon.points.length; i += 2) {
+	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+	    }
+	    ctx.closePath()
+	    ctx.fill()
+		}
 
     return new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
   }
@@ -140,7 +154,7 @@ export default class SelectedArea {
   // }
 
   asOutlineCanvas () : HTMLCanvasElement {
-    let polygon = this.asPolygon(true)
+    let polygons = this.asPolygons(true)
 
     let canvas: HTMLCanvasElement = document.createElement('canvas')
 
@@ -150,27 +164,31 @@ export default class SelectedArea {
     canvas.width = this.areaPath.bounds.width
     canvas.height = this.areaPath.bounds.height
 
-    ctx.lineWidth = 9
-    ctx.strokeStyle = '#fff'
-    ctx.setLineDash([])
-    ctx.beginPath()
-    ctx.moveTo(polygon.points[0], polygon.points[1])
-    for (let i = 2; i < polygon.points.length; i += 2) {
-      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-    }
-    ctx.closePath()
-    ctx.stroke()
+		for (let polygon of polygons) {
+			ctx.save()
+	    ctx.lineWidth = 9
+	    ctx.strokeStyle = '#fff'
+	    ctx.setLineDash([])
+	    ctx.beginPath()
+	    ctx.moveTo(polygon.points[0], polygon.points[1])
+	    for (let i = 2; i < polygon.points.length; i += 2) {
+	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+	    }
+	    ctx.closePath()
+	    ctx.stroke()
 
-    ctx.lineWidth = 3
-    ctx.strokeStyle = '#6A4DE7'
-    ctx.setLineDash([5, 15])
-    ctx.beginPath()
-    ctx.moveTo(polygon.points[0], polygon.points[1])
-    for (let i = 2; i < polygon.points.length; i += 2) {
-      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-    }
-    ctx.closePath()
-    ctx.stroke()
+	    ctx.lineWidth = 3
+	    ctx.strokeStyle = '#6A4DE7'
+	    ctx.setLineDash([5, 15])
+	    ctx.beginPath()
+	    ctx.moveTo(polygon.points[0], polygon.points[1])
+	    for (let i = 2; i < polygon.points.length; i += 2) {
+	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+	    }
+	    ctx.closePath()
+	    ctx.stroke()
+			ctx.restore()
+		}
 
     return canvas
   }
