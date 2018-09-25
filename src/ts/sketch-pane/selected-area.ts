@@ -104,7 +104,7 @@ export default class SelectedArea {
   }
 
   // extract transparent sprite from layers
-  asSprite (layerIndices? : Array<number>) : PIXI.Sprite {
+  asSprite (layerIndices? : Array<number>, opaque: boolean = false) : PIXI.Sprite {
     let rect = new PIXI.Rectangle(
       this.areaPath.bounds.x,
       this.areaPath.bounds.y,
@@ -126,7 +126,9 @@ export default class SelectedArea {
       let layer = this.sketchPane.layers[i]
 
       let clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect))
-      // clip.alpha = layer.getOpacity()
+      clip.alpha = opaque
+        ? 1
+        : layer.getOpacity()
 
       clip.addChild(mask)
       clip.mask = mask
