@@ -8,6 +8,7 @@ import { Cursor } from './cursor'
 
 import LayersCollection from './layers-collection'
 import Layer from './layer'
+import SelectedArea from './selected-area'
 
 interface IStrokePoint {
   x: number
@@ -51,6 +52,7 @@ interface IStopDrawingOptions {
 }
 
 export default class SketchPane {
+	selectedArea: any;
   layerMask: PIXI.Graphics
   layerBackground: PIXI.Graphics
   layers: LayersCollection
@@ -83,6 +85,8 @@ export default class SketchPane {
 
     this.setup(options)
     this.setImageSize(options.imageWidth, options.imageHeight)
+
+    this.selectedArea = new SelectedArea({ sketchPane: this })
 
     this.app.view.style.cursor = 'none'
   }
@@ -1183,15 +1187,7 @@ export default class SketchPane {
     if (finalize) {
       for (let i of this.strokeState.layerIndices) {
         // apply the erase texture to the actual layer texture
-        let layer = this.layers[i]
-        // add child so transform is correct
-        layer.sprite.addChild(this.eraseMask)
-        layer.sprite.mask = this.eraseMask
-        // stamp mask'd version of layer sprite to its own texture
-        this.layers[i].rewrite()
-        // cleanup
-        layer.sprite.mask = null
-        layer.sprite.removeChild(this.eraseMask)
+        this.layers[i].applyMask(this.eraseMask)
       }
 
       // TODO GC the eraseMask texture?

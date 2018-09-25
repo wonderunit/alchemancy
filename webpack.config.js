@@ -29,6 +29,9 @@ const createConfig = opt => {
         }
       ]
     },
+    performance: {
+      hints: false,
+    },
     ...opt.externals ? { externals: opt.externals } : {},
     ...opt.serve ? { serve: opt.serve } : {}
   }
