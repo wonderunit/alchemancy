@@ -435,8 +435,18 @@ var layer_Layer = /** @class */ (function () {
         // draw canvas to our sprite's RenderTexture
         this.replace(external_pixi_js_["Texture"].from(canvasElement));
     };
+    Layer.prototype.applyMask = function (mask) {
+        // add child so transform is correct
+        this.sprite.addChild(mask);
+        this.sprite.mask = mask;
+        // stamp mask'd version of layer sprite to its own texture
+        this.rewrite();
+        // cleanup
+        this.sprite.mask = null;
+        this.sprite.removeChild(mask);
+    };
     // write to texture (ignoring alpha)
-    // TODO beter name for this?
+    // TODO better name for this?
     Layer.prototype.rewrite = function () {
         // temporarily reset the sprite alpha
         var alpha = this.sprite.alpha;
@@ -519,6 +529,7 @@ var __assign = (undefined && undefined.__assign) || Object.assign || function(t)
     }
     return t;
 };
+
 
 // see: https://github.com/wesbos/es6-articles/blob/master/54%20-%20Extending%20Arrays%20with%20Classes%20for%20Custom%20Collections.md
 var layers_collection_LayersCollection = /** @class */ (function (_super) {
@@ -613,6 +624,15 @@ var layers_collection_LayersCollection = /** @class */ (function (_super) {
         }
         return rt;
     };
+    LayersCollection.prototype.asFlattenedCanvas = function (width, height, indices) {
+        if (indices === void 0) { indices = []; }
+        var pixels = this.extractThumbnailPixels(width, height, indices);
+        // un-premultiply
+        util.arrayPostDivide(pixels);
+        // as a canvas
+        var canvas = util.pixelsToCanvas(pixels, width, height);
+        return canvas;
+    };
     LayersCollection.prototype.findByName = function (name) {
         return this.find(function (layer) { return layer.name === name; });
     };
@@ -640,6 +660,179 @@ var layers_collection_LayersCollection = /** @class */ (function (_super) {
     return LayersCollection;
 }(Array));
 /* harmony default export */ var layers_collection = (layers_collection_LayersCollection);
+
+// CONCATENATED MODULE: ./src/ts/sketch-pane/selected-area.ts
+var SelectedArea = /** @class */ (function () {
+    function SelectedArea(options) {
+        this.sketchPane = options.sketchPane;
+    }
+    SelectedArea.prototype.set = function (areaPath) {
+        this.areaPath = areaPath;
+    };
+    SelectedArea.prototype.unset = function () {
+        this.areaPath = null;
+    };
+    SelectedArea.prototype.children = function () {
+        return this.areaPath.children
+            ? this.areaPath.children
+            : [this.areaPath];
+    };
+    SelectedArea.prototype.asPolygons = function (translate) {
+        if (translate === void 0) { translate = true; }
+        var offset = translate
+            ? [-this.areaPath.bounds.x, -this.areaPath.bounds.y]
+            : [0, 0];
+        var result = [];
+        for (var _i = 0, _a = this.children(); _i < _a.length; _i++) {
+            var child = _a[_i];
+            result.push(new PIXI.Polygon(child.segments.map(function (segment) { return new PIXI.Point(segment.point.x + offset[0], segment.point.y + offset[1]); })));
+        }
+        return result;
+    };
+    SelectedArea.prototype.asMaskSprite = function (invert) {
+        if (invert === void 0) { invert = false; }
+        // delete ALL cached canvas textures to ensure canvas is re-rendered
+        PIXI.utils.clearTextureCache();
+        var polygons;
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.globalAlpha = 1.0;
+        if (invert) {
+            canvas.width = this.sketchPane.width;
+            canvas.height = this.sketchPane.height;
+            // white on red
+            ctx.fillStyle = '#f00';
+            ctx.rect(0, 0, canvas.width, canvas.height);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = '#fff';
+            polygons = this.asPolygons(false);
+        }
+        else {
+            canvas.width = this.areaPath.bounds.width;
+            canvas.height = this.areaPath.bounds.height;
+            // red on transparent
+            ctx.fillStyle = '#f00';
+            polygons = this.asPolygons(true);
+        }
+        for (var _i = 0, polygons_1 = polygons; _i < polygons_1.length; _i++) {
+            var polygon = polygons_1[_i];
+            ctx.beginPath();
+            ctx.moveTo(polygon.points[0], polygon.points[1]);
+            for (var i = 2; i < polygon.points.length; i += 2) {
+                ctx.lineTo(polygon.points[i], polygon.points[i + 1]);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+        return new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas));
+    };
+    SelectedArea.prototype.asOutlineSprite = function () {
+        PIXI.utils.clearTextureCache();
+        return new PIXI.Sprite(PIXI.Texture.fromCanvas(this.asOutlineCanvas()));
+    };
+    // extract transparent sprite from layers
+    SelectedArea.prototype.asSprite = function (layerIndices) {
+        var rect = new PIXI.Rectangle(this.areaPath.bounds.x, this.areaPath.bounds.y, this.areaPath.bounds.width, this.areaPath.bounds.height);
+        // create a sprite to hold the artwork with dimensions matching the bounds of the area path
+        var sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.areaPath.bounds.width, this.areaPath.bounds.height));
+        var mask = this.asMaskSprite();
+        for (var _i = 0, layerIndices_1 = layerIndices; _i < layerIndices_1.length; _i++) {
+            var i = layerIndices_1[_i];
+            var layer = this.sketchPane.layers[i];
+            var clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect));
+            clip.alpha = layer.getOpacity();
+            clip.addChild(mask);
+            clip.mask = mask;
+            this.sketchPane.app.renderer.render(clip, sprite.texture, false);
+            clip.mask = null;
+            clip.removeChild(mask);
+        }
+        return sprite;
+    };
+    SelectedArea.prototype.asOutlineCanvas = function () {
+        var polygons = this.asPolygons(true);
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        ctx.globalAlpha = 1.0;
+        canvas.width = this.areaPath.bounds.width;
+        canvas.height = this.areaPath.bounds.height;
+        for (var _i = 0, polygons_2 = polygons; _i < polygons_2.length; _i++) {
+            var polygon = polygons_2[_i];
+            ctx.save();
+            ctx.lineWidth = 9;
+            ctx.strokeStyle = '#fff';
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(polygon.points[0], polygon.points[1]);
+            for (var i = 2; i < polygon.points.length; i += 2) {
+                ctx.lineTo(polygon.points[i], polygon.points[i + 1]);
+            }
+            ctx.closePath();
+            ctx.stroke();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#6A4DE7';
+            ctx.setLineDash([5, 15]);
+            ctx.beginPath();
+            ctx.moveTo(polygon.points[0], polygon.points[1]);
+            for (var i = 2; i < polygon.points.length; i += 2) {
+                ctx.lineTo(polygon.points[i], polygon.points[i + 1]);
+            }
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
+        }
+        return canvas;
+    };
+    SelectedArea.prototype.copy = function (indices) {
+        var result = [];
+        for (var _i = 0, indices_1 = indices; _i < indices_1.length; _i++) {
+            var i = indices_1[_i];
+            var sprite = this.asSprite([i]);
+            sprite.x = this.target.x;
+            sprite.y = this.target.y;
+            result[i] = sprite;
+        }
+        return result;
+    };
+    SelectedArea.prototype.erase = function (indices) {
+        var inverseMask = this.asMaskSprite(true);
+        for (var _i = 0, indices_2 = indices; _i < indices_2.length; _i++) {
+            var i = indices_2[_i];
+            var layer = this.sketchPane.layers[i];
+            layer.applyMask(inverseMask);
+        }
+    };
+    SelectedArea.prototype.paste = function (indices, sprites) {
+        var inverseMask = this.asMaskSprite(true);
+        for (var _i = 0, indices_3 = indices; _i < indices_3.length; _i++) {
+            var i = indices_3[_i];
+            var layer = this.sketchPane.layers[i];
+            layer.sprite.addChild(sprites[i]);
+            layer.rewrite();
+            layer.sprite.removeChild(sprites[i]);
+        }
+    };
+    SelectedArea.prototype.fill = function (indices, color) {
+        var mask = this.asMaskSprite(false);
+        var colorGraphics = new PIXI.Graphics();
+        colorGraphics.beginFill(color);
+        colorGraphics.drawRect(0, 0, mask.width, mask.height);
+        colorGraphics.addChild(mask);
+        colorGraphics.mask = mask;
+        for (var _i = 0, indices_4 = indices; _i < indices_4.length; _i++) {
+            var i = indices_4[_i];
+            var layer = this.sketchPane.layers[i];
+            layer.sprite.addChild(colorGraphics);
+            colorGraphics.x = this.areaPath.bounds.x;
+            colorGraphics.y = this.areaPath.bounds.y;
+            layer.rewrite();
+            layer.sprite.removeChild(colorGraphics);
+        }
+    };
+    return SelectedArea;
+}());
+/* harmony default export */ var selected_area = (SelectedArea);
 
 // CONCATENATED MODULE: ./src/ts/sketch-pane/sketch-pane.ts
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -684,6 +877,7 @@ var __generator = (undefined && undefined.__generator) || function (thisArg, bod
 
 
 
+
 var sketch_pane_SketchPane = /** @class */ (function () {
     function SketchPane(options) {
         if (options === void 0) { options = { backgroundColor: 0xffffff }; }
@@ -702,6 +896,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.onStrokeAfter = options.onStrokeAfter;
         this.setup(options);
         this.setImageSize(options.imageWidth, options.imageHeight);
+        this.selectedArea = new selected_area({ sketchPane: this });
         this.app.view.style.cursor = 'none';
     }
     SketchPane.canInitialize = function () {
@@ -1522,15 +1717,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             for (var _b = 0, _c = this.strokeState.layerIndices; _b < _c.length; _b++) {
                 var i = _c[_b];
                 // apply the erase texture to the actual layer texture
-                var layer_2 = this.layers[i];
-                // add child so transform is correct
-                layer_2.sprite.addChild(this.eraseMask);
-                layer_2.sprite.mask = this.eraseMask;
-                // stamp mask'd version of layer sprite to its own texture
-                this.layers[i].rewrite();
-                // cleanup
-                layer_2.sprite.mask = null;
-                layer_2.sprite.removeChild(this.eraseMask);
+                this.layers[i].applyMask(this.eraseMask);
             }
             // TODO GC the eraseMask texture?
         }
