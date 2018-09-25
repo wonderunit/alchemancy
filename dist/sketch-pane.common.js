@@ -741,7 +741,7 @@ var SelectedArea = /** @class */ (function () {
             var i = layerIndices_1[_i];
             var layer = this.sketchPane.layers[i];
             var clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect));
-            clip.alpha = layer.getOpacity();
+            // clip.alpha = layer.getOpacity()
             clip.addChild(mask);
             clip.mask = mask;
             this.sketchPane.app.renderer.render(clip, sprite.texture, false);
