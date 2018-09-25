@@ -126,7 +126,7 @@ export default class SelectedArea {
       let layer = this.sketchPane.layers[i]
 
       let clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect))
-      clip.alpha = layer.getOpacity()
+      // clip.alpha = layer.getOpacity()
 
       clip.addChild(mask)
       clip.mask = mask
