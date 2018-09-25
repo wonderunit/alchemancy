@@ -80,8 +80,6 @@ window.fetch('./example/brushes/brushes.json')
       .then(() => {
         console.log('ready')
 
-        sketchPane.selectedArea.demo()
-
         idleTimer = null
 
         // set default brush
