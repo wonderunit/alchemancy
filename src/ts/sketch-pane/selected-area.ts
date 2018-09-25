@@ -144,15 +144,6 @@ export default class SelectedArea {
     return sprite
   }
 
-  // clearLayers (layerIndices? : Array<number>) {
-  //   let inverseMask = this.asMaskSprite(true)
-  // 
-  //   for (let i of layerIndices) {
-  //     let layer = this.sketchPane.layers[i]
-  //     layer.applyMask(inverseMask)
-  //   }
-  // }
-
   asOutlineCanvas () : HTMLCanvasElement {
     let polygons = this.asPolygons(true)
 
