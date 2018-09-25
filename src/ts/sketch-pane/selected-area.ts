@@ -104,6 +104,8 @@ export default class SelectedArea {
   }
 
   // extract transparent sprite from layers
+	// for multi-layer preview: use opaque = false
+	// for single-layer extraction/cut: use opaque = true
   asSprite (layerIndices? : Array<number>, opaque: boolean = false) : PIXI.Sprite {
     let rect = new PIXI.Rectangle(
       this.areaPath.bounds.x,
