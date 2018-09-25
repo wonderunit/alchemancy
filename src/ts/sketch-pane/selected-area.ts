@@ -191,7 +191,7 @@ export default class SelectedArea {
 	copy (indices : Array<number>) : Array<PIXI.Sprite> {
 		let result = []
 		for (let i of indices) {
-			let sprite = this.asSprite([i])
+			let sprite = this.asSprite([i], true)
 			sprite.x = this.target.x
 			sprite.y = this.target.y
 			result[i] = sprite
@@ -213,10 +213,11 @@ export default class SelectedArea {
 
     for (let i of indices) {
       let layer = this.sketchPane.layers[i]
+      let sprite = sprites[i]
 
-      layer.sprite.addChild(sprites[i])
+      layer.sprite.addChild(sprite)
       layer.rewrite()
-      layer.sprite.removeChild(sprites[i])
+      layer.sprite.removeChild(sprite)
     }
 	}
 
