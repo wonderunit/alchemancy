@@ -115,7 +115,7 @@ export default class SelectedArea {
     )
 
     // create a sprite to hold the artwork with dimensions matching the bounds of the area path
-    let sprite = new PIXI.Sprite(
+    let tempSprite = new PIXI.Sprite(
       PIXI.RenderTexture.create(
         this.areaPath.bounds.width,
         this.areaPath.bounds.height
@@ -135,16 +135,20 @@ export default class SelectedArea {
       clip.addChild(mask)
       clip.mask = mask
 
-      this.sketchPane.app.renderer.render(
-        clip,
-        sprite.texture as PIXI.RenderTexture,
-        false
-      )
-
-      clip.mask = null
-      clip.removeChild(mask)
+      tempSprite.addChild(clip)
     }
 
+    let sprite = new PIXI.Sprite(
+      PIXI.RenderTexture.create(
+        this.areaPath.bounds.width,
+        this.areaPath.bounds.height
+      )
+    )
+    this.sketchPane.app.renderer.render(
+      tempSprite,
+      sprite.texture as PIXI.RenderTexture,
+      false
+    )
     return sprite
   }
 
