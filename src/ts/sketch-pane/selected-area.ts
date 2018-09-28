@@ -107,13 +107,6 @@ export default class SelectedArea {
 	// for multi-layer preview: use opaque = false
 	// for single-layer extraction/cut: use opaque = true
   asSprite (layerIndices? : Array<number>, opaque: boolean = false) : PIXI.Sprite {
-    let rect = new PIXI.Rectangle(
-      this.areaPath.bounds.x,
-      this.areaPath.bounds.y,
-      this.areaPath.bounds.width,
-      this.areaPath.bounds.height
-    )
-
     // create a sprite to hold the artwork with dimensions matching the bounds of the area path
     let tempSprite = new PIXI.Sprite(
       PIXI.RenderTexture.create(
@@ -126,6 +119,13 @@ export default class SelectedArea {
 
     for (let i of layerIndices) {
       let layer = this.sketchPane.layers[i]
+
+      let rect = new PIXI.Rectangle(
+        this.areaPath.bounds.x,
+        this.areaPath.bounds.y,
+        Math.min(this.areaPath.bounds.width, layer.sprite.texture.width),
+        Math.min(this.areaPath.bounds.height, layer.sprite.texture.height)
+      )
 
       let clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect))
       clip.alpha = opaque
