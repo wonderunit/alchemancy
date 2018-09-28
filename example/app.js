@@ -38,7 +38,11 @@ if (!SketchLib.SketchPane.canInitialize()) {
 
 const sketchPane = new SketchLib.SketchPane({
   imageWidth: 1200,
-  imageHeight: 900
+  imageHeight: 900,
+
+  onWebGLContextLost: event => {
+    alert('WebGL context was lost.')
+  }
 })
 sketchPane.resize(document.body.offsetWidth, document.body.offsetHeight)
 sketchPane.anchor = new PIXI.Point(

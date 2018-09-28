@@ -142,6 +142,8 @@ export default class SketchPane {
 
     // this.app.renderer.transparent = true
 
+    this.app.renderer.view.addEventListener('webglcontextlost', options.onWebGLContextLost)
+
     this.sketchPaneContainer = new PIXI.Container()
     this.sketchPaneContainer.name = 'sketchPaneContainer'
 
