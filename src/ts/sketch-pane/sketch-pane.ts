@@ -51,6 +51,16 @@ interface IStopDrawingOptions {
   cancel: boolean
 }
 
+interface ISketchPaneOptions {
+  backgroundColor: number,
+  imageWidth? : number,
+  imageHeight? : number,
+
+  onStrokeBefore?: (state? : IStrokeState) => {},
+  onStrokeAfter?: (state?: IStrokeState) => {},
+  onWebGLContextLost? : (event : WebGLContextEvent) => {}
+}
+
 export default class SketchPane {
 	selectedArea: any;
   layerMask: PIXI.Graphics
@@ -73,7 +83,7 @@ export default class SketchPane {
   onStrokeBefore: (state?: IStrokeState) => {}
   onStrokeAfter: (state?: IStrokeState) => {}
 
-  constructor (options: any = { backgroundColor: 0xffffff}) {
+  constructor (options: ISketchPaneOptions = { backgroundColor: 0xffffff}) {
     this.layerMask = undefined
     this.layerBackground = undefined
     this.viewClientRect = undefined
