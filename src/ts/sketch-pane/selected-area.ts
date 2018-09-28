@@ -165,7 +165,7 @@ export default class SelectedArea {
 
 		for (let polygon of polygons) {
 			ctx.save()
-	    ctx.lineWidth = 9
+	    ctx.lineWidth = 1
 	    ctx.strokeStyle = '#fff'
 	    ctx.setLineDash([])
 	    ctx.beginPath()
@@ -176,9 +176,9 @@ export default class SelectedArea {
 	    ctx.closePath()
 	    ctx.stroke()
 
-	    ctx.lineWidth = 3
+	    ctx.lineWidth = 1
 	    ctx.strokeStyle = '#6A4DE7'
-	    ctx.setLineDash([5, 15])
+	    ctx.setLineDash([2, 5])
 	    ctx.beginPath()
 	    ctx.moveTo(polygon.points[0], polygon.points[1])
 	    for (let i = 2; i < polygon.points.length; i += 2) {
