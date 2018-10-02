@@ -2,7 +2,6 @@ import * as paper from 'paper'
 
 export default class SelectedArea {
 	cutSprite: any;
-	target: any;
 	outlineSprite: any;
   sketchPane: any
   areaPath?: paper.Path | paper.CompoundPath
@@ -196,8 +195,6 @@ export default class SelectedArea {
 		let result = []
 		for (let i of indices) {
 			let sprite = this.asSprite([i], true)
-			sprite.x = this.target.x
-			sprite.y = this.target.y
 			result[i] = sprite
 		}
 		return result
