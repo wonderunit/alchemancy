@@ -102,6 +102,30 @@ export default class SelectedArea {
     )
   }
 
+  asFilledTexture (color : number, alpha : number = 1.0) : PIXI.RenderTexture {
+    let mask = this.asMaskSprite(false)
+
+    let rt = PIXI.RenderTexture.create(
+      this.areaPath.bounds.width,
+      this.areaPath.bounds.height
+    )
+
+    let colorGraphics = new PIXI.Graphics()
+    colorGraphics.beginFill(color)
+    colorGraphics.drawRect(0, 0, mask.width, mask.height)
+    colorGraphics.addChild(mask)
+    colorGraphics.mask = mask
+    colorGraphics.alpha = alpha
+
+    this.sketchPane.app.renderer.render(
+      colorGraphics,
+      rt,
+      false
+    )
+
+    return rt
+  }
+
   // extract transparent sprite from layers
 	// for multi-layer preview: use opaque = false
 	// for single-layer extraction/cut: use opaque = true
