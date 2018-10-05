@@ -731,23 +731,41 @@ var SelectedArea = /** @class */ (function () {
         PIXI.utils.clearTextureCache();
         return new PIXI.Sprite(PIXI.Texture.fromCanvas(this.asOutlineCanvas()));
     };
+    SelectedArea.prototype.asFilledTexture = function (color, alpha) {
+        if (alpha === void 0) { alpha = 1.0; }
+        var mask = this.asMaskSprite(false);
+        var rt = PIXI.RenderTexture.create(this.areaPath.bounds.width, this.areaPath.bounds.height);
+        var colorGraphics = new PIXI.Graphics();
+        colorGraphics.beginFill(color);
+        colorGraphics.drawRect(0, 0, mask.width, mask.height);
+        colorGraphics.addChild(mask);
+        colorGraphics.mask = mask;
+        colorGraphics.alpha = alpha;
+        this.sketchPane.app.renderer.render(colorGraphics, rt, false);
+        return rt;
+    };
     // extract transparent sprite from layers
-    SelectedArea.prototype.asSprite = function (layerIndices) {
-        var rect = new PIXI.Rectangle(this.areaPath.bounds.x, this.areaPath.bounds.y, this.areaPath.bounds.width, this.areaPath.bounds.height);
+    // for multi-layer preview: use opaque = false
+    // for single-layer extraction/cut: use opaque = true
+    SelectedArea.prototype.asSprite = function (layerIndices, opaque) {
+        if (opaque === void 0) { opaque = false; }
         // create a sprite to hold the artwork with dimensions matching the bounds of the area path
-        var sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.areaPath.bounds.width, this.areaPath.bounds.height));
+        var tempSprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.areaPath.bounds.width, this.areaPath.bounds.height));
         var mask = this.asMaskSprite();
         for (var _i = 0, layerIndices_1 = layerIndices; _i < layerIndices_1.length; _i++) {
             var i = layerIndices_1[_i];
             var layer = this.sketchPane.layers[i];
+            var rect = new PIXI.Rectangle(this.areaPath.bounds.x, this.areaPath.bounds.y, Math.min(this.areaPath.bounds.width, layer.sprite.texture.width), Math.min(this.areaPath.bounds.height, layer.sprite.texture.height));
             var clip = new PIXI.Sprite(new PIXI.Texture(layer.sprite.texture, rect));
-            // clip.alpha = layer.getOpacity()
+            clip.alpha = opaque
+                ? 1
+                : layer.getOpacity();
             clip.addChild(mask);
             clip.mask = mask;
-            this.sketchPane.app.renderer.render(clip, sprite.texture, false);
-            clip.mask = null;
-            clip.removeChild(mask);
+            tempSprite.addChild(clip);
         }
+        var sprite = new PIXI.Sprite(PIXI.RenderTexture.create(this.areaPath.bounds.width, this.areaPath.bounds.height));
+        this.sketchPane.app.renderer.render(tempSprite, sprite.texture, false);
         return sprite;
     };
     SelectedArea.prototype.asOutlineCanvas = function () {
@@ -760,7 +778,7 @@ var SelectedArea = /** @class */ (function () {
         for (var _i = 0, polygons_2 = polygons; _i < polygons_2.length; _i++) {
             var polygon = polygons_2[_i];
             ctx.save();
-            ctx.lineWidth = 9;
+            ctx.lineWidth = 1;
             ctx.strokeStyle = '#fff';
             ctx.setLineDash([]);
             ctx.beginPath();
@@ -770,9 +788,9 @@ var SelectedArea = /** @class */ (function () {
             }
             ctx.closePath();
             ctx.stroke();
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 1;
             ctx.strokeStyle = '#6A4DE7';
-            ctx.setLineDash([5, 15]);
+            ctx.setLineDash([2, 5]);
             ctx.beginPath();
             ctx.moveTo(polygon.points[0], polygon.points[1]);
             for (var i = 2; i < polygon.points.length; i += 2) {
@@ -788,9 +806,7 @@ var SelectedArea = /** @class */ (function () {
         var result = [];
         for (var _i = 0, indices_1 = indices; _i < indices_1.length; _i++) {
             var i = indices_1[_i];
-            var sprite = this.asSprite([i]);
-            sprite.x = this.target.x;
-            sprite.y = this.target.y;
+            var sprite = this.asSprite([i], true);
             result[i] = sprite;
         }
         return result;
@@ -808,12 +824,14 @@ var SelectedArea = /** @class */ (function () {
         for (var _i = 0, indices_3 = indices; _i < indices_3.length; _i++) {
             var i = indices_3[_i];
             var layer = this.sketchPane.layers[i];
-            layer.sprite.addChild(sprites[i]);
+            var sprite = sprites[i];
+            layer.sprite.addChild(sprite);
             layer.rewrite();
-            layer.sprite.removeChild(sprites[i]);
+            layer.sprite.removeChild(sprite);
         }
     };
-    SelectedArea.prototype.fill = function (indices, color) {
+    SelectedArea.prototype.fill = function (indices, color, alpha) {
+        if (alpha === void 0) { alpha = 1.0; }
         var mask = this.asMaskSprite(false);
         var colorGraphics = new PIXI.Graphics();
         colorGraphics.beginFill(color);
@@ -826,6 +844,7 @@ var SelectedArea = /** @class */ (function () {
             layer.sprite.addChild(colorGraphics);
             colorGraphics.x = this.areaPath.bounds.x;
             colorGraphics.y = this.areaPath.bounds.y;
+            colorGraphics.alpha = alpha;
             layer.rewrite();
             layer.sprite.removeChild(colorGraphics);
         }
@@ -927,6 +946,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         });
         this.app.renderer.roundPixels = false;
         // this.app.renderer.transparent = true
+        this.app.renderer.view.addEventListener('webglcontextlost', options.onWebGLContextLost);
         this.sketchPaneContainer = new external_pixi_js_["Container"]();
         this.sketchPaneContainer.name = 'sketchPaneContainer';
         // current layer
