@@ -246,7 +246,7 @@ export default class SelectedArea {
     }
 	}
 
-	fill (indices : Array<number>, color : number) {
+	fill (indices : Array<number>, color : number, alpha : number = 1.0) {
 	  let mask = this.asMaskSprite(false)
 
 	  let colorGraphics = new PIXI.Graphics()
@@ -261,6 +261,7 @@ export default class SelectedArea {
 
 	    colorGraphics.x = this.areaPath.bounds.x
 	    colorGraphics.y = this.areaPath.bounds.y
+      colorGraphics.alpha = alpha
 
 	    layer.rewrite()
 	    layer.sprite.removeChild(colorGraphics)
