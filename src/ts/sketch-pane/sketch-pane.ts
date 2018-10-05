@@ -62,7 +62,7 @@ interface ISketchPaneOptions {
 }
 
 export default class SketchPane {
-	selectedArea: any;
+  selectedArea: any;
   layerMask: PIXI.Graphics
   layerBackground: PIXI.Graphics
   layers: LayersCollection
@@ -365,7 +365,7 @@ export default class SketchPane {
         // flatten
         [].concat(
           ...Object.values(this.brushes)
-            .map(b => 
+            .map(b =>
               [b.settings.brushImage, b.settings.efficiencyBrushImage]
             )
         // skip undefined
@@ -459,7 +459,7 @@ export default class SketchPane {
     } else {
       nodeRotation = 0 - this.sketchPaneContainer.rotation
     }
-    
+
     let uBleed = Math.pow(1 - pressure, 1.6) * brush.settings.pressureBleed
 
     //
@@ -481,11 +481,11 @@ export default class SketchPane {
       // sprite.y = Math.floor(y)
       // sprite.width = iS
       // sprite.height = iS
-      // 
+      //
       // let dX = x - sprite.x
       // let dY = y - sprite.y
       // let dS = nodeSize / sprite.width
-      // 
+      //
       // let oXY = [dX, dY]
       // let oS = [dS, dS]
 
@@ -683,7 +683,7 @@ export default class SketchPane {
       // NOTE
       // at beginning of stroke, sets liveContainer.alpha
       // move this code to `drawStroke` if layer opacity can ever change _during_ the stroke
-      this.liveContainer.alpha = this.strokeState.layerOpacity * 
+      this.liveContainer.alpha = this.strokeState.layerOpacity *
         // because shaders are not composited with alpha on the live container,
         // we fake the effect of stroke opacity on the live shaders, which build up in intensity.
         // this exp value is just tweaked by eye
@@ -816,7 +816,7 @@ export default class SketchPane {
 
     // let nodeSize = this.brushSize - ((1-pressure)*this.brushSize*brush.settings.pressureSize)
 
-    let spacing = Math.max(1, this.strokeState.size * 
+    let spacing = Math.max(1, this.strokeState.size *
       (this.efficiencyMode
         ? this.brush.settings.efficiencySpacing
         : this.brush.settings.spacing)
@@ -1038,8 +1038,8 @@ export default class SketchPane {
       //   'drawing stroke from point idx', a,
       //   'to point idx', b, '\n'
       // )
-      
-      
+
+
       // TODO refactor / DRY with similar code below
       //
       // add the last segment

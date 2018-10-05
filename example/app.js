@@ -210,7 +210,7 @@ window.fetch('./example/brushes/brushes.json')
               break
             case '0':
               // if (e.metaKey) {
-                
+
                 sketchPane.anchor = new PIXI.Point(
                   sketchPane.app.renderer.width / 2,
                   sketchPane.app.renderer.height / 2

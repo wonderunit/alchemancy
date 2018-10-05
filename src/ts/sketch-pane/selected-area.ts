@@ -1,8 +1,8 @@
 import * as paper from 'paper'
 
 export default class SelectedArea {
-	cutSprite: any;
-	outlineSprite: any;
+  cutSprite: any;
+  outlineSprite: any;
   sketchPane: any
   areaPath?: paper.Path | paper.CompoundPath
 
@@ -18,31 +18,31 @@ export default class SelectedArea {
     this.areaPath = null
   }
 
-	children () : Array<paper.Path> {
-		return this.areaPath.children
-			? this.areaPath.children as Array<paper.Path>
-			: [this.areaPath] as Array<paper.Path>
-	}
+  children () : Array<paper.Path> {
+    return this.areaPath.children
+      ? this.areaPath.children as Array<paper.Path>
+      : [this.areaPath] as Array<paper.Path>
+  }
 
   asPolygons (translate : boolean = true) : Array<PIXI.Polygon> {
     let offset = translate
-			? [-this.areaPath.bounds.x, -this.areaPath.bounds.y]
-			: [0, 0]
+      ? [-this.areaPath.bounds.x, -this.areaPath.bounds.y]
+      : [0, 0]
 
-		let result = []
-		for (let child of this.children()) {
-			result.push(
-				new PIXI.Polygon(
-		      child.segments.map(
-		        segment => new PIXI.Point(
-		          segment.point.x + offset[0],
-		          segment.point.y + offset[1]
-		        )
-		      )
-		    )
-			)
-		}
-		return result
+    let result = []
+    for (let child of this.children()) {
+      result.push(
+        new PIXI.Polygon(
+          child.segments.map(
+            segment => new PIXI.Point(
+              segment.point.x + offset[0],
+              segment.point.y + offset[1]
+            )
+          )
+        )
+      )
+    }
+    return result
   }
 
   asMaskSprite (invert : boolean = false) {
@@ -79,15 +79,15 @@ export default class SelectedArea {
       polygons = this.asPolygons(true)
     }
 
-		for (let polygon of polygons) {
-	    ctx.beginPath()
-	    ctx.moveTo(polygon.points[0], polygon.points[1])
-	    for (let i = 2; i < polygon.points.length; i += 2) {
-	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-	    }
-	    ctx.closePath()
-	    ctx.fill()
-		}
+    for (let polygon of polygons) {
+      ctx.beginPath()
+      ctx.moveTo(polygon.points[0], polygon.points[1])
+      for (let i = 2; i < polygon.points.length; i += 2) {
+        ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+      }
+      ctx.closePath()
+      ctx.fill()
+    }
 
     return new PIXI.Sprite(PIXI.Texture.fromCanvas(canvas))
   }
@@ -127,8 +127,8 @@ export default class SelectedArea {
   }
 
   // extract transparent sprite from layers
-	// for multi-layer preview: use opaque = false
-	// for single-layer extraction/cut: use opaque = true
+  // for multi-layer preview: use opaque = false
+  // for single-layer extraction/cut: use opaque = true
   asSprite (layerIndices? : Array<number>, opaque: boolean = false) : PIXI.Sprite {
     // create a sprite to hold the artwork with dimensions matching the bounds of the area path
     let tempSprite = new PIXI.Sprite(
@@ -186,54 +186,54 @@ export default class SelectedArea {
     canvas.width = this.areaPath.bounds.width
     canvas.height = this.areaPath.bounds.height
 
-		for (let polygon of polygons) {
-			ctx.save()
-	    ctx.lineWidth = 1
-	    ctx.strokeStyle = '#fff'
-	    ctx.setLineDash([])
-	    ctx.beginPath()
-	    ctx.moveTo(polygon.points[0], polygon.points[1])
-	    for (let i = 2; i < polygon.points.length; i += 2) {
-	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-	    }
-	    ctx.closePath()
-	    ctx.stroke()
+    for (let polygon of polygons) {
+      ctx.save()
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#fff'
+      ctx.setLineDash([])
+      ctx.beginPath()
+      ctx.moveTo(polygon.points[0], polygon.points[1])
+      for (let i = 2; i < polygon.points.length; i += 2) {
+        ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+      }
+      ctx.closePath()
+      ctx.stroke()
 
-	    ctx.lineWidth = 1
-	    ctx.strokeStyle = '#6A4DE7'
-	    ctx.setLineDash([2, 5])
-	    ctx.beginPath()
-	    ctx.moveTo(polygon.points[0], polygon.points[1])
-	    for (let i = 2; i < polygon.points.length; i += 2) {
-	      ctx.lineTo(polygon.points[i], polygon.points[i + 1])
-	    }
-	    ctx.closePath()
-	    ctx.stroke()
-			ctx.restore()
-		}
+      ctx.lineWidth = 1
+      ctx.strokeStyle = '#6A4DE7'
+      ctx.setLineDash([2, 5])
+      ctx.beginPath()
+      ctx.moveTo(polygon.points[0], polygon.points[1])
+      for (let i = 2; i < polygon.points.length; i += 2) {
+        ctx.lineTo(polygon.points[i], polygon.points[i + 1])
+      }
+      ctx.closePath()
+      ctx.stroke()
+      ctx.restore()
+    }
 
     return canvas
   }
 
-	copy (indices : Array<number>) : Array<PIXI.Sprite> {
-		let result = []
-		for (let i of indices) {
-			let sprite = this.asSprite([i], true)
-			result[i] = sprite
-		}
-		return result
-	}
+  copy (indices : Array<number>) : Array<PIXI.Sprite> {
+    let result = []
+    for (let i of indices) {
+      let sprite = this.asSprite([i], true)
+      result[i] = sprite
+    }
+    return result
+  }
 
-	erase (indices : Array<number>) {
-		let inverseMask = this.asMaskSprite(true)
+  erase (indices : Array<number>) {
+    let inverseMask = this.asMaskSprite(true)
 
-		for (let i of indices) {
+    for (let i of indices) {
       let layer = this.sketchPane.layers[i]
       layer.applyMask(inverseMask)
     }
-	}
+  }
 
-	paste (indices : Array<number>, sprites : Array<PIXI.Sprite>) {
+  paste (indices : Array<number>, sprites : Array<PIXI.Sprite>) {
     let inverseMask = this.asMaskSprite(true)
 
     for (let i of indices) {
@@ -244,27 +244,27 @@ export default class SelectedArea {
       layer.rewrite()
       layer.sprite.removeChild(sprite)
     }
-	}
+  }
 
-	fill (indices : Array<number>, color : number, alpha : number = 1.0) {
-	  let mask = this.asMaskSprite(false)
+  fill (indices : Array<number>, color : number, alpha : number = 1.0) {
+    let mask = this.asMaskSprite(false)
 
-	  let colorGraphics = new PIXI.Graphics()
-	  colorGraphics.beginFill(color)
-	  colorGraphics.drawRect(0, 0, mask.width, mask.height)
-	  colorGraphics.addChild(mask)
-	  colorGraphics.mask = mask
+    let colorGraphics = new PIXI.Graphics()
+    colorGraphics.beginFill(color)
+    colorGraphics.drawRect(0, 0, mask.width, mask.height)
+    colorGraphics.addChild(mask)
+    colorGraphics.mask = mask
 
-	  for (let i of indices) {
-	    let layer = this.sketchPane.layers[i]
-	    layer.sprite.addChild(colorGraphics)
+    for (let i of indices) {
+      let layer = this.sketchPane.layers[i]
+      layer.sprite.addChild(colorGraphics)
 
-	    colorGraphics.x = this.areaPath.bounds.x
-	    colorGraphics.y = this.areaPath.bounds.y
+      colorGraphics.x = this.areaPath.bounds.x
+      colorGraphics.y = this.areaPath.bounds.y
       colorGraphics.alpha = alpha
 
-	    layer.rewrite()
-	    layer.sprite.removeChild(colorGraphics)
-	  }
-	}
+      layer.rewrite()
+      layer.sprite.removeChild(colorGraphics)
+    }
+  }
 }

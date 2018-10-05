@@ -44,7 +44,7 @@ export class BrushSettings {
   tiltSize = 1 // % size altered by the tilt
 
   orientToScreen = true // orient the brush shape to the rotation of the screen
-  
+
   efficiencyBrushImage : string
   efficiencySpacing : number
 }
