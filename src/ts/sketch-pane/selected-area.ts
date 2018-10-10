@@ -1,4 +1,5 @@
 import * as paper from 'paper'
+import * as PIXI from 'pixi.js'
 
 export default class SelectedArea {
   cutSprite: any;
@@ -216,7 +217,7 @@ export default class SelectedArea {
   }
 
   copy (indices : Array<number>) : Array<PIXI.Sprite> {
-    let result = []
+    let result : Array<PIXI.Sprite> = []
     for (let i of indices) {
       let sprite = this.asSprite([i], true)
       result[i] = sprite
