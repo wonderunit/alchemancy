@@ -122,6 +122,7 @@ export default class SketchPane {
     // @popelyshev: paper typings are wrong
     paper.setup(undefined)
     ;(paper.view as any).setAutoUpdate(false)
+    ;(paper.view as any).remove()
 
     // HACK
     // attemping to fix the bug where the first stroke is slow
