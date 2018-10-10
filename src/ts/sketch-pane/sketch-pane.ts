@@ -150,6 +150,7 @@ export default class SketchPane {
 
     this.app.renderer.roundPixels = false
 
+    this.app.renderer.plugins.interaction.destroy()
     // this.app.renderer.transparent = true
 
     this.app.renderer.view.addEventListener('webglcontextlost', options.onWebGLContextLost)
