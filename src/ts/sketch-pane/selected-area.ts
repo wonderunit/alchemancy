@@ -234,8 +234,6 @@ export default class SelectedArea {
   }
 
   paste (indices : Array<number>, sprites : Array<PIXI.Sprite>) {
-    let inverseMask = this.asMaskSprite(true)
-
     for (let i of indices) {
       let layer = this.sketchPane.layers[i]
       let sprite = sprites[i]
