@@ -1003,6 +1003,9 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             .endFill();
         this.layerBackground.name = 'background';
         this.sketchPaneContainer.addChildAt(this.layerBackground, 0);
+        // HACK fix for rendering issue where a single line was showing through
+        this.layerBackground.height -= 1.5;
+        this.layerBackground.position.y = 1.5;
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.strokeSprite.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
