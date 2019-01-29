@@ -231,6 +231,8 @@ export default class SketchPane {
     // HACK fix for rendering issue where a single line was showing through
     this.layerBackground.height -= 1.5
     this.layerBackground.position.y = 1.5
+    this.layerBackground.width -= 1.5
+    this.layerBackground.position.x = 1.5
 
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
     this.strokeSprite.texture = PIXI.RenderTexture.create(this.width, this.height)
