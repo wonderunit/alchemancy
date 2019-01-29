@@ -353,6 +353,9 @@ export default class SketchPane {
     this.sketchPaneContainer.scale.set(
       (Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom
     )
+    // force exact pixels
+    this.sketchPaneContainer.width = Math.ceil(this.sketchPaneContainer.width)
+    this.sketchPaneContainer.height = Math.ceil(this.sketchPaneContainer.height)
   }
 
   brushes: Record<string, Brush>

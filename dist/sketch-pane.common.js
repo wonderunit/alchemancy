@@ -1096,6 +1096,9 @@ var sketch_pane_SketchPane = /** @class */ (function () {
         this.centerContainer();
         // set scale
         this.sketchPaneContainer.scale.set((Math.floor(targetWidth) / Math.floor(src.width)) * this.zoom);
+        // force exact pixels
+        this.sketchPaneContainer.width = Math.ceil(this.sketchPaneContainer.width);
+        this.sketchPaneContainer.height = Math.ceil(this.sketchPaneContainer.height);
     };
     // per http://www.html5gamedevs.com/topic/29327-guide-to-pixi-v4-filters/
     // for each brush, add a sprite with the brush and grain images, so we can get the actual transformation matrix for those image textures
