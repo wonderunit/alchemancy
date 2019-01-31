@@ -994,6 +994,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             .beginFill(0x0, 1)
             .drawRect(0, 0, this.width, this.height)
             .endFill();
+        this.layerMask.lineAlignment = 0;
         this.layerMask.name = 'layerMask';
         this.layersContainer.mask = this.layerMask;
         this.sketchPaneContainer.addChildAt(this.layerMask, this.sketchPaneContainer.getChildIndex(this.layersContainer) + 1);
@@ -1001,13 +1002,9 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             .beginFill(0xffffff)
             .drawRect(0, 0, this.width, this.height)
             .endFill();
+        this.layerBackground.lineAlignment = 0;
         this.layerBackground.name = 'background';
         this.sketchPaneContainer.addChildAt(this.layerBackground, 0);
-        // HACK fix for rendering issue where a single line was showing through
-        this.layerBackground.height -= 1.5;
-        this.layerBackground.position.y = 1.5;
-        this.layerBackground.width -= 1.5;
-        this.layerBackground.position.x = 1.5;
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.strokeSprite.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
