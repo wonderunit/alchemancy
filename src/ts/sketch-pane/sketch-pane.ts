@@ -228,7 +228,7 @@ export default class SketchPane {
       .endFill()
     this.layerBackground.lineAlignment = 0
     this.layerBackground.name = 'background'
-    this.sketchPaneContainer.addChildAt(this.layerBackground, 0)
+    this.layersContainer.addChildAt(this.layerBackground, 0)
 
     this.eraseMask.texture = PIXI.RenderTexture.create(this.width, this.height)
     this.strokeSprite.texture = PIXI.RenderTexture.create(this.width, this.height)

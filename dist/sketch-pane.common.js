@@ -1004,7 +1004,7 @@ var sketch_pane_SketchPane = /** @class */ (function () {
             .endFill();
         this.layerBackground.lineAlignment = 0;
         this.layerBackground.name = 'background';
-        this.sketchPaneContainer.addChildAt(this.layerBackground, 0);
+        this.layersContainer.addChildAt(this.layerBackground, 0);
         this.eraseMask.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.strokeSprite.texture = external_pixi_js_["RenderTexture"].create(this.width, this.height);
         this.centerContainer();
